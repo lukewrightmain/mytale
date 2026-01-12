@@ -1,16 +1,15 @@
 import { Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
-import { getServers } from "@/lib/supabase/queries";
-import { ServersContent } from "./ServersContent";
+import { Upload } from "lucide-react";
+import { getTextures } from "@/lib/supabase/queries";
+import { TexturesContent } from "./TexturesContent";
 import { Button } from "@/components/ui";
 
-export const revalidate = 60; // Revalidate every 60 seconds
+export const revalidate = 60;
 
-export default async function ServersPage() {
-  // Fetch all approved servers on the server
-  const servers = await getServers({ limit: 100 });
+export default async function TexturesPage() {
+  const textures = await getTextures({ limit: 100 });
 
   return (
     <div className="min-h-screen">
@@ -18,8 +17,8 @@ export default async function ServersPage() {
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="/images/hero/Hero2.png"
-            alt="Servers"
+            src="/images/hero/Hero4.png"
+            alt="Textures"
             fill
             className="object-cover object-center opacity-30"
           />
@@ -28,29 +27,30 @@ export default async function ServersPage() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground mb-4">
-            Hytale <span className="gradient-text">Servers</span>
+            Texture <span className="gradient-text">Packs</span>
           </h1>
           <p className="text-xl text-foreground-muted max-w-2xl mx-auto mb-6">
-            Find the perfect server for your playstyle. From survival to creative, 
-            PvP to roleplay — your adventure starts here.
+            Transform your Hytale visuals with stunning texture packs, 
+            from realistic to stylized, low-res to high-res.
           </p>
-          <Link href="/servers/submit">
+          <Link href="/textures/submit">
             <Button size="lg">
-              <Plus className="w-5 h-5" />
-              List Your Server
+              <Upload className="w-5 h-5" />
+              Upload Texture Pack
             </Button>
           </Link>
         </div>
       </section>
 
-      {/* Filters & List */}
+      {/* Main Content */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Suspense fallback={<div className="animate-pulse h-96 bg-surface rounded-xl" />}>
-            <ServersContent initialServers={servers} />
+            <TexturesContent initialTextures={textures} />
           </Suspense>
         </div>
       </section>
     </div>
   );
 }
+

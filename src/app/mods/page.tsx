@@ -1,7 +1,10 @@
 import { Suspense } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { Upload } from "lucide-react";
 import { getMods } from "@/lib/supabase/queries";
 import { ModsContent } from "./ModsContent";
+import { Button } from "@/components/ui";
 
 export const revalidate = 60; // Revalidate every 60 seconds
 
@@ -27,10 +30,16 @@ export default async function ModsPage() {
           <h1 className="text-4xl sm:text-5xl font-display font-bold text-foreground mb-4">
             Mods & <span className="gradient-text">Plugins</span>
           </h1>
-          <p className="text-xl text-foreground-muted max-w-2xl mx-auto">
+          <p className="text-xl text-foreground-muted max-w-2xl mx-auto mb-6">
             Enhance your Hytale experience with community-created mods, plugins, 
             resource packs, and more.
           </p>
+          <Link href="/mods/submit">
+            <Button size="lg">
+              <Upload className="w-5 h-5" />
+              Upload a Mod
+            </Button>
+          </Link>
         </div>
       </section>
 

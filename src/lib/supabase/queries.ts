@@ -299,3 +299,216 @@ export async function getStats() {
   };
 }
 
+// ==========================================
+// MAP QUERIES
+// ==========================================
+
+export async function getMaps(options?: {
+  featured?: boolean;
+  limit?: number;
+  category?: string;
+}) {
+  const supabase = await createClient();
+  
+  let query = supabase
+    .from("maps")
+    .select("*")
+    .eq("status", "approved")
+    .order("downloads", { ascending: false });
+
+  if (options?.featured) {
+    query = query.eq("is_featured", true);
+  }
+
+  if (options?.category && options.category !== "all") {
+    query = query.eq("category", options.category);
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching maps:", error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getMapBySlug(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("maps")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching map:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getMapWithVersions(slug: string) {
+  const supabase = await createClient();
+  
+  const { data: map, error: mapError } = await supabase
+    .from("maps")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (mapError || !map) {
+    console.error("Error fetching map:", mapError);
+    return null;
+  }
+
+  const { data: versions, error: versionsError } = await supabase
+    .from("map_versions")
+    .select("*")
+    .eq("map_id", map.id)
+    .order("created_at", { ascending: false });
+
+  if (versionsError) {
+    console.error("Error fetching versions:", versionsError);
+  }
+
+  return {
+    ...map,
+    versions: versions || [],
+  };
+}
+
+// ==========================================
+// TEXTURE QUERIES
+// ==========================================
+
+export async function getTextures(options?: {
+  featured?: boolean;
+  limit?: number;
+  category?: string;
+  resolution?: string;
+}) {
+  const supabase = await createClient();
+  
+  let query = supabase
+    .from("textures")
+    .select("*")
+    .eq("status", "approved")
+    .order("downloads", { ascending: false });
+
+  if (options?.featured) {
+    query = query.eq("is_featured", true);
+  }
+
+  if (options?.category && options.category !== "all") {
+    query = query.eq("category", options.category);
+  }
+
+  if (options?.resolution && options.resolution !== "all") {
+    query = query.eq("resolution", options.resolution);
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching textures:", error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getTextureBySlug(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("textures")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching texture:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getTextureWithVersions(slug: string) {
+  const supabase = await createClient();
+  
+  const { data: texture, error: textureError } = await supabase
+    .from("textures")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (textureError || !texture) {
+    console.error("Error fetching texture:", textureError);
+    return null;
+  }
+
+  const { data: versions, error: versionsError } = await supabase
+    .from("texture_versions")
+    .select("*")
+    .eq("texture_id", texture.id)
+    .order("created_at", { ascending: false });
+
+  if (versionsError) {
+    console.error("Error fetching versions:", versionsError);
+  }
+
+  return {
+    ...texture,
+    versions: versions || [],
+  };
+}
+
