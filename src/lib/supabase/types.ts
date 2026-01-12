@@ -212,7 +212,46 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      increment_mod_downloads: {
+        Args: { mod_id: string };
+        Returns: void;
+      };
+      increment_mod_version_downloads: {
+        Args: { version_id: string };
+        Returns: void;
+      };
+      increment_plugin_downloads: {
+        Args: { plugin_id: string };
+        Returns: void;
+      };
+      increment_plugin_version_downloads: {
+        Args: { version_id: string };
+        Returns: void;
+      };
+      increment_map_downloads: {
+        Args: { map_id: string };
+        Returns: void;
+      };
+      increment_map_version_downloads: {
+        Args: { version_id: string };
+        Returns: void;
+      };
+      increment_texture_downloads: {
+        Args: { texture_id: string };
+        Returns: void;
+      };
+      increment_texture_version_downloads: {
+        Args: { version_id: string };
+        Returns: void;
+      };
+      increment_idea_votes: {
+        Args: { idea_id: string };
+        Returns: void;
+      };
+      has_voted_for_idea: {
+        Args: { p_idea_id: string; p_voter_ip_hash: string };
+        Returns: boolean;
+      };
     };
     Enums: {
       [_ in never]: never;
