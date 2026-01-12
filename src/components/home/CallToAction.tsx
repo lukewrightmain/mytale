@@ -28,13 +28,13 @@ export function CallToAction() {
 
             {/* Buttons */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/submit/mod">
+              <Link href="/mods/submit">
                 <Button size="lg" className="min-w-[200px]">
                   <Upload className="w-5 h-5" />
                   Upload a Mod
                 </Button>
               </Link>
-              <Link href="/submit/server">
+              <Link href="/servers/submit">
                 <Button size="lg" variant="outline" className="min-w-[200px]">
                   <Server className="w-5 h-5" />
                   List Your Server
