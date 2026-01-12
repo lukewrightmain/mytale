@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 
 interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "primary" | "secondary" | "accent" | "success" | "warning" | "error";
+  variant?: "default" | "primary" | "secondary" | "accent" | "success" | "warning" | "error" | "outline";
   size?: "sm" | "md";
 }
 
@@ -20,6 +20,7 @@ export function Badge({
     success: "bg-green-500/20 text-green-400",
     warning: "bg-yellow-500/20 text-yellow-400",
     error: "bg-red-500/20 text-red-400",
+    outline: "border border-stone-600 bg-transparent text-stone-300",
   };
 
   const sizes = {
@@ -41,4 +42,3 @@ export function Badge({
     </span>
   );
 }
-
