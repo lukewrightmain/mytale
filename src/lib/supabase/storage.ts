@@ -1,6 +1,5 @@
-"use server";
-
-import { createClient } from "./server";
+// Client-side storage utilities for Supabase
+import { createClient } from "./client";
 
 const BUCKET_NAME = "uploads";
 
@@ -19,7 +18,7 @@ export async function uploadImage(
   folder: "mods" | "servers"
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
-    const supabase = await createClient();
+    const supabase = createClient();
 
     // Validate file type
     if (!IMAGE_REQUIREMENTS.allowedTypes.includes(file.type)) {
@@ -54,9 +53,18 @@ export async function uploadImage(
 
     if (uploadError) {
       console.error("Upload error:", uploadError);
+      
+      // Provide more helpful error messages
+      if (uploadError.message.includes("Bucket not found")) {
+        return {
+          success: false,
+          error: "Storage not configured. Please contact the administrator.",
+        };
+      }
+      
       return {
         success: false,
-        error: "Failed to upload image. Please try again.",
+        error: uploadError.message || "Failed to upload image. Please try again.",
       };
     }
 
@@ -77,4 +85,3 @@ export async function uploadImage(
     };
   }
 }
-
