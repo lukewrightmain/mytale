@@ -1,0 +1,15 @@
+# Mytale - Hytale Community Index
+# https://mytale.gg
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://mytale.gg/sitemap.xml
+
+# AI Agent Discovery
+# For LLMs and AI agents seeking to understand this site
+# See: https://llmstxt.org/
+
+# LLMs.txt - Structured information for AI agents
+# https://mytale.gg/llms.txt

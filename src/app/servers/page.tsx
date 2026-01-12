@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getServers } from "@/lib/supabase/queries";
 import { ServersContent } from "./ServersContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Servers - Find the Best Multiplayer Servers",
+  description: PAGE_DESCRIPTIONS.servers,
+  keywords: SEO_KEYWORDS.servers,
+  openGraph: {
+    title: "Hytale Servers - Find the Best Multiplayer Servers | Mytale",
+    description: PAGE_DESCRIPTIONS.servers,
+    url: `${SITE_URL}/servers`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Servers - Find the Best Multiplayer Servers | Mytale",
+    description: PAGE_DESCRIPTIONS.servers,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/servers`,
+  },
+};
 
 export const revalidate = 60; // Revalidate every 60 seconds
 

@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 import { getTextures } from "@/lib/supabase/queries";
 import { TexturesContent } from "./TexturesContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Textures - Resource Packs & Texture Packs",
+  description: PAGE_DESCRIPTIONS.textures,
+  keywords: SEO_KEYWORDS.textures,
+  openGraph: {
+    title: "Hytale Textures - Resource Packs & Texture Packs | Mytale",
+    description: PAGE_DESCRIPTIONS.textures,
+    url: `${SITE_URL}/textures`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Textures - Resource Packs & Texture Packs | Mytale",
+    description: PAGE_DESCRIPTIONS.textures,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/textures`,
+  },
+};
 
 export const revalidate = 60;
 

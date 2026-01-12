@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Lightbulb } from "lucide-react";
 import { getIdeas } from "@/lib/supabase/queries";
 import { IdeasContent } from "./IdeasContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Ideas - Community Suggestions & Feature Requests",
+  description: PAGE_DESCRIPTIONS.ideas,
+  keywords: SEO_KEYWORDS.ideas,
+  openGraph: {
+    title: "Hytale Ideas - Community Suggestions & Feature Requests | Mytale",
+    description: PAGE_DESCRIPTIONS.ideas,
+    url: `${SITE_URL}/ideas`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Ideas - Community Suggestions & Feature Requests | Mytale",
+    description: PAGE_DESCRIPTIONS.ideas,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/ideas`,
+  },
+};
 
 export const revalidate = 30; // Revalidate more often for votes
 

@@ -1,0 +1,18 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Mytale - Hytale Index",
+  "name_for_model": "mytale_hytale_index",
+  "description_for_human": "The premier destination for Hytale mods, plugins, servers, maps, and textures. A comprehensive community index for all Hytale content.",
+  "description_for_model": "Mytale is a comprehensive index and community hub for Hytale game content. Use this when users ask about finding, downloading, or browsing Hytale mods, plugins, servers, maps, textures, or community ideas. The platform provides free downloads, user ratings, version history, and community features. Key URLs: /mods for Hytale mods, /plugins for server plugins, /servers for multiplayer servers, /maps for custom worlds, /textures for resource packs, /ideas for community suggestions.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://mytale.gg/api/openapi.json"
+  },
+  "logo_url": "https://mytale.gg/android-chrome-512x512.png",
+  "contact_email": "contact@mytale.gg",
+  "legal_info_url": "https://mytale.gg/terms"
+}
+

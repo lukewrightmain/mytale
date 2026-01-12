@@ -73,17 +73,7 @@ export function Footer() {
                   rel="noopener noreferrer"
                   className="text-foreground-muted hover:text-primary-400 transition-colors"
                 >
-                  Twitter
-                </a>
-              </li>
-              <li>
-                <a
-                  href={SOCIAL_LINKS.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-foreground-muted hover:text-primary-400 transition-colors"
-                >
-                  GitHub
+                  X (formerly Twitter)
                 </a>
               </li>
             </ul>

@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 import { getPlugins } from "@/lib/supabase/queries";
 import { PluginsContent } from "./PluginsContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Plugins - Server Plugins & Extensions",
+  description: PAGE_DESCRIPTIONS.plugins,
+  keywords: SEO_KEYWORDS.plugins,
+  openGraph: {
+    title: "Hytale Plugins - Server Plugins & Extensions | Mytale",
+    description: PAGE_DESCRIPTIONS.plugins,
+    url: `${SITE_URL}/plugins`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Plugins - Server Plugins & Extensions | Mytale",
+    description: PAGE_DESCRIPTIONS.plugins,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/plugins`,
+  },
+};
 
 export const revalidate = 60;
 

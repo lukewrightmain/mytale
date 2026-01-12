@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 import { getMods } from "@/lib/supabase/queries";
 import { ModsContent } from "./ModsContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Mods - Download Free Mods & Addons",
+  description: PAGE_DESCRIPTIONS.mods,
+  keywords: SEO_KEYWORDS.mods,
+  openGraph: {
+    title: "Hytale Mods - Download Free Mods & Addons | Mytale",
+    description: PAGE_DESCRIPTIONS.mods,
+    url: `${SITE_URL}/mods`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Mods - Download Free Mods & Addons | Mytale",
+    description: PAGE_DESCRIPTIONS.mods,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/mods`,
+  },
+};
 
 export const revalidate = 60; // Revalidate every 60 seconds
 

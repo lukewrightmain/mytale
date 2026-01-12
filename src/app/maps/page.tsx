@@ -1,10 +1,31 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { Upload } from "lucide-react";
 import { getMaps } from "@/lib/supabase/queries";
 import { MapsContent } from "./MapsContent";
 import { Button } from "@/components/ui";
+import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Hytale Maps - Download Custom Maps & Worlds",
+  description: PAGE_DESCRIPTIONS.maps,
+  keywords: SEO_KEYWORDS.maps,
+  openGraph: {
+    title: "Hytale Maps - Download Custom Maps & Worlds | Mytale",
+    description: PAGE_DESCRIPTIONS.maps,
+    url: `${SITE_URL}/maps`,
+    type: "website",
+  },
+  twitter: {
+    title: "Hytale Maps - Download Custom Maps & Worlds | Mytale",
+    description: PAGE_DESCRIPTIONS.maps,
+  },
+  alternates: {
+    canonical: `${SITE_URL}/maps`,
+  },
+};
 
 export const revalidate = 60;
 
