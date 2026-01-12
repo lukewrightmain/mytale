@@ -129,6 +129,7 @@ export interface Database {
           rating_count: number;
           is_featured: boolean;
           status: string;
+          support_url: string | null;
           created_at: string;
           updated_at: string;
         };

@@ -149,6 +149,50 @@ export async function getModBySlug(slug: string) {
   return data as Mod;
 }
 
+// Get mod with all versions
+export async function getModWithVersions(slug: string) {
+  const supabase = await createClient();
+  
+  // Get the mod
+  const { data: mod, error: modError } = await supabase
+    .from("mods")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (modError || !mod) {
+    console.error("Error fetching mod:", modError);
+    return null;
+  }
+
+  // Get versions
+  const { data: versions, error: versionsError } = await supabase
+    .from("mod_versions")
+    .select("*")
+    .eq("mod_id", mod.id)
+    .order("created_at", { ascending: false });
+
+  if (versionsError) {
+    console.error("Error fetching versions:", versionsError);
+  }
+
+  return {
+    ...mod,
+    versions: versions || [],
+  };
+}
+
+// Track a download
+export async function trackDownload(modId: string, versionId: string) {
+  const supabase = await createClient();
+  
+  // Increment version downloads
+  await supabase.rpc("increment_version_downloads", { version_id: versionId });
+  
+  // Increment total mod downloads
+  await supabase.rpc("increment_mod_downloads", { mod_id: modId });
+}
+
 export async function getFeaturedMods(limit = 6) {
   return getMods({ featured: true, limit });
 }

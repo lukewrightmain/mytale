@@ -43,6 +43,13 @@ export default function SubmitModPage() {
     modType: "mod",
     tags: "",
     thumbnailUrl: "",
+    // Version info
+    versionNumber: "1.0.0",
+    gameVersion: "1.0",
+    downloadUrl: "",
+    changelog: "",
+    // Optional support link
+    supportUrl: "",
   });
 
   const handleChange = (
@@ -270,6 +277,89 @@ export default function SubmitModPage() {
                 rows={6}
                 className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
                 required
+              />
+            </div>
+
+            {/* Divider - Version Info */}
+            <div className="border-t border-border pt-6">
+              <h3 className="text-lg font-display font-bold text-foreground mb-4">
+                Version & Download
+              </h3>
+              
+              {/* Version Number & Game Version */}
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Version Number *
+                  </label>
+                  <Input
+                    name="versionNumber"
+                    value={formData.versionNumber}
+                    onChange={handleChange}
+                    placeholder="1.0.0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Hytale Version *
+                  </label>
+                  <Input
+                    name="gameVersion"
+                    value={formData.gameVersion}
+                    onChange={handleChange}
+                    placeholder="1.0"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Download URL */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Download URL *
+                </label>
+                <Input
+                  name="downloadUrl"
+                  value={formData.downloadUrl}
+                  onChange={handleChange}
+                  placeholder="https://github.com/you/mod/releases/download/v1.0.0/mod.zip"
+                  required
+                />
+                <p className="text-xs text-foreground-muted mt-1">
+                  Direct link to your mod file (GitHub, Google Drive, Dropbox, etc.)
+                </p>
+              </div>
+
+              {/* Changelog */}
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Changelog
+                </label>
+                <textarea
+                  name="changelog"
+                  value={formData.changelog}
+                  onChange={handleChange}
+                  placeholder="Initial release"
+                  rows={3}
+                  className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Divider - Support Link */}
+            <div className="border-t border-border pt-6">
+              <h3 className="text-lg font-display font-bold text-foreground mb-2">
+                Support Link (Optional)
+              </h3>
+              <p className="text-sm text-foreground-muted mb-4">
+                Add a link where users can support you (Patreon, Ko-fi, Buy Me a Coffee, PayPal, etc.)
+              </p>
+              <Input
+                name="supportUrl"
+                value={formData.supportUrl}
+                onChange={handleChange}
+                placeholder="https://ko-fi.com/yourusername"
               />
             </div>
 

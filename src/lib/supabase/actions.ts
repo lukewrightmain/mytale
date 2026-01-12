@@ -24,6 +24,13 @@ export interface ModSubmissionData {
   modType: string;
   tags: string;
   thumbnailUrl?: string;
+  // Version info
+  versionNumber: string;
+  gameVersion: string;
+  downloadUrl: string;
+  changelog?: string;
+  // Optional support/donation link
+  supportUrl?: string;
 }
 
 export async function submitMod(data: ModSubmissionData) {
@@ -47,25 +54,46 @@ export async function submitMod(data: ModSubmissionData) {
     .filter((tag) => tag.length > 0);
 
   try {
-    const { error } = await supabase.from("mods").insert({
-      name: data.name,
-      slug,
-      tagline: data.tagline,
-      description: data.description,
-      category: data.category,
-      mod_type: data.modType,
-      tags,
-      thumbnail_url: data.thumbnailUrl || null,
-      status: "pending",
-      is_featured: false,
+    // Insert the mod
+    const { data: modData, error: modError } = await supabase
+      .from("mods")
+      .insert({
+        name: data.name,
+        slug,
+        tagline: data.tagline,
+        description: data.description,
+        category: data.category,
+        mod_type: data.modType,
+        tags,
+        thumbnail_url: data.thumbnailUrl || null,
+        support_url: data.supportUrl || null,
+        status: "pending",
+        is_featured: false,
+        downloads: 0,
+        rating: 0,
+        rating_count: 0,
+      })
+      .select("id")
+      .single();
+
+    if (modError) {
+      console.error("Error submitting mod:", modError);
+      return { success: false, error: "Failed to submit mod. Please try again." };
+    }
+
+    // Insert the initial version
+    const { error: versionError } = await supabase.from("mod_versions").insert({
+      mod_id: modData.id,
+      version_number: data.versionNumber,
+      game_version: data.gameVersion,
+      download_url: data.downloadUrl,
+      changelog: data.changelog || "Initial release",
       downloads: 0,
-      rating: 0,
-      rating_count: 0,
     });
 
-    if (error) {
-      console.error("Error submitting mod:", error);
-      return { success: false, error: "Failed to submit mod. Please try again." };
+    if (versionError) {
+      console.error("Error creating version:", versionError);
+      // Don't fail the whole submission, just log it
     }
 
     revalidatePath("/mods");
