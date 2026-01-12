@@ -166,7 +166,7 @@ export function TexturesContent({ initialTextures }: TexturesContentProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredTextures.map((texture) => (
               <Link key={texture.id} href={`/textures/${texture.slug}`} className="block">
-                <Card hover glow="secondary" className="h-full cursor-pointer">
+                <Card hover glow="accent" className="h-full cursor-pointer">
                   <div className="relative aspect-video overflow-hidden">
                     <Image
                       src={texture.thumbnail_url || "/images/hero/Hero4.png"}

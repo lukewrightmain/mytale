@@ -12,6 +12,7 @@ export interface Database {
       profiles: {
         Row: {
           id: string;
+          clerk_id: string;
           username: string;
           display_name: string | null;
           avatar_url: string | null;
@@ -21,7 +22,8 @@ export interface Database {
           updated_at: string;
         };
         Insert: {
-          id: string;
+          id?: string;
+          clerk_id: string;
           username: string;
           display_name?: string | null;
           avatar_url?: string | null;
@@ -32,6 +34,7 @@ export interface Database {
         };
         Update: {
           id?: string;
+          clerk_id?: string;
           username?: string;
           display_name?: string | null;
           avatar_url?: string | null;
@@ -204,6 +207,364 @@ export interface Database {
           download_url?: string;
           file_size?: number | null;
           downloads?: number;
+          created_at?: string;
+        };
+      };
+      plugins: {
+        Row: {
+          id: string;
+          author_id: string | null;
+          name: string;
+          slug: string;
+          tagline: string | null;
+          description: string | null;
+          thumbnail_url: string | null;
+          category: string;
+          tags: string[];
+          downloads: number;
+          rating: number;
+          rating_count: number;
+          is_featured: boolean;
+          support_url: string | null;
+          server_side: boolean;
+          client_side: boolean;
+          api_version: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id?: string | null;
+          name: string;
+          slug: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          server_side?: boolean;
+          client_side?: boolean;
+          api_version?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string | null;
+          name?: string;
+          slug?: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          server_side?: boolean;
+          client_side?: boolean;
+          api_version?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      plugin_versions: {
+        Row: {
+          id: string;
+          plugin_id: string;
+          version_number: string;
+          game_version: string;
+          changelog: string | null;
+          download_url: string;
+          file_size: number | null;
+          downloads: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          plugin_id: string;
+          version_number: string;
+          game_version: string;
+          changelog?: string | null;
+          download_url: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          plugin_id?: string;
+          version_number?: string;
+          game_version?: string;
+          changelog?: string | null;
+          download_url?: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+      };
+      maps: {
+        Row: {
+          id: string;
+          author_id: string | null;
+          name: string;
+          slug: string;
+          tagline: string | null;
+          description: string | null;
+          thumbnail_url: string | null;
+          category: string;
+          tags: string[];
+          downloads: number;
+          rating: number;
+          rating_count: number;
+          is_featured: boolean;
+          support_url: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id?: string | null;
+          name: string;
+          slug: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string | null;
+          name?: string;
+          slug?: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      map_versions: {
+        Row: {
+          id: string;
+          map_id: string;
+          version_number: string;
+          game_version: string;
+          changelog: string | null;
+          download_url: string;
+          file_size: number | null;
+          downloads: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          map_id: string;
+          version_number: string;
+          game_version: string;
+          changelog?: string | null;
+          download_url: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          map_id?: string;
+          version_number?: string;
+          game_version?: string;
+          changelog?: string | null;
+          download_url?: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+      };
+      textures: {
+        Row: {
+          id: string;
+          author_id: string | null;
+          name: string;
+          slug: string;
+          tagline: string | null;
+          description: string | null;
+          thumbnail_url: string | null;
+          resolution: string;
+          category: string;
+          tags: string[];
+          downloads: number;
+          rating: number;
+          rating_count: number;
+          is_featured: boolean;
+          support_url: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id?: string | null;
+          name: string;
+          slug: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          resolution?: string;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string | null;
+          name?: string;
+          slug?: string;
+          tagline?: string | null;
+          description?: string | null;
+          thumbnail_url?: string | null;
+          resolution?: string;
+          category?: string;
+          tags?: string[];
+          downloads?: number;
+          rating?: number;
+          rating_count?: number;
+          is_featured?: boolean;
+          support_url?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      texture_versions: {
+        Row: {
+          id: string;
+          texture_id: string;
+          version_number: string;
+          game_version: string;
+          changelog: string | null;
+          download_url: string;
+          file_size: number | null;
+          downloads: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          texture_id: string;
+          version_number: string;
+          game_version: string;
+          changelog?: string | null;
+          download_url: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          texture_id?: string;
+          version_number?: string;
+          game_version?: string;
+          changelog?: string | null;
+          download_url?: string;
+          file_size?: number | null;
+          downloads?: number;
+          created_at?: string;
+        };
+      };
+      ideas: {
+        Row: {
+          id: string;
+          author_id: string | null;
+          title: string;
+          description: string;
+          category: string;
+          tags: string[];
+          votes: number;
+          status: string;
+          is_featured: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          author_id?: string | null;
+          title: string;
+          description: string;
+          category?: string;
+          tags?: string[];
+          votes?: number;
+          status?: string;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          author_id?: string | null;
+          title?: string;
+          description?: string;
+          category?: string;
+          tags?: string[];
+          votes?: number;
+          status?: string;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      idea_votes: {
+        Row: {
+          id: string;
+          idea_id: string;
+          ip_hash: string;
+          user_id: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          idea_id: string;
+          ip_hash: string;
+          user_id?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          idea_id?: string;
+          ip_hash?: string;
+          user_id?: string | null;
           created_at?: string;
         };
       };

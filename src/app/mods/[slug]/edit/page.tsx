@@ -7,6 +7,7 @@ import { ArrowLeft, Save, Loader2, Plus, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Button, Card, Input, Badge, ImageUpload } from "@/components/ui";
 import { updateMod, addModVersion } from "@/lib/supabase/actions";
+import { uploadImage } from "@/lib/supabase/storage";
 import type { ModUpdateData, NewVersionData } from "@/lib/supabase/actions";
 
 const CATEGORIES = [
@@ -120,6 +121,10 @@ export default function EditModPage({ params }: { params: Promise<{ slug: string
   ) => {
     const { name, value } = e.target;
     setVersionData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    return await uploadImage(file, "mods");
   };
 
   const handleImageChange = (url: string | null) => {
@@ -271,8 +276,9 @@ export default function EditModPage({ params }: { params: Promise<{ slug: string
                 Thumbnail Image
               </label>
               <ImageUpload
-                value={formData.thumbnailUrl || null}
+                value={formData.thumbnailUrl || undefined}
                 onChange={handleImageChange}
+                onUpload={handleImageUpload}
               />
             </div>
 

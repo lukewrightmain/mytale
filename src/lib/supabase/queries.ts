@@ -3,6 +3,12 @@ import type { Database } from "./types";
 
 type Server = Database["public"]["Tables"]["servers"]["Row"];
 type Mod = Database["public"]["Tables"]["mods"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+
+// Extended types for queries with relations
+export type ServerWithProfile = Server & {
+  profiles: Pick<Profile, "id" | "clerk_id" | "username" | "display_name" | "avatar_url"> | null;
+};
 
 // ==========================================
 // SERVER QUERIES
@@ -48,7 +54,7 @@ export async function getServers(options?: {
   return data as Server[];
 }
 
-export async function getServerBySlug(slug: string) {
+export async function getServerBySlug(slug: string): Promise<ServerWithProfile | null> {
   const supabase = await createClient();
   
   const { data, error } = await supabase
@@ -71,7 +77,7 @@ export async function getServerBySlug(slug: string) {
     return null;
   }
 
-  return data;
+  return data as ServerWithProfile;
 }
 
 export async function getFeaturedServers(limit = 4) {

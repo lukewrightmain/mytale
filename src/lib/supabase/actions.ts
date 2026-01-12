@@ -3,6 +3,9 @@
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { createClient, createAdminClient } from "./server";
 import { revalidatePath } from "next/cache";
+import type { Database } from "./types";
+
+type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
 
 // Helper to generate slug from name
 function generateSlug(name: string): string {
@@ -35,21 +38,23 @@ async function getOrCreateProfile() {
     .single();
 
   if (existingProfile) {
-    return existingProfile.id;
+    return (existingProfile as { id: string }).id;
   }
 
   // Create new profile
   const username = user.username || user.emailAddresses[0]?.emailAddress?.split("@")[0] || `user_${Date.now()}`;
   const displayName = user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : username;
 
+  const profileData: ProfileInsert = {
+    clerk_id: userId,
+    username: `${username}_${Date.now().toString(36)}`, // Ensure uniqueness
+    display_name: displayName,
+    avatar_url: user.imageUrl,
+  };
+  
   const { data: newProfile, error } = await supabase
     .from("profiles")
-    .insert({
-      clerk_id: userId,
-      username: `${username}_${Date.now().toString(36)}`, // Ensure uniqueness
-      display_name: displayName,
-      avatar_url: user.imageUrl,
-    })
+    .insert(profileData as never)
     .select("id")
     .single();
 
@@ -58,7 +63,7 @@ async function getOrCreateProfile() {
     return null;
   }
 
-  return newProfile.id;
+  return (newProfile as { id: string }).id;
 }
 
 // ==========================================
@@ -128,7 +133,7 @@ export async function submitMod(data: ModSubmissionData) {
         downloads: 0,
         rating: 0,
         rating_count: 0,
-      })
+      } as never)
       .select("id")
       .single();
 
@@ -139,13 +144,13 @@ export async function submitMod(data: ModSubmissionData) {
 
     // Insert the initial version
     const { error: versionError } = await supabase.from("mod_versions").insert({
-      mod_id: modData.id,
+      mod_id: (modData as { id: string }).id,
       version_number: data.versionNumber,
       game_version: data.gameVersion,
       download_url: data.downloadUrl,
       changelog: data.changelog || "Initial release",
       downloads: 0,
-    });
+    } as never);
 
     if (versionError) {
       console.error("Error creating version:", versionError);
@@ -173,11 +178,11 @@ export async function checkModOwnership(modId: string) {
     .eq("id", modId)
     .single();
 
-  if (!mod || !mod.profiles) return false;
+  const modData = mod as { author_id: string | null; profiles: { clerk_id: string } | null } | null;
+  if (!modData || !modData.profiles) return false;
 
   // Check if the clerk_id matches
-  const profile = mod.profiles as { clerk_id: string };
-  return profile.clerk_id === userId;
+  return modData.profiles.clerk_id === userId;
 }
 
 // Update mod data
@@ -274,7 +279,7 @@ export async function addModVersion(modId: string, data: NewVersionData) {
       download_url: data.downloadUrl,
       changelog: data.changelog || "",
       downloads: 0,
-    });
+    } as never);
 
     if (error) {
       console.error("Error adding version:", error);
@@ -350,7 +355,7 @@ export async function submitServer(data: ServerSubmissionData) {
       is_online: true,
       players_online: 0,
       max_players: 100,
-    });
+    } as never);
 
     if (error) {
       console.error("Error submitting server:", error);
@@ -381,9 +386,10 @@ export async function checkServerOwnership(serverId: string) {
 
   if (!server || !server.profiles) return false;
 
-  // Check if the clerk_id matches
-  const profile = server.profiles as { clerk_id: string };
-  return profile.clerk_id === userId;
+  // Check if the clerk_id matches (profiles is array from join)
+  const profiles = server.profiles as { clerk_id: string }[] | { clerk_id: string };
+  const profile = Array.isArray(profiles) ? profiles[0] : profiles;
+  return profile?.clerk_id === userId;
 }
 
 // Update server data
@@ -511,7 +517,7 @@ export async function submitPlugin(data: PluginSubmissionData) {
         downloads: 0,
         rating: 0,
         rating_count: 0,
-      })
+      } as never)
       .select("id")
       .single();
 
@@ -522,13 +528,13 @@ export async function submitPlugin(data: PluginSubmissionData) {
 
     // Insert the initial version
     const { error: versionError } = await supabase.from("plugin_versions").insert({
-      plugin_id: pluginData.id,
+      plugin_id: (pluginData as { id: string }).id,
       version_number: data.versionNumber,
       game_version: data.gameVersion,
       download_url: data.downloadUrl,
       changelog: data.changelog || "Initial release",
       downloads: 0,
-    });
+    } as never);
 
     if (versionError) {
       console.error("Error creating plugin version:", versionError);
@@ -602,7 +608,7 @@ export async function submitMap(data: MapSubmissionData) {
         downloads: 0,
         rating: 0,
         rating_count: 0,
-      })
+      } as never)
       .select("id")
       .single();
 
@@ -613,13 +619,13 @@ export async function submitMap(data: MapSubmissionData) {
 
     // Insert the initial version
     const { error: versionError } = await supabase.from("map_versions").insert({
-      map_id: mapData.id,
+      map_id: (mapData as { id: string }).id,
       version_number: data.versionNumber,
       game_version: data.gameVersion,
       download_url: data.downloadUrl,
       changelog: data.changelog || "Initial release",
       downloads: 0,
-    });
+    } as never);
 
     if (versionError) {
       console.error("Error creating map version:", versionError);
@@ -695,7 +701,7 @@ export async function submitTexture(data: TextureSubmissionData) {
         downloads: 0,
         rating: 0,
         rating_count: 0,
-      })
+      } as never)
       .select("id")
       .single();
 
@@ -706,13 +712,13 @@ export async function submitTexture(data: TextureSubmissionData) {
 
     // Insert the initial version
     const { error: versionError } = await supabase.from("texture_versions").insert({
-      texture_id: textureData.id,
+      texture_id: (textureData as { id: string }).id,
       version_number: data.versionNumber,
       game_version: data.gameVersion,
       download_url: data.downloadUrl,
       changelog: data.changelog || "Initial release",
       downloads: 0,
-    });
+    } as never);
 
     if (versionError) {
       console.error("Error creating texture version:", versionError);
@@ -768,7 +774,7 @@ export async function submitIdea(data: IdeaSubmissionData) {
         votes: 0,
         status: "open",
         is_featured: false,
-      });
+      } as never);
 
     if (ideaError) {
       console.error("Error submitting idea:", ideaError);

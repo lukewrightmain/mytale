@@ -12,7 +12,7 @@ interface DownloadButtonProps {
   versionId?: string;
   downloadUrl: string;
   versionNumber?: string;
-  size?: "sm" | "default" | "lg";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }
 

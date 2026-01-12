@@ -7,6 +7,7 @@ import { ArrowLeft, Save, Loader2, CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { Button, Card, Input, Badge, ImageUpload } from "@/components/ui";
 import { updateServer } from "@/lib/supabase/actions";
+import { uploadImage } from "@/lib/supabase/storage";
 import type { ServerUpdateData } from "@/lib/supabase/actions";
 
 const REGIONS = [
@@ -110,6 +111,10 @@ export default function EditServerPage({ params }: { params: Promise<{ slug: str
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    return await uploadImage(file, "servers");
   };
 
   const handleImageChange = (url: string | null) => {
@@ -248,8 +253,9 @@ export default function EditServerPage({ params }: { params: Promise<{ slug: str
                 Server Banner
               </label>
               <ImageUpload
-                value={formData.bannerUrl || null}
+                value={formData.bannerUrl || undefined}
                 onChange={handleImageChange}
+                onUpload={handleImageUpload}
               />
             </div>
 

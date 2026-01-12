@@ -108,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("status", "approved");
 
   const modPages: MetadataRoute.Sitemap =
-    mods?.map((mod) => ({
+    (mods as { slug: string; updated_at: string }[] | null)?.map((mod) => ({
       url: `${SITE_URL}/mods/${mod.slug}`,
       lastModified: new Date(mod.updated_at),
       changeFrequency: "weekly" as const,
@@ -122,7 +122,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("status", "approved");
 
   const serverPages: MetadataRoute.Sitemap =
-    servers?.map((server) => ({
+    (servers as { slug: string; updated_at: string }[] | null)?.map((server) => ({
       url: `${SITE_URL}/servers/${server.slug}`,
       lastModified: new Date(server.updated_at),
       changeFrequency: "weekly" as const,
@@ -136,7 +136,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("status", "approved");
 
   const pluginPages: MetadataRoute.Sitemap =
-    plugins?.map((plugin) => ({
+    (plugins as { slug: string; updated_at: string }[] | null)?.map((plugin) => ({
       url: `${SITE_URL}/plugins/${plugin.slug}`,
       lastModified: new Date(plugin.updated_at),
       changeFrequency: "weekly" as const,
@@ -150,7 +150,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("status", "approved");
 
   const mapPages: MetadataRoute.Sitemap =
-    maps?.map((map) => ({
+    (maps as { slug: string; updated_at: string }[] | null)?.map((map) => ({
       url: `${SITE_URL}/maps/${map.slug}`,
       lastModified: new Date(map.updated_at),
       changeFrequency: "weekly" as const,
@@ -164,7 +164,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .eq("status", "approved");
 
   const texturePages: MetadataRoute.Sitemap =
-    textures?.map((texture) => ({
+    (textures as { slug: string; updated_at: string }[] | null)?.map((texture) => ({
       url: `${SITE_URL}/textures/${texture.slug}`,
       lastModified: new Date(texture.updated_at),
       changeFrequency: "weekly" as const,
@@ -174,11 +174,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Dynamic idea pages
   const { data: ideas } = await supabase
     .from("ideas")
-    .select("slug, updated_at");
+    .select("id, updated_at");
 
   const ideaPages: MetadataRoute.Sitemap =
-    ideas?.map((idea) => ({
-      url: `${SITE_URL}/ideas/${idea.slug}`,
+    (ideas as { id: string; updated_at: string }[] | null)?.map((idea) => ({
+      url: `${SITE_URL}/ideas/${idea.id}`,
       lastModified: new Date(idea.updated_at),
       changeFrequency: "weekly" as const,
       priority: 0.6,

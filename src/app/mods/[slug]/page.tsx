@@ -12,6 +12,17 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
+interface ModVersion {
+  id: string;
+  version_number: string;
+  game_version: string;
+  changelog: string | null;
+  download_url: string;
+  file_size: number | null;
+  downloads: number;
+  created_at: string;
+}
+
 export default async function ModDetailPage({ params }: Props) {
   const { slug } = await params;
   const mod = await getModWithVersions(slug);
@@ -108,8 +119,8 @@ export default async function ModDetailPage({ params }: Props) {
             {/* Tags */}
             {mod.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {mod.tags.map((tag) => (
-                  <Badge key={tag} variant="outline" size="sm" className="flex items-center gap-1">
+                {mod.tags.map((tag: string) => (
+                  <Badge key={tag} variant="secondary" size="sm" className="flex items-center gap-1">
                     <Tag className="w-3 h-3" />
                     {tag}
                   </Badge>
@@ -198,7 +209,7 @@ export default async function ModDetailPage({ params }: Props) {
                   Version History
                 </h3>
                 <div className="space-y-3">
-                  {mod.versions.slice(0, 5).map((version) => (
+                  {mod.versions.slice(0, 5).map((version: ModVersion) => (
                     <div
                       key={version.id}
                       className="pb-3 border-b border-border last:border-0 last:pb-0"
