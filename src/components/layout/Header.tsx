@@ -1,9 +1,17 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X } from "lucide-react";
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
 import { NAV_ITEMS, SITE_NAME } from "@/lib/constants";
@@ -17,11 +25,17 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/25 group-hover:shadow-primary-500/40 transition-shadow">
-              <Sparkles className="w-5 h-5 text-stone-900" />
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-lg group-hover:shadow-primary-500/30 transition-shadow">
+              <Image
+                src="/android-chrome-192x192.png"
+                alt="Mytale Logo"
+                fill
+                className="object-cover"
+                priority
+              />
             </div>
-            <span className="text-xl font-display font-bold gradient-text">
+            <span className="text-xl font-bold gradient-text" style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}>
               {SITE_NAME}
             </span>
           </Link>
@@ -46,12 +60,27 @@ export function Header() {
 
           {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-3">
-            <Button variant="ghost" size="sm">
-              Sign In
-            </Button>
-            <Button size="sm">
-              Get Started
-            </Button>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button variant="ghost" size="sm">
+                  Sign In
+                </Button>
+              </SignInButton>
+              <SignUpButton mode="modal">
+                <Button size="sm">
+                  Get Started
+                </Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-9 h-9",
+                  },
+                }}
+              />
+            </SignedIn>
           </div>
 
           {/* Mobile Menu Button */}
@@ -89,12 +118,29 @@ export function Header() {
               ))}
               <hr className="border-border my-2" />
               <div className="flex flex-col gap-2 px-4">
-                <Button variant="outline" className="w-full">
-                  Sign In
-                </Button>
-                <Button className="w-full">
-                  Get Started
-                </Button>
+                <SignedOut>
+                  <SignInButton mode="modal">
+                    <Button variant="outline" className="w-full">
+                      Sign In
+                    </Button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <Button className="w-full">
+                      Get Started
+                    </Button>
+                  </SignUpButton>
+                </SignedOut>
+                <SignedIn>
+                  <div className="flex items-center justify-center py-2">
+                    <UserButton
+                      appearance={{
+                        elements: {
+                          avatarBox: "w-10 h-10",
+                        },
+                      }}
+                    />
+                  </div>
+                </SignedIn>
               </div>
             </nav>
           </div>
@@ -103,4 +149,3 @@ export function Header() {
     </header>
   );
 }
-
