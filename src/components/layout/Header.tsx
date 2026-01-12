@@ -26,7 +26,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="relative w-9 h-9 rounded-lg overflow-hidden shadow-lg group-hover:shadow-primary-500/30 transition-shadow">
+            <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-lg group-hover:shadow-primary-500/30 transition-shadow">
               <Image
                 src="/android-chrome-192x192.png"
                 alt="Mytale Logo"
@@ -35,9 +35,14 @@ export function Header() {
                 priority
               />
             </div>
-            <span className="text-xl font-bold gradient-text" style={{ fontFamily: "var(--font-playfair), Georgia, serif" }}>
-              {SITE_NAME}
-            </span>
+            <Image
+              src="/images/assets/MyTaleText.png"
+              alt={SITE_NAME}
+              width={120}
+              height={30}
+              className="h-7 w-auto"
+              priority
+            />
           </Link>
 
           {/* Desktop Navigation */}

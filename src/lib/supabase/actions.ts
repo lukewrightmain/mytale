@@ -1,7 +1,7 @@
 "use server";
 
 import { auth, currentUser } from "@clerk/nextjs/server";
-import { createClient } from "./server";
+import { createClient, createAdminClient } from "./server";
 import { revalidatePath } from "next/cache";
 
 // Helper to generate slug from name
@@ -24,7 +24,8 @@ async function getOrCreateProfile() {
   const user = await currentUser();
   if (!user) return null;
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS for profile creation
+  const supabase = createAdminClient();
 
   // Try to find existing profile
   const { data: existingProfile } = await supabase
@@ -93,7 +94,8 @@ export async function submitMod(data: ModSubmissionData) {
     return { success: false, error: "Failed to create user profile" };
   }
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS (we've already verified user via Clerk)
+  const supabase = createAdminClient();
 
   // Generate slug
   const baseSlug = generateSlug(data.name);
@@ -196,7 +198,7 @@ export async function updateMod(modId: string, data: ModUpdateData) {
     return { success: false, error: "You don't have permission to edit this mod" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Parse tags if provided
   const tags = data.tags
@@ -249,7 +251,7 @@ export async function addModVersion(modId: string, data: NewVersionData) {
     return { success: false, error: "You don't have permission to update this mod" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   try {
     // Check if version already exists
@@ -315,7 +317,8 @@ export async function submitServer(data: ServerSubmissionData) {
     return { success: false, error: "Failed to create user profile" };
   }
 
-  const supabase = await createClient();
+  // Use admin client to bypass RLS (we've already verified user via Clerk)
+  const supabase = createAdminClient();
 
   // Generate slug
   const baseSlug = generateSlug(data.name);
@@ -402,7 +405,7 @@ export async function updateServer(serverId: string, data: ServerUpdateData) {
     return { success: false, error: "You don't have permission to edit this server" };
   }
 
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   // Parse game modes if provided
   const gameModes = data.gameModes
@@ -438,6 +441,344 @@ export async function updateServer(serverId: string, data: ServerUpdateData) {
     return { success: true };
   } catch (err) {
     console.error("Error updating server:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// ==========================================
+// PLUGIN SUBMISSION
+// ==========================================
+
+export interface PluginSubmissionData {
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  tags: string;
+  thumbnailUrl?: string;
+  serverSide: boolean;
+  clientSide: boolean;
+  apiVersion?: string;
+  // Version info
+  versionNumber: string;
+  gameVersion: string;
+  downloadUrl: string;
+  changelog?: string;
+  supportUrl?: string;
+}
+
+export async function submitPlugin(data: PluginSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit a plugin" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  const baseSlug = generateSlug(data.name);
+  const timestamp = Date.now().toString(36);
+  const slug = `${baseSlug}-${timestamp}`;
+
+  const tags = data.tags
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter((tag) => tag.length > 0);
+
+  try {
+    const { data: pluginData, error: pluginError } = await supabase
+      .from("plugins")
+      .insert({
+        author_id: profileId,
+        name: data.name,
+        slug,
+        tagline: data.tagline,
+        description: data.description,
+        category: data.category,
+        tags,
+        thumbnail_url: data.thumbnailUrl || null,
+        server_side: data.serverSide,
+        client_side: data.clientSide,
+        api_version: data.apiVersion || null,
+        support_url: data.supportUrl || null,
+        status: "pending",
+        is_featured: false,
+        downloads: 0,
+        rating: 0,
+        rating_count: 0,
+      })
+      .select("id")
+      .single();
+
+    if (pluginError) {
+      console.error("Error submitting plugin:", pluginError);
+      return { success: false, error: "Failed to submit plugin. Please try again." };
+    }
+
+    // Insert the initial version
+    const { error: versionError } = await supabase.from("plugin_versions").insert({
+      plugin_id: pluginData.id,
+      version_number: data.versionNumber,
+      game_version: data.gameVersion,
+      download_url: data.downloadUrl,
+      changelog: data.changelog || "Initial release",
+      downloads: 0,
+    });
+
+    if (versionError) {
+      console.error("Error creating plugin version:", versionError);
+    }
+
+    revalidatePath("/plugins");
+    return { success: true, slug };
+  } catch (err) {
+    console.error("Error submitting plugin:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// ==========================================
+// MAP SUBMISSION
+// ==========================================
+
+export interface MapSubmissionData {
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  tags: string;
+  thumbnailUrl?: string;
+  // Version info
+  versionNumber: string;
+  gameVersion: string;
+  downloadUrl: string;
+  changelog?: string;
+  supportUrl?: string;
+}
+
+export async function submitMap(data: MapSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit a map" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  const baseSlug = generateSlug(data.name);
+  const timestamp = Date.now().toString(36);
+  const slug = `${baseSlug}-${timestamp}`;
+
+  const tags = data.tags
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter((tag) => tag.length > 0);
+
+  try {
+    const { data: mapData, error: mapError } = await supabase
+      .from("maps")
+      .insert({
+        author_id: profileId,
+        name: data.name,
+        slug,
+        tagline: data.tagline,
+        description: data.description,
+        category: data.category,
+        tags,
+        thumbnail_url: data.thumbnailUrl || null,
+        support_url: data.supportUrl || null,
+        status: "pending",
+        is_featured: false,
+        downloads: 0,
+        rating: 0,
+        rating_count: 0,
+      })
+      .select("id")
+      .single();
+
+    if (mapError) {
+      console.error("Error submitting map:", mapError);
+      return { success: false, error: "Failed to submit map. Please try again." };
+    }
+
+    // Insert the initial version
+    const { error: versionError } = await supabase.from("map_versions").insert({
+      map_id: mapData.id,
+      version_number: data.versionNumber,
+      game_version: data.gameVersion,
+      download_url: data.downloadUrl,
+      changelog: data.changelog || "Initial release",
+      downloads: 0,
+    });
+
+    if (versionError) {
+      console.error("Error creating map version:", versionError);
+    }
+
+    revalidatePath("/maps");
+    return { success: true, slug };
+  } catch (err) {
+    console.error("Error submitting map:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// ==========================================
+// TEXTURE SUBMISSION
+// ==========================================
+
+export interface TextureSubmissionData {
+  name: string;
+  tagline: string;
+  description: string;
+  category: string;
+  resolution: string;
+  tags: string;
+  thumbnailUrl?: string;
+  // Version info
+  versionNumber: string;
+  gameVersion: string;
+  downloadUrl: string;
+  changelog?: string;
+  supportUrl?: string;
+}
+
+export async function submitTexture(data: TextureSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit a texture pack" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  const baseSlug = generateSlug(data.name);
+  const timestamp = Date.now().toString(36);
+  const slug = `${baseSlug}-${timestamp}`;
+
+  const tags = data.tags
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter((tag) => tag.length > 0);
+
+  try {
+    const { data: textureData, error: textureError } = await supabase
+      .from("textures")
+      .insert({
+        author_id: profileId,
+        name: data.name,
+        slug,
+        tagline: data.tagline,
+        description: data.description,
+        category: data.category,
+        resolution: data.resolution,
+        tags,
+        thumbnail_url: data.thumbnailUrl || null,
+        support_url: data.supportUrl || null,
+        status: "pending",
+        is_featured: false,
+        downloads: 0,
+        rating: 0,
+        rating_count: 0,
+      })
+      .select("id")
+      .single();
+
+    if (textureError) {
+      console.error("Error submitting texture:", textureError);
+      return { success: false, error: "Failed to submit texture pack. Please try again." };
+    }
+
+    // Insert the initial version
+    const { error: versionError } = await supabase.from("texture_versions").insert({
+      texture_id: textureData.id,
+      version_number: data.versionNumber,
+      game_version: data.gameVersion,
+      download_url: data.downloadUrl,
+      changelog: data.changelog || "Initial release",
+      downloads: 0,
+    });
+
+    if (versionError) {
+      console.error("Error creating texture version:", versionError);
+    }
+
+    revalidatePath("/textures");
+    return { success: true, slug };
+  } catch (err) {
+    console.error("Error submitting texture:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// ==========================================
+// IDEA SUBMISSION
+// ==========================================
+
+export interface IdeaSubmissionData {
+  title: string;
+  description: string;
+  category: string;
+  tags: string;
+}
+
+export async function submitIdea(data: IdeaSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit an idea" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  const tags = data.tags
+    .split(",")
+    .map((tag) => tag.trim().toLowerCase())
+    .filter((tag) => tag.length > 0);
+
+  try {
+    const { error: ideaError } = await supabase
+      .from("ideas")
+      .insert({
+        author_id: profileId,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        tags,
+        votes: 0,
+        status: "open",
+        is_featured: false,
+      });
+
+    if (ideaError) {
+      console.error("Error submitting idea:", ideaError);
+      return { success: false, error: "Failed to submit idea. Please try again." };
+    }
+
+    revalidatePath("/ideas");
+    return { success: true };
+  } catch (err) {
+    console.error("Error submitting idea:", err);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

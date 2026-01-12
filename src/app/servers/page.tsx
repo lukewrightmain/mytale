@@ -21,7 +21,7 @@ export default async function ServersPage() {
             src="/images/hero/Hero2.png"
             alt="Servers"
             fill
-            className="object-cover object-center opacity-30"
+            className="object-cover object-center opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/80 to-background" />
         </div>

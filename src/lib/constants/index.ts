@@ -119,6 +119,7 @@ export const NAV_ITEMS = [
   { label: "Plugins", href: "/plugins" },
   { label: "Maps", href: "/maps" },
   { label: "Textures", href: "/textures" },
+  { label: "Ideas", href: "/ideas" },
 ];
 
 // ─── Social Links ───

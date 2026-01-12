@@ -616,3 +616,89 @@ export async function getPluginWithVersions(slug: string) {
   };
 }
 
+// ==========================================
+// IDEAS QUERIES
+// ==========================================
+
+export async function getIdeas(options?: {
+  category?: string;
+  status?: string;
+  sortBy?: "votes" | "newest" | "oldest";
+  limit?: number;
+}) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("ideas")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .in("status", ["open", "in_progress", "completed"]);
+
+  if (options?.category && options.category !== "all") {
+    query = query.eq("category", options.category);
+  }
+
+  if (options?.status && options.status !== "all") {
+    query = query.eq("status", options.status);
+  }
+
+  // Sorting
+  switch (options?.sortBy) {
+    case "newest":
+      query = query.order("created_at", { ascending: false });
+      break;
+    case "oldest":
+      query = query.order("created_at", { ascending: true });
+      break;
+    case "votes":
+    default:
+      query = query.order("votes", { ascending: false });
+      break;
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching ideas:", error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getIdeaById(id: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("ideas")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("id", id)
+    .single();
+
+  if (error) {
+    console.error("Error fetching idea:", error);
+    return null;
+  }
+
+  return data;
+}
+
