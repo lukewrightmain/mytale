@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { ArrowLeft, Server, Loader2, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Button, Card, Input, Badge } from "@/components/ui";
+import { Button, Card, Input, Badge, ImageUpload } from "@/components/ui";
 import { submitServer, type ServerSubmissionData } from "@/lib/supabase/actions";
+import { uploadImage } from "@/lib/supabase/storage";
 
 const REGIONS = [
   { value: "NA", label: "🇺🇸 North America" },
@@ -43,6 +44,7 @@ export default function SubmitServerPage() {
     gameModes: "",
     discordUrl: "",
     websiteUrl: "",
+    bannerUrl: "",
   });
 
   const handleChange = (
@@ -50,6 +52,14 @@ export default function SubmitServerPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    return await uploadImage(file, "servers");
+  };
+
+  const handleImageChange = (url: string | null) => {
+    setFormData((prev) => ({ ...prev, bannerUrl: url || "" }));
   };
 
   const addGameMode = (mode: string) => {
@@ -158,6 +168,21 @@ export default function SubmitServerPage() {
         {/* Form */}
         <Card className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Banner Image */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Banner Image
+              </label>
+              <ImageUpload
+                value={formData.bannerUrl}
+                onChange={handleImageChange}
+                onUpload={handleImageUpload}
+              />
+              <p className="text-xs text-foreground-muted mt-2">
+                Recommended: 1280×720 pixels (16:9 ratio). Max 5MB.
+              </p>
+            </div>
+
             {/* Server Name */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -330,4 +355,3 @@ export default function SubmitServerPage() {
     </div>
   );
 }
-

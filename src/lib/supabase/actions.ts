@@ -23,6 +23,7 @@ export interface ModSubmissionData {
   category: string;
   modType: string;
   tags: string;
+  thumbnailUrl?: string;
 }
 
 export async function submitMod(data: ModSubmissionData) {
@@ -54,6 +55,7 @@ export async function submitMod(data: ModSubmissionData) {
       category: data.category,
       mod_type: data.modType,
       tags,
+      thumbnail_url: data.thumbnailUrl || null,
       status: "pending",
       is_featured: false,
       downloads: 0,
@@ -87,6 +89,7 @@ export interface ServerSubmissionData {
   gameModes: string;
   discordUrl?: string;
   websiteUrl?: string;
+  bannerUrl?: string;
 }
 
 export async function submitServer(data: ServerSubmissionData) {
@@ -120,6 +123,7 @@ export async function submitServer(data: ServerSubmissionData) {
       game_modes: gameModes,
       discord_url: data.discordUrl || null,
       website_url: data.websiteUrl || null,
+      banner_url: data.bannerUrl || null,
       status: "pending",
       is_featured: false,
       is_verified: false,

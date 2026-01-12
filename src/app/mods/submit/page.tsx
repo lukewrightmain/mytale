@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import { ArrowLeft, Upload, Loader2, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { Button, Card, Input, Badge } from "@/components/ui";
+import { Button, Card, Input, Badge, ImageUpload } from "@/components/ui";
 import { submitMod, type ModSubmissionData } from "@/lib/supabase/actions";
+import { uploadImage } from "@/lib/supabase/storage";
 
 const CATEGORIES = [
   { value: "Gameplay", label: "Gameplay" },
@@ -41,6 +42,7 @@ export default function SubmitModPage() {
     category: "Gameplay",
     modType: "mod",
     tags: "",
+    thumbnailUrl: "",
   });
 
   const handleChange = (
@@ -48,6 +50,14 @@ export default function SubmitModPage() {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    return await uploadImage(file, "mods");
+  };
+
+  const handleImageChange = (url: string | null) => {
+    setFormData((prev) => ({ ...prev, thumbnailUrl: url || "" }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -144,6 +154,21 @@ export default function SubmitModPage() {
         {/* Form */}
         <Card className="p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Thumbnail Image */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Thumbnail Image
+              </label>
+              <ImageUpload
+                value={formData.thumbnailUrl}
+                onChange={handleImageChange}
+                onUpload={handleImageUpload}
+              />
+              <p className="text-xs text-foreground-muted mt-2">
+                Recommended: 1280×720 pixels (16:9 ratio). Max 5MB.
+              </p>
+            </div>
+
             {/* Name */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -286,4 +311,3 @@ export default function SubmitModPage() {
     </div>
   );
 }
-
