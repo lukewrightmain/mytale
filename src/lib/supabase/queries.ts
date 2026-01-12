@@ -512,3 +512,107 @@ export async function getTextureWithVersions(slug: string) {
   };
 }
 
+// ==========================================
+// PLUGIN QUERIES
+// ==========================================
+
+export async function getPlugins(options?: {
+  featured?: boolean;
+  limit?: number;
+  category?: string;
+}) {
+  const supabase = await createClient();
+  
+  let query = supabase
+    .from("plugins")
+    .select("*")
+    .eq("status", "approved")
+    .order("downloads", { ascending: false });
+
+  if (options?.featured) {
+    query = query.eq("is_featured", true);
+  }
+
+  if (options?.category && options.category !== "all") {
+    query = query.eq("category", options.category);
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching plugins:", error);
+    return [];
+  }
+
+  return data;
+}
+
+export async function getPluginBySlug(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("plugins")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching plugin:", error);
+    return null;
+  }
+
+  return data;
+}
+
+export async function getPluginWithVersions(slug: string) {
+  const supabase = await createClient();
+  
+  const { data: plugin, error: pluginError } = await supabase
+    .from("plugins")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (pluginError || !plugin) {
+    console.error("Error fetching plugin:", pluginError);
+    return null;
+  }
+
+  const { data: versions, error: versionsError } = await supabase
+    .from("plugin_versions")
+    .select("*")
+    .eq("plugin_id", plugin.id)
+    .order("created_at", { ascending: false });
+
+  if (versionsError) {
+    console.error("Error fetching versions:", versionsError);
+  }
+
+  return {
+    ...plugin,
+    versions: versions || [],
+  };
+}
+
