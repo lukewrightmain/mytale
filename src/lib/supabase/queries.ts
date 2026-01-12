@@ -53,7 +53,16 @@ export async function getServerBySlug(slug: string) {
   
   const { data, error } = await supabase
     .from("servers")
-    .select("*")
+    .select(`
+      *,
+      profiles:owner_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
     .eq("slug", slug)
     .single();
 
@@ -62,7 +71,7 @@ export async function getServerBySlug(slug: string) {
     return null;
   }
 
-  return data as Server;
+  return data;
 }
 
 export async function getFeaturedServers(limit = 4) {
@@ -149,14 +158,23 @@ export async function getModBySlug(slug: string) {
   return data as Mod;
 }
 
-// Get mod with all versions
+// Get mod with all versions and author info
 export async function getModWithVersions(slug: string) {
   const supabase = await createClient();
   
-  // Get the mod
+  // Get the mod with author profile
   const { data: mod, error: modError } = await supabase
     .from("mods")
-    .select("*")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
     .eq("slug", slug)
     .single();
 
@@ -191,6 +209,58 @@ export async function trackDownload(modId: string, versionId: string) {
   
   // Increment total mod downloads
   await supabase.rpc("increment_mod_downloads", { mod_id: modId });
+}
+
+// Get mod for editing (includes author profile for ownership check)
+export async function getModForEdit(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("mods")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching mod for edit:", error);
+    return null;
+  }
+
+  return data;
+}
+
+// Get server for editing (includes owner profile for ownership check)
+export async function getServerForEdit(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("servers")
+    .select(`
+      *,
+      profiles:owner_id (
+        id,
+        clerk_id,
+        username,
+        display_name
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching server for edit:", error);
+    return null;
+  }
+
+  return data;
 }
 
 export async function getFeaturedMods(limit = 6) {

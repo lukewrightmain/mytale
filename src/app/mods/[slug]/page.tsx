@@ -1,11 +1,12 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart } from "lucide-react";
+import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User } from "lucide-react";
 import { Button, Card, Badge } from "@/components/ui";
 import { getModWithVersions } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
 import { DownloadButton } from "./DownloadButton";
+import { EditButton } from "./EditButton";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -61,7 +62,24 @@ export default async function ModDetailPage({ params }: Props) {
                   {mod.name}
                 </h1>
               </div>
+              {/* Edit Button (only visible to owner) */}
+              <EditButton
+                slug={mod.slug}
+                ownerClerkId={(mod.profiles as { clerk_id: string } | null)?.clerk_id || null}
+              />
             </div>
+
+            {/* Author */}
+            {mod.profiles && (
+              <div className="flex items-center gap-2 mb-4">
+                <User className="w-4 h-4 text-foreground-muted" />
+                <span className="text-foreground-muted">by</span>
+                <span className="text-foreground font-medium">
+                  {(mod.profiles as { display_name: string | null; username: string }).display_name || 
+                   (mod.profiles as { username: string }).username}
+                </span>
+              </div>
+            )}
 
             <p className="text-lg text-foreground-muted mb-6">
               {mod.tagline}

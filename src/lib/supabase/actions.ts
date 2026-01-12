@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { createClient } from "./server";
 import { revalidatePath } from "next/cache";
 
@@ -13,7 +13,55 @@ function generateSlug(name: string): string {
 }
 
 // ==========================================
-// MOD SUBMISSION
+// PROFILE HELPERS
+// ==========================================
+
+// Get or create profile for the current Clerk user
+async function getOrCreateProfile() {
+  const { userId } = await auth();
+  if (!userId) return null;
+
+  const user = await currentUser();
+  if (!user) return null;
+
+  const supabase = await createClient();
+
+  // Try to find existing profile
+  const { data: existingProfile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("clerk_id", userId)
+    .single();
+
+  if (existingProfile) {
+    return existingProfile.id;
+  }
+
+  // Create new profile
+  const username = user.username || user.emailAddresses[0]?.emailAddress?.split("@")[0] || `user_${Date.now()}`;
+  const displayName = user.firstName ? `${user.firstName} ${user.lastName || ""}`.trim() : username;
+
+  const { data: newProfile, error } = await supabase
+    .from("profiles")
+    .insert({
+      clerk_id: userId,
+      username: `${username}_${Date.now().toString(36)}`, // Ensure uniqueness
+      display_name: displayName,
+      avatar_url: user.imageUrl,
+    })
+    .select("id")
+    .single();
+
+  if (error) {
+    console.error("Error creating profile:", error);
+    return null;
+  }
+
+  return newProfile.id;
+}
+
+// ==========================================
+// MOD SUBMISSION & EDITING
 // ==========================================
 
 export interface ModSubmissionData {
@@ -40,6 +88,11 @@ export async function submitMod(data: ModSubmissionData) {
     return { success: false, error: "You must be signed in to submit a mod" };
   }
 
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
   const supabase = await createClient();
 
   // Generate slug
@@ -54,10 +107,11 @@ export async function submitMod(data: ModSubmissionData) {
     .filter((tag) => tag.length > 0);
 
   try {
-    // Insert the mod
+    // Insert the mod with author_id
     const { data: modData, error: modError } = await supabase
       .from("mods")
       .insert({
+        author_id: profileId,
         name: data.name,
         slug,
         tagline: data.tagline,
@@ -93,7 +147,6 @@ export async function submitMod(data: ModSubmissionData) {
 
     if (versionError) {
       console.error("Error creating version:", versionError);
-      // Don't fail the whole submission, just log it
     }
 
     revalidatePath("/mods");
@@ -104,8 +157,138 @@ export async function submitMod(data: ModSubmissionData) {
   }
 }
 
+// Check if current user owns this mod
+export async function checkModOwnership(modId: string) {
+  const { userId } = await auth();
+  if (!userId) return false;
+
+  const supabase = await createClient();
+
+  // Get the mod's author profile
+  const { data: mod } = await supabase
+    .from("mods")
+    .select("author_id, profiles!mods_author_id_fkey(clerk_id)")
+    .eq("id", modId)
+    .single();
+
+  if (!mod || !mod.profiles) return false;
+
+  // Check if the clerk_id matches
+  const profile = mod.profiles as { clerk_id: string };
+  return profile.clerk_id === userId;
+}
+
+// Update mod data
+export interface ModUpdateData {
+  name?: string;
+  tagline?: string;
+  description?: string;
+  category?: string;
+  modType?: string;
+  tags?: string;
+  thumbnailUrl?: string;
+  supportUrl?: string;
+}
+
+export async function updateMod(modId: string, data: ModUpdateData) {
+  const isOwner = await checkModOwnership(modId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to edit this mod" };
+  }
+
+  const supabase = await createClient();
+
+  // Parse tags if provided
+  const tags = data.tags
+    ? data.tags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => tag.length > 0)
+    : undefined;
+
+  const updateData: Record<string, unknown> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.tagline !== undefined) updateData.tagline = data.tagline;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.category !== undefined) updateData.category = data.category;
+  if (data.modType !== undefined) updateData.mod_type = data.modType;
+  if (tags !== undefined) updateData.tags = tags;
+  if (data.thumbnailUrl !== undefined) updateData.thumbnail_url = data.thumbnailUrl;
+  if (data.supportUrl !== undefined) updateData.support_url = data.supportUrl;
+
+  try {
+    const { error } = await supabase
+      .from("mods")
+      .update(updateData)
+      .eq("id", modId);
+
+    if (error) {
+      console.error("Error updating mod:", error);
+      return { success: false, error: "Failed to update mod" };
+    }
+
+    revalidatePath("/mods");
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating mod:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// Add a new version to an existing mod
+export interface NewVersionData {
+  versionNumber: string;
+  gameVersion: string;
+  downloadUrl: string;
+  changelog?: string;
+}
+
+export async function addModVersion(modId: string, data: NewVersionData) {
+  const isOwner = await checkModOwnership(modId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to update this mod" };
+  }
+
+  const supabase = await createClient();
+
+  try {
+    // Check if version already exists
+    const { data: existingVersion } = await supabase
+      .from("mod_versions")
+      .select("id")
+      .eq("mod_id", modId)
+      .eq("version_number", data.versionNumber)
+      .single();
+
+    if (existingVersion) {
+      return { success: false, error: "This version number already exists" };
+    }
+
+    // Insert new version
+    const { error } = await supabase.from("mod_versions").insert({
+      mod_id: modId,
+      version_number: data.versionNumber,
+      game_version: data.gameVersion,
+      download_url: data.downloadUrl,
+      changelog: data.changelog || "",
+      downloads: 0,
+    });
+
+    if (error) {
+      console.error("Error adding version:", error);
+      return { success: false, error: "Failed to add version" };
+    }
+
+    revalidatePath("/mods");
+    return { success: true };
+  } catch (err) {
+    console.error("Error adding version:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
 // ==========================================
-// SERVER SUBMISSION
+// SERVER SUBMISSION & EDITING
 // ==========================================
 
 export interface ServerSubmissionData {
@@ -127,6 +310,11 @@ export async function submitServer(data: ServerSubmissionData) {
     return { success: false, error: "You must be signed in to list a server" };
   }
 
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
   const supabase = await createClient();
 
   // Generate slug
@@ -142,6 +330,7 @@ export async function submitServer(data: ServerSubmissionData) {
 
   try {
     const { error } = await supabase.from("servers").insert({
+      owner_id: profileId,
       name: data.name,
       slug,
       description: data.description,
@@ -173,3 +362,82 @@ export async function submitServer(data: ServerSubmissionData) {
   }
 }
 
+// Check if current user owns this server
+export async function checkServerOwnership(serverId: string) {
+  const { userId } = await auth();
+  if (!userId) return false;
+
+  const supabase = await createClient();
+
+  // Get the server's owner profile
+  const { data: server } = await supabase
+    .from("servers")
+    .select("owner_id, profiles!servers_owner_id_fkey(clerk_id)")
+    .eq("id", serverId)
+    .single();
+
+  if (!server || !server.profiles) return false;
+
+  // Check if the clerk_id matches
+  const profile = server.profiles as { clerk_id: string };
+  return profile.clerk_id === userId;
+}
+
+// Update server data
+export interface ServerUpdateData {
+  name?: string;
+  description?: string;
+  ipAddress?: string;
+  port?: string;
+  region?: string;
+  gameModes?: string;
+  discordUrl?: string;
+  websiteUrl?: string;
+  bannerUrl?: string;
+}
+
+export async function updateServer(serverId: string, data: ServerUpdateData) {
+  const isOwner = await checkServerOwnership(serverId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to edit this server" };
+  }
+
+  const supabase = await createClient();
+
+  // Parse game modes if provided
+  const gameModes = data.gameModes
+    ? data.gameModes
+        .split(",")
+        .map((mode) => mode.trim())
+        .filter((mode) => mode.length > 0)
+    : undefined;
+
+  const updateData: Record<string, unknown> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.ipAddress !== undefined) updateData.ip_address = data.ipAddress;
+  if (data.port !== undefined) updateData.port = parseInt(data.port) || 25565;
+  if (data.region !== undefined) updateData.region = data.region;
+  if (gameModes !== undefined) updateData.game_modes = gameModes;
+  if (data.discordUrl !== undefined) updateData.discord_url = data.discordUrl;
+  if (data.websiteUrl !== undefined) updateData.website_url = data.websiteUrl;
+  if (data.bannerUrl !== undefined) updateData.banner_url = data.bannerUrl;
+
+  try {
+    const { error } = await supabase
+      .from("servers")
+      .update(updateData)
+      .eq("id", serverId);
+
+    if (error) {
+      console.error("Error updating server:", error);
+      return { success: false, error: "Failed to update server" };
+    }
+
+    revalidatePath("/servers");
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating server:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
