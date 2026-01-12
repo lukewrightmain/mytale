@@ -139,7 +139,7 @@ export function IdeasContent({ initialIdeas }: IdeasContentProps) {
       case "completed":
         return <Badge variant="success">Completed</Badge>;
       default:
-        return <Badge variant="outline">Open</Badge>;
+        return <Badge variant="default">Open</Badge>;
     }
   };
 
