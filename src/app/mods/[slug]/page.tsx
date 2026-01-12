@@ -121,7 +121,8 @@ export default async function ModDetailPage({ params }: Props) {
             <div className="flex flex-wrap gap-3">
               {latestVersion && (
                 <DownloadButton
-                  modId={mod.id}
+                  type="mod"
+                  contentId={mod.id}
                   versionId={latestVersion.id}
                   downloadUrl={latestVersion.download_url}
                   versionNumber={latestVersion.version_number}

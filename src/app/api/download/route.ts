@@ -1,24 +1,57 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+type ContentType = "mod" | "plugin" | "map" | "texture";
+
 export async function POST(request: NextRequest) {
   try {
-    const { modId, versionId } = await request.json();
+    const { type, contentId, versionId } = await request.json();
 
-    if (!modId || !versionId) {
+    if (!type || !contentId) {
       return NextResponse.json(
-        { error: "Missing modId or versionId" },
+        { error: "Missing type or contentId" },
         { status: 400 }
       );
     }
 
     const supabase = await createClient();
 
-    // Increment mod downloads
-    await supabase.rpc("increment_mod_downloads", { mod_id: modId });
+    // Track downloads based on content type
+    switch (type as ContentType) {
+      case "mod":
+        await supabase.rpc("increment_mod_downloads", { mod_id: contentId });
+        if (versionId) {
+          await supabase.rpc("increment_mod_version_downloads", { version_id: versionId });
+        }
+        break;
 
-    // Increment version downloads
-    await supabase.rpc("increment_version_downloads", { version_id: versionId });
+      case "plugin":
+        await supabase.rpc("increment_plugin_downloads", { plugin_id: contentId });
+        if (versionId) {
+          await supabase.rpc("increment_plugin_version_downloads", { version_id: versionId });
+        }
+        break;
+
+      case "map":
+        await supabase.rpc("increment_map_downloads", { map_id: contentId });
+        if (versionId) {
+          await supabase.rpc("increment_map_version_downloads", { version_id: versionId });
+        }
+        break;
+
+      case "texture":
+        await supabase.rpc("increment_texture_downloads", { texture_id: contentId });
+        if (versionId) {
+          await supabase.rpc("increment_texture_version_downloads", { version_id: versionId });
+        }
+        break;
+
+      default:
+        return NextResponse.json(
+          { error: "Invalid content type" },
+          { status: 400 }
+        );
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -29,4 +62,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

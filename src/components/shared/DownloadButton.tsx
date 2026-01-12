@@ -4,14 +4,16 @@ import { useState } from "react";
 import { Download, Loader2, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui";
 
-type ContentType = "mod" | "plugin" | "map" | "texture";
+export type ContentType = "mod" | "plugin" | "map" | "texture";
 
 interface DownloadButtonProps {
   type: ContentType;
   contentId: string;
   versionId?: string;
   downloadUrl: string;
-  versionNumber: string;
+  versionNumber?: string;
+  size?: "sm" | "default" | "lg";
+  className?: string;
 }
 
 export function DownloadButton({
@@ -20,10 +22,15 @@ export function DownloadButton({
   versionId,
   downloadUrl,
   versionNumber,
+  size = "lg",
+  className = "",
 }: DownloadButtonProps) {
   const [isDownloading, setIsDownloading] = useState(false);
 
-  const handleDownload = async () => {
+  const handleDownload = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     setIsDownloading(true);
 
     try {
@@ -47,10 +54,10 @@ export function DownloadButton({
 
   return (
     <Button
-      size="lg"
+      size={size}
       onClick={handleDownload}
       disabled={isDownloading}
-      className="min-w-[200px]"
+      className={className}
     >
       {isDownloading ? (
         <>
@@ -60,7 +67,7 @@ export function DownloadButton({
       ) : (
         <>
           <Download className="w-5 h-5" />
-          Download v{versionNumber}
+          {versionNumber ? `Download v${versionNumber}` : "Download"}
           <ExternalLink className="w-4 h-4 ml-1" />
         </>
       )}
