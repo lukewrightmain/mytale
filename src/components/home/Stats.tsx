@@ -1,38 +1,41 @@
 import { Package, Server, Download, Users } from "lucide-react";
 import { formatNumber } from "@/lib/utils";
+import { getStats } from "@/lib/supabase/queries";
 
-const stats = [
-  {
-    label: "Mods Available",
-    value: 1247,
-    icon: Package,
-    color: "text-primary-400",
-    bgColor: "bg-primary-500/10",
-  },
-  {
-    label: "Active Servers",
-    value: 523,
-    icon: Server,
-    color: "text-secondary-400",
-    bgColor: "bg-secondary-500/10",
-  },
-  {
-    label: "Total Downloads",
-    value: 89000,
-    icon: Download,
-    color: "text-accent-400",
-    bgColor: "bg-accent-500/10",
-  },
-  {
-    label: "Community Members",
-    value: 45000,
-    icon: Users,
-    color: "text-pink-400",
-    bgColor: "bg-pink-500/10",
-  },
-];
+export async function Stats() {
+  const data = await getStats();
 
-export function Stats() {
+  const stats = [
+    {
+      label: "Mods Available",
+      value: data.mods,
+      icon: Package,
+      color: "text-primary-400",
+      bgColor: "bg-primary-500/10",
+    },
+    {
+      label: "Active Servers",
+      value: data.servers,
+      icon: Server,
+      color: "text-secondary-400",
+      bgColor: "bg-secondary-500/10",
+    },
+    {
+      label: "Total Downloads",
+      value: data.downloads,
+      icon: Download,
+      color: "text-accent-400",
+      bgColor: "bg-accent-500/10",
+    },
+    {
+      label: "Players Online",
+      value: data.playersOnline,
+      icon: Users,
+      color: "text-pink-400",
+      bgColor: "bg-pink-500/10",
+    },
+  ];
+
   return (
     <section className="py-16 bg-surface border-y border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -60,4 +63,3 @@ export function Stats() {
     </section>
   );
 }
-
