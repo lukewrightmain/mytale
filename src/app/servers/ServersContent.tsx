@@ -111,7 +111,8 @@ export function ServersContent({ initialServers }: ServersContentProps) {
           {filteredServers.map((server) => {
             const regionInfo = getRegionDisplay(server.region);
             return (
-              <Card key={server.id} hover className="h-full flex flex-col overflow-hidden">
+              <Link key={server.id} href={`/servers/${server.slug}`} className="block">
+                <Card hover className="h-full flex flex-col overflow-hidden cursor-pointer">
                 {/* Banner */}
                 <div className="relative h-32 overflow-hidden">
                   <Image
@@ -202,15 +203,14 @@ export function ServersContent({ initialServers }: ServersContentProps) {
                         </>
                       )}
                     </Button>
-                    <Link href={`/servers/${server.slug}`}>
-                      <Button size="sm">
-                        <ExternalLink className="w-4 h-4" />
-                        View
-                      </Button>
-                    </Link>
+                    <Button size="sm">
+                      <ExternalLink className="w-4 h-4" />
+                      View
+                    </Button>
                   </div>
                 </div>
               </Card>
+            </Link>
             );
           })}
         </div>

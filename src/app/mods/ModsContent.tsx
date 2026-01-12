@@ -122,8 +122,8 @@ export function ModsContent({ initialMods }: ModsContentProps) {
         {filteredMods.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
             {filteredMods.map((mod) => (
-              <Link key={mod.id} href={`/mods/${mod.slug}`}>
-                <Card hover glow="primary" className="h-full">
+              <Link key={mod.id} href={`/mods/${mod.slug}`} className="block">
+                <Card hover glow="primary" className="h-full cursor-pointer">
                   {/* Thumbnail */}
                   <div className="relative aspect-video overflow-hidden">
                     <Image
