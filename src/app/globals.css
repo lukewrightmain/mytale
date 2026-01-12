@@ -78,7 +78,7 @@
 
   /* ─── Fonts ─── */
   --font-sans: var(--font-inter), system-ui, sans-serif;
-  --font-display: var(--font-playfair), Georgia, serif;
+  --font-display: var(--font-jersey), "Jersey 25", sans-serif;
 
   /* ─── Spacing ─── */
   --radius-sm: 0.375rem;
@@ -110,11 +110,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Fantasy-style headings */
+  /* Jersey 25 headings - gaming/retro style */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-playfair), Georgia, serif;
-    font-weight: 600;
-    letter-spacing: 0.025em;
+    font-family: var(--font-jersey), "Jersey 25", sans-serif;
+    font-weight: 400;
+    letter-spacing: 0.05em;
     line-height: 1.2;
   }
 

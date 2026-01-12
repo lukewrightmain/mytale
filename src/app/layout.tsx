@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Playfair_Display } from "next/font/google";
+import { Inter, Jersey_25 } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header, Footer } from "@/components/layout";
 import { SITE_NAME, SITE_DESCRIPTION } from "@/lib/constants";
@@ -11,10 +11,11 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
-const playfair = Playfair_Display({
+const jersey = Jersey_25({
+  weight: "400",
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-playfair",
+  variable: "--font-jersey",
 });
 
 export const metadata: Metadata = {
@@ -59,7 +60,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="dark">
         <body
-          className={`${inter.variable} ${playfair.variable} antialiased min-h-screen flex flex-col`}
+          className={`${inter.variable} ${jersey.variable} antialiased min-h-screen flex flex-col`}
         >
           <Header />
           <main className="flex-1 pt-16">{children}</main>
