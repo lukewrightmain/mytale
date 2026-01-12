@@ -266,7 +266,7 @@ export function IdeasContent({ initialIdeas }: IdeasContentProps) {
                   {/* Tags */}
                   {idea.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mb-3">
-                      <Badge variant="outline" size="sm">
+                      <Badge variant="secondary" size="sm">
                         {idea.category}
                       </Badge>
                       {idea.tags.slice(0, 3).map((tag) => (
