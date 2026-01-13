@@ -212,7 +212,7 @@ export default function SubmitServerPage() {
                 value={formData.bannerStripUrl}
                 onChange={handleBannerStripChange}
                 onUpload={handleImageUpload}
-                aspectRatio="468/60"
+                aspectRatio="aspect-[468/60]"
                 allowGif={true}
               />
               <p className="text-xs text-foreground-muted mt-2">
