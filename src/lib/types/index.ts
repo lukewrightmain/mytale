@@ -13,12 +13,11 @@ export type GameMode =
   | "minigames";
 
 export type Region =
-  | "na-east"
-  | "na-west"
-  | "eu"
-  | "asia"
-  | "oceania"
-  | "sa";
+  | "NA"
+  | "EU"
+  | "AS"
+  | "SA"
+  | "OC";
 
 export type ServerStatus = "online" | "offline" | "maintenance";
 
