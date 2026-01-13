@@ -53,6 +53,7 @@ export interface Database {
           description: string | null;
           content: string | null;
           banner_url: string | null;
+          banner_strip_url: string | null;
           ip_address: string;
           port: number;
           discord_url: string | null;
@@ -76,6 +77,7 @@ export interface Database {
           description?: string | null;
           content?: string | null;
           banner_url?: string | null;
+          banner_strip_url?: string | null;
           ip_address: string;
           port?: number;
           discord_url?: string | null;
@@ -99,6 +101,7 @@ export interface Database {
           description?: string | null;
           content?: string | null;
           banner_url?: string | null;
+          banner_strip_url?: string | null;
           ip_address?: string;
           port?: number;
           discord_url?: string | null;

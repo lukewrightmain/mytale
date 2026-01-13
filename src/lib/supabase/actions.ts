@@ -308,6 +308,7 @@ export interface ServerSubmissionData {
   discordUrl?: string;
   websiteUrl?: string;
   bannerUrl?: string;
+  bannerStripUrl?: string;
 }
 
 export async function submitServer(data: ServerSubmissionData) {
@@ -349,6 +350,7 @@ export async function submitServer(data: ServerSubmissionData) {
       discord_url: data.discordUrl || null,
       website_url: data.websiteUrl || null,
       banner_url: data.bannerUrl || null,
+      banner_strip_url: data.bannerStripUrl || null,
       status: "pending",
       is_featured: false,
       is_verified: false,

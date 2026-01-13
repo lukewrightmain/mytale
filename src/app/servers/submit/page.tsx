@@ -45,6 +45,7 @@ export default function SubmitServerPage() {
     discordUrl: "",
     websiteUrl: "",
     bannerUrl: "",
+    bannerStripUrl: "",
   });
 
   const handleChange = (
@@ -60,6 +61,10 @@ export default function SubmitServerPage() {
 
   const handleImageChange = (url: string | null) => {
     setFormData((prev) => ({ ...prev, bannerUrl: url || "" }));
+  };
+
+  const handleBannerStripChange = (url: string | null) => {
+    setFormData((prev) => ({ ...prev, bannerStripUrl: url || "" }));
   };
 
   const addGameMode = (mode: string) => {
@@ -180,6 +185,37 @@ export default function SubmitServerPage() {
               />
               <p className="text-xs text-foreground-muted mt-2">
                 Recommended: 1280×720 pixels (16:9 ratio). Max 5MB.
+              </p>
+            </div>
+
+            {/* Banner Strip */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
+                Banner Strip <Badge variant="outline" size="sm" className="ml-2">Optional</Badge>
+              </label>
+              <div className="p-4 bg-surface-elevated border border-border rounded-lg mb-3">
+                <p className="text-sm text-foreground-muted mb-2">
+                  <strong className="text-foreground">What&apos;s a Banner Strip?</strong>
+                </p>
+                <p className="text-xs text-foreground-muted mb-3">
+                  A banner strip is a classic server listing banner (468×60 pixels) displayed in the &quot;Banners&quot; view. 
+                  It&apos;s the traditional Minecraft server list style — a horizontal strip that shows your server branding at a glance.
+                  <strong className="text-primary-400"> GIFs are supported!</strong>
+                </p>
+                <div className="bg-stone-900 border border-stone-700 rounded p-2 text-center">
+                  <div className="inline-block bg-stone-800 border border-dashed border-stone-600 text-stone-500 text-xs px-8 py-3 rounded">
+                    468 × 60 pixels (example size)
+                  </div>
+                </div>
+              </div>
+              <ImageUpload
+                value={formData.bannerStripUrl}
+                onChange={handleBannerStripChange}
+                onUpload={handleImageUpload}
+                aspectRatio="468/60"
+              />
+              <p className="text-xs text-foreground-muted mt-2">
+                Recommended: 468×60 pixels. Supports PNG, JPG, GIF (animated). Max 5MB.
               </p>
             </div>
 
