@@ -1,4 +1,4 @@
-import { Hero, Stats, FeaturedMods, FeaturedServers, CallToAction } from "@/components/home";
+import { Hero, Stats, FeaturedMods, FeaturedServers, CallToAction, SeoContent } from "@/components/home";
 import { OrganizationJsonLd, FaqJsonLd } from "@/components/seo";
 
 // FAQ data for SEO
@@ -34,6 +34,7 @@ export default function HomePage() {
       <Stats />
       <FeaturedMods />
       <FeaturedServers />
+      <SeoContent />
       <CallToAction />
     </>
   );
