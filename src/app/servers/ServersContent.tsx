@@ -3,10 +3,12 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Users, Globe, Copy, Check, ExternalLink } from "lucide-react";
+import { Users, Globe, Copy, Check, ExternalLink, LayoutGrid, List } from "lucide-react";
 import { Card, Badge, Button } from "@/components/ui";
 import { ServerFilters } from "@/components/servers";
 import type { Database } from "@/lib/supabase/types";
+
+type ViewMode = "cards" | "banners";
 
 type Server = Database["public"]["Tables"]["servers"]["Row"];
 
@@ -38,6 +40,7 @@ export function ServersContent({ initialServers }: ServersContentProps) {
   const [gameMode, setGameMode] = useState("all");
   const [sort, setSort] = useState("players");
   const [copiedIp, setCopiedIp] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("cards");
 
   const filteredServers = useMemo(() => {
     let result = [...initialServers];
@@ -105,8 +108,37 @@ export function ServersContent({ initialServers }: ServersContentProps) {
         />
       </div>
 
-      {/* Server Grid */}
+      {/* View Toggle */}
+      <div className="flex justify-end mb-6">
+        <div className="flex items-center gap-1 p-1 bg-surface border border-border rounded-lg">
+          <button
+            onClick={() => setViewMode("cards")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              viewMode === "cards"
+                ? "bg-primary-500 text-white"
+                : "text-foreground-muted hover:text-foreground hover:bg-stone-800"
+            }`}
+          >
+            <LayoutGrid className="w-4 h-4" />
+            <span className="hidden sm:inline">Cards</span>
+          </button>
+          <button
+            onClick={() => setViewMode("banners")}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+              viewMode === "banners"
+                ? "bg-primary-500 text-white"
+                : "text-foreground-muted hover:text-foreground hover:bg-stone-800"
+            }`}
+          >
+            <List className="w-4 h-4" />
+            <span className="hidden sm:inline">Banners</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Server List */}
       {filteredServers.length > 0 ? (
+        viewMode === "cards" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredServers.map((server) => {
             const regionInfo = getRegionDisplay(server.region);
@@ -209,11 +241,107 @@ export function ServersContent({ initialServers }: ServersContentProps) {
                     </Button>
                   </div>
                 </div>
-              </Card>
+                </Card>
             </Link>
             );
           })}
         </div>
+        ) : (
+        /* Banner List View */
+        <div className="flex flex-col gap-3">
+          {filteredServers.map((server) => {
+            const regionInfo = getRegionDisplay(server.region);
+            return (
+              <Link key={server.id} href={`/servers/${server.slug}`} className="block group">
+                <div className="relative h-16 sm:h-20 md:h-24 rounded-lg overflow-hidden border border-border hover:border-primary-500/50 transition-all">
+                  {/* Banner Strip or Fallback to Banner */}
+                  <Image
+                    src={(server as { banner_strip_url?: string }).banner_strip_url || server.banner_url || "/images/hero/Hero.png"}
+                    alt={server.name}
+                    fill
+                    className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    unoptimized={(server as { banner_strip_url?: string }).banner_strip_url?.endsWith('.gif')}
+                  />
+                  
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/70 to-black/40" />
+                  
+                  {/* Content */}
+                  <div className="absolute inset-0 flex items-center px-4 sm:px-6">
+                    {/* Left: Server Info */}
+                    <div className="flex-1 min-w-0 flex items-center gap-4">
+                      {/* Status Dot */}
+                      <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
+                        server.is_online ? "bg-green-400 animate-pulse" : "bg-red-400"
+                      }`} />
+                      
+                      {/* Server Name & Description */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h3 className="font-display font-bold text-base sm:text-lg md:text-xl text-white truncate">
+                            {server.name}
+                          </h3>
+                          {server.is_verified && (
+                            <Badge variant="primary" size="sm" className="hidden sm:inline-flex">Verified</Badge>
+                          )}
+                          {server.is_featured && (
+                            <Badge variant="accent" size="sm" className="hidden sm:inline-flex">Featured</Badge>
+                          )}
+                        </div>
+                        <p className="text-stone-400 text-xs sm:text-sm truncate max-w-md hidden md:block">
+                          {server.description}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right: Meta & Actions */}
+                    <div className="flex items-center gap-3 sm:gap-4 md:gap-6 flex-shrink-0">
+                      {/* Region */}
+                      <div className="hidden lg:flex items-center gap-1.5 text-stone-300 text-sm">
+                        <Globe className="w-4 h-4" />
+                        <span>{regionInfo.flag} {regionInfo.label}</span>
+                      </div>
+
+                      {/* Players */}
+                      <div className="flex items-center gap-1.5 text-sm">
+                        <Users className="w-4 h-4 text-stone-400" />
+                        <span className={getPlayerCountColor(server.players_online, server.max_players)}>
+                          {server.players_online}
+                        </span>
+                        <span className="text-stone-500">/ {server.max_players}</span>
+                      </div>
+
+                      {/* IP Address */}
+                      <div className="hidden sm:block">
+                        <button
+                          onClick={(e) => handleCopyIp(e, server.ip_address)}
+                          className="flex items-center gap-2 px-3 py-1.5 bg-stone-800/80 hover:bg-stone-700 border border-stone-600 rounded-md text-sm text-white transition-colors"
+                        >
+                          {copiedIp === server.ip_address ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-green-400" />
+                              <span className="text-green-400">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span className="hidden md:inline">{server.ip_address}</span>
+                              <span className="md:hidden">Copy IP</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {/* View Arrow */}
+                      <ExternalLink className="w-5 h-5 text-stone-400 group-hover:text-primary-400 transition-colors" />
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+        )
       ) : (
         <div className="text-center py-20">
           <p className="text-foreground-muted text-lg">
