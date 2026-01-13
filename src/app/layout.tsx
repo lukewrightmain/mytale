@@ -1,9 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Jersey_25 } from "next/font/google";
+import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Header, Footer } from "@/components/layout";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
 import "./globals.css";
+
+// Google Ads ID
+const GOOGLE_ADS_ID = "AW-11361781332";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -150,6 +154,20 @@ export default function RootLayout({
           className={`${inter.variable} ${jersey.variable} antialiased min-h-screen flex flex-col`}
           suppressHydrationWarning
         >
+          {/* Google Ads Tag */}
+          <Script
+            src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+            strategy="afterInteractive"
+          />
+          <Script id="google-ads" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GOOGLE_ADS_ID}');
+            `}
+          </Script>
+          
           <Header />
           <main className="flex-1 pt-16">{children}</main>
           <Footer />
