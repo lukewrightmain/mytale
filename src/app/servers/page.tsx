@@ -17,10 +17,20 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTIONS.servers,
     url: `${SITE_URL}/servers`,
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Mytale - Hytale Servers",
+      },
+    ],
   },
   twitter: {
+    card: "summary_large_image",
     title: "Hytale Servers - Find the Best Multiplayer Servers | Mytale",
     description: PAGE_DESCRIPTIONS.servers,
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: `${SITE_URL}/servers`,

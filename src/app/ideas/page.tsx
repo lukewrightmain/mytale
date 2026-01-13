@@ -17,10 +17,13 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTIONS.ideas,
     url: `${SITE_URL}/ideas`,
     type: "website",
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: "Mytale - Hytale Ideas" }],
   },
   twitter: {
+    card: "summary_large_image",
     title: "Hytale Ideas - Community Suggestions & Feature Requests | Mytale",
     description: PAGE_DESCRIPTIONS.ideas,
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: `${SITE_URL}/ideas`,
