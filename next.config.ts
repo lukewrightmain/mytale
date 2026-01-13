@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "nazqfojdbuszvyydvzqx.supabase.co",
       },
+      {
+        protocol: "https",
+        hostname: "media.forgecdn.net",
+      },
     ],
   },
 
