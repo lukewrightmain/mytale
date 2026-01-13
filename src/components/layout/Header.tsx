@@ -6,8 +6,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, Copy, Check } from "lucide-react";
 import {
-  SignInButton,
-  SignUpButton,
   SignedIn,
   SignedOut,
   UserButton,
@@ -75,33 +73,36 @@ export function Header() {
           </nav>
 
           {/* Desktop Auth + Creator Code - Fixed width for balance */}
-          <div className="flex-1 hidden md:flex items-center justify-end gap-3">
+          <div className="flex-1 hidden md:flex items-center justify-end gap-2">
             {/* Creator Code */}
             <button
               onClick={copyCreatorCode}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 hover:border-amber-400/50 transition-all group"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 hover:border-amber-400/50 transition-all group"
               title="Click to copy creator code"
             >
-              <span className="text-xs text-amber-200/70">Creator Code:</span>
+              <span className="text-[11px] text-amber-200/70 hidden lg:inline">Code:</span>
               <span className="text-sm font-bold text-amber-400">{CREATOR_CODE}</span>
               {copied ? (
-                <Check className="w-3.5 h-3.5 text-green-400" />
+                <Check className="w-3 h-3 text-green-400" />
               ) : (
-                <Copy className="w-3.5 h-3.5 text-amber-400/70 group-hover:text-amber-400 transition-colors" />
+                <Copy className="w-3 h-3 text-amber-400/70 group-hover:text-amber-400 transition-colors" />
               )}
             </button>
 
+            {/* Separator */}
+            <div className="h-6 w-px bg-border mx-1" />
+
             <SignedOut>
-              <SignInButton mode="modal">
-                <Button variant="ghost" size="sm">
+              <Link href="/sign-in">
+                <Button variant="ghost" size="sm" className="px-3">
                   Sign In
                 </Button>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <Button size="sm">
+              </Link>
+              <Link href="/sign-up">
+                <Button size="sm" className="px-4">
                   Get Started
                 </Button>
-              </SignUpButton>
+              </Link>
             </SignedOut>
             <SignedIn>
               <UserButton
@@ -164,16 +165,16 @@ export function Header() {
               <hr className="border-border my-2" />
               <div className="flex flex-col gap-2 px-4">
                 <SignedOut>
-                  <SignInButton mode="modal">
+                  <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full">
                       Sign In
                     </Button>
-                  </SignInButton>
-                  <SignUpButton mode="modal">
+                  </Link>
+                  <Link href="/sign-up" onClick={() => setMobileMenuOpen(false)}>
                     <Button className="w-full">
                       Get Started
                     </Button>
-                  </SignUpButton>
+                  </Link>
                 </SignedOut>
                 <SignedIn>
                   <div className="flex items-center justify-center py-2">
