@@ -150,17 +150,17 @@ export function Hero() {
           </span>
         </div>
 
-        {/* Main Heading */}
+        {/* Main Heading - SEO optimized */}
         <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl font-bold mb-6">
-          <span className="text-foreground">Your Adventure</span>
+          <span className="text-foreground">Hytale Servers</span>
           <br />
-          <span className="gradient-text">Awaits</span>
+          <span className="gradient-text">Mods & More</span>
         </h1>
 
-        {/* Subheading */}
+        {/* Subheading - SEO keywords */}
         <p className="text-xl sm:text-2xl text-foreground-muted max-w-2xl mx-auto mb-10">
-          Discover community-made mods, plugins, and servers. 
-          Enhance your Hytale experience with endless possibilities.
+          Browse the #1 Hytale server list, download mods, plugins, texture packs, and maps.
+          Your ultimate Hytale community hub.
         </p>
 
         {/* CTA Buttons */}

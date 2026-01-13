@@ -27,7 +27,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${SITE_NAME} - Hytale Mods, Plugins, Servers, Maps & Textures`,
+    default: `${SITE_NAME} - Hytale Servers, Mods, Plugins, Texture Packs & Server List`,
     template: `%s | ${SITE_NAME} - Hytale Community Hub`,
   },
   description: PAGE_DESCRIPTIONS.home,
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: SITE_URL,
     siteName: SITE_NAME,
-    title: `${SITE_NAME} - Hytale Mods, Plugins, Servers, Maps & Textures`,
+    title: `${SITE_NAME} - Hytale Servers, Mods, Plugins & Server List`,
     description: PAGE_DESCRIPTIONS.home,
     images: [
       {
@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${SITE_NAME} - Hytale Mods, Plugins, Servers, Maps & Textures`,
+    title: `${SITE_NAME} - Hytale Servers, Mods, Plugins & Server List`,
     description: PAGE_DESCRIPTIONS.home,
     images: ["/images/og-image.png"],
     creator: "@MytaleHytale",

@@ -115,23 +115,37 @@ export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://mytale.gg";
 
 export const SEO_KEYWORDS = {
   global: [
+    // Primary keywords
     "Hytale",
+    "Hytale servers",
+    "Hytale server list",
     "Hytale mods",
     "Hytale plugins",
-    "Hytale servers",
     "Hytale maps",
+    "Hytale worlds",
     "Hytale textures",
+    "Hytale texture packs",
     "Hytale resource packs",
+    // Secondary keywords
     "Hytale modding",
     "Hytale community",
     "Hytale download",
     "Hytale addons",
     "Hytale custom content",
     "Hytale modpack",
-    "Hytale server list",
+    "Hytale mod list",
+    "Hytale mod download",
+    "Hytale server IP",
+    "Hytale multiplayer servers",
+    "best Hytale servers",
+    "best Hytale mods",
     "Hytale index",
+    // Brand keywords
+    "Mytale",
     "Hypixel Studios",
     "Riot Games Hytale",
+    "Hytale 2026",
+    "Hytale Early Access",
   ],
   mods: [
     "Hytale mods",
@@ -204,7 +218,7 @@ export const SEO_KEYWORDS = {
 // ─── Page Descriptions ───
 
 export const PAGE_DESCRIPTIONS = {
-  home: "Mytale is your ultimate Hytale community hub. Discover and download the best Hytale mods, plugins, servers, maps, and textures. Join thousands of players enhancing their Hytale experience.",
+  home: "Mytale is your ultimate Hytale community hub. Browse the best Hytale server list, download Hytale mods, plugins, texture packs, resource packs, maps and worlds. Find Hytale multiplayer servers and join thousands of players. The #1 Hytale index for mods and servers.",
   mods: "Browse and download the best Hytale mods. Enhance your gameplay with community-created mods including gameplay tweaks, new creatures, items, and more. Free Hytale mod downloads.",
   plugins: "Find the best Hytale server plugins. Download plugins for your Hytale server including economy, permissions, minigames, and custom features. Free plugin downloads.",
   servers: "Find the perfect Hytale server for your playstyle. Browse our comprehensive Hytale server list featuring survival, PvP, creative, roleplay, and minigame servers worldwide.",
