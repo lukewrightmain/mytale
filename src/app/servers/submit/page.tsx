@@ -39,7 +39,7 @@ export default function SubmitServerPage() {
     name: "",
     description: "",
     ipAddress: "",
-    port: "25565",
+    port: "5520",
     region: "NA",
     gameModes: "",
     discordUrl: "",
@@ -213,6 +213,7 @@ export default function SubmitServerPage() {
                 onChange={handleBannerStripChange}
                 onUpload={handleImageUpload}
                 aspectRatio="468/60"
+                allowGif={true}
               />
               <p className="text-xs text-foreground-muted mt-2">
                 Recommended: 468×60 pixels. Supports PNG, JPG, GIF (animated). Max 5MB.
@@ -255,7 +256,7 @@ export default function SubmitServerPage() {
                   name="port"
                   value={formData.port}
                   onChange={handleChange}
-                  placeholder="25565"
+                  placeholder="5520"
                 />
               </div>
             </div>

@@ -344,7 +344,7 @@ export async function submitServer(data: ServerSubmissionData) {
       slug,
       description: data.description,
       ip_address: data.ipAddress,
-      port: parseInt(data.port) || 25565,
+      port: parseInt(data.port) || 5520,
       region: data.region,
       game_modes: gameModes,
       discord_url: data.discordUrl || null,
@@ -427,7 +427,7 @@ export async function updateServer(serverId: string, data: ServerUpdateData) {
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description;
   if (data.ipAddress !== undefined) updateData.ip_address = data.ipAddress;
-  if (data.port !== undefined) updateData.port = parseInt(data.port) || 25565;
+  if (data.port !== undefined) updateData.port = parseInt(data.port) || 5520;
   if (data.region !== undefined) updateData.region = data.region;
   if (gameModes !== undefined) updateData.game_modes = gameModes;
   if (data.discordUrl !== undefined) updateData.discord_url = data.discordUrl;

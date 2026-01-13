@@ -39,7 +39,7 @@ export default async function ServerDetailPage({ params }: Props) {
     notFound();
   }
 
-  const serverAddress = server.port === 25565 
+  const serverAddress = server.port === 5520 
     ? server.ip_address 
     : `${server.ip_address}:${server.port}`;
 

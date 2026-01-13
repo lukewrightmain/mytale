@@ -64,7 +64,7 @@ export default function EditServerPage({ params }: { params: Promise<{ slug: str
     name: "",
     description: "",
     ipAddress: "",
-    port: "25565",
+    port: "5520",
     region: "NA",
     gameModes: "",
     discordUrl: "",
@@ -311,7 +311,7 @@ export default function EditServerPage({ params }: { params: Promise<{ slug: str
                   name="port"
                   value={formData.port}
                   onChange={handleChange}
-                  placeholder="25565"
+                  placeholder="5520"
                 />
               </div>
             </div>
