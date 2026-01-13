@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Upload } from "lucide-react";
 import { getPlugins } from "@/lib/supabase/queries";
 import { PluginsContent } from "./PluginsContent";
-import { Button } from "@/components/ui";
+import { Button, DisclaimerBanner } from "@/components/ui";
 import { SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
 
 export const metadata: Metadata = {
@@ -69,6 +69,9 @@ export default async function PluginsPage() {
       {/* Main Content */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <DisclaimerBanner 
+            message="Download links may vary or be unavailable depending on whether the developer has updated them. Always verify downloads from trusted sources."
+          />
           <Suspense fallback={<div className="animate-pulse h-96 bg-surface rounded-xl" />}>
             <PluginsContent initialPlugins={plugins} />
           </Suspense>
