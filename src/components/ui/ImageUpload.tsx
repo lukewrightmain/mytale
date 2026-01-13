@@ -98,14 +98,19 @@ export function ImageUpload({
 
       {value ? (
         // Image Preview
-        <div className={`relative ${aspectRatio} rounded-lg overflow-hidden border border-border`}>
+        <div className={`relative ${aspectRatio} min-h-[60px] rounded-lg overflow-hidden border border-border bg-surface-elevated`}>
           {/* Use native img for GIFs to preserve animation, Next.js Image breaks GIF animations */}
           {value.toLowerCase().includes('.gif') || allowGif ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={value}
               alt="Upload preview"
-              className="absolute inset-0 w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-contain"
+              onError={(e) => {
+                console.error('Image failed to load:', value);
+                e.currentTarget.style.display = 'none';
+              }}
+              onLoad={() => console.log('Image loaded successfully:', value)}
             />
           ) : (
             <Image
