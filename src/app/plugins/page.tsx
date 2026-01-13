@@ -17,10 +17,13 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTIONS.plugins,
     url: `${SITE_URL}/plugins`,
     type: "website",
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: "Mytale - Hytale Plugins" }],
   },
   twitter: {
+    card: "summary_large_image",
     title: "Hytale Plugins - Server Plugins & Extensions | Mytale",
     description: PAGE_DESCRIPTIONS.plugins,
+    images: ["/images/og-image.png"],
   },
   alternates: {
     canonical: `${SITE_URL}/plugins`,
