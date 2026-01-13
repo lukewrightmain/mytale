@@ -99,12 +99,22 @@ export function ImageUpload({
       {value ? (
         // Image Preview
         <div className={`relative ${aspectRatio} rounded-lg overflow-hidden border border-border`}>
-          <Image
-            src={value}
-            alt="Upload preview"
-            fill
-            className="object-cover"
-          />
+          {/* Use unoptimized for GIFs to preserve animation, or use native img for better GIF support */}
+          {value.toLowerCase().endsWith('.gif') ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={value}
+              alt="Upload preview"
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          ) : (
+            <Image
+              src={value}
+              alt="Upload preview"
+              fill
+              className="object-cover"
+            />
+          )}
           <div className="absolute inset-0 bg-black/50 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
             <Button
               type="button"
