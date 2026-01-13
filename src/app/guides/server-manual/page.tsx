@@ -334,7 +334,7 @@ export default function ServerManualPage() {
               </p>
               <pre className="bg-surface-darker p-4 rounded-lg overflow-x-auto mb-6">
                 <code className="text-green-400">
-                  java -jar HytaleServer.jar --bind 0.0.0.0:25565
+                  java -jar HytaleServer.jar --bind 0.0.0.0:5520
                 </code>
               </pre>
 

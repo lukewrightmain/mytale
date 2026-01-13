@@ -11,6 +11,7 @@ interface ImageUploadProps {
   onUpload: (file: File) => Promise<{ success: boolean; url?: string; error?: string }>;
   aspectRatio?: string;
   className?: string;
+  allowGif?: boolean;
 }
 
 export function ImageUpload({
@@ -19,7 +20,11 @@ export function ImageUpload({
   onUpload,
   aspectRatio = "aspect-video",
   className = "",
+  allowGif = false,
 }: ImageUploadProps) {
+  const acceptedTypes = allowGif 
+    ? "image/jpeg,image/png,image/webp,image/gif" 
+    : "image/jpeg,image/png,image/webp";
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragActive, setDragActive] = useState(false);
@@ -86,7 +91,7 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp"
+        accept={acceptedTypes}
         onChange={handleInputChange}
         className="hidden"
       />
@@ -159,7 +164,7 @@ export function ImageUpload({
                   {" "}or drag and drop
                 </p>
                 <p className="text-xs text-foreground-muted mt-1">
-                  JPG, PNG or WebP (1280×720 recommended)
+                  {allowGif ? "JPG, PNG, WebP or GIF" : "JPG, PNG or WebP"} (1280×720 recommended)
                 </p>
               </div>
             </>

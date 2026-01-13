@@ -10,7 +10,7 @@ export const IMAGE_REQUIREMENTS = {
   recommendedWidth: 1280,
   recommendedHeight: 720,
   aspectRatio: "16:9",
-  allowedTypes: ["image/jpeg", "image/png", "image/webp"],
+  allowedTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
 };
 
 export async function uploadImage(
@@ -24,7 +24,7 @@ export async function uploadImage(
     if (!IMAGE_REQUIREMENTS.allowedTypes.includes(file.type)) {
       return {
         success: false,
-        error: "Invalid file type. Please upload a JPG, PNG, or WebP image.",
+        error: "Invalid file type. Please upload a JPG, PNG, WebP, or GIF image.",
       };
     }
 

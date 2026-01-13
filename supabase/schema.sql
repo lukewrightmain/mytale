@@ -36,7 +36,7 @@ CREATE TABLE servers (
   content TEXT, -- Markdown content for server page
   banner_url TEXT,
   ip_address TEXT NOT NULL,
-  port INTEGER DEFAULT 25565,
+  port INTEGER DEFAULT 5520,
   discord_url TEXT,
   website_url TEXT,
   region TEXT NOT NULL DEFAULT 'NA',
