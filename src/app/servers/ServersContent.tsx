@@ -27,7 +27,9 @@ function getRegionDisplay(region: string): { flag: string; label: string } {
     SA: { flag: "🇧🇷", label: "South America" },
     OC: { flag: "🇦🇺", label: "Oceania" },
   };
-  return regions[region] || { flag: "🌍", label: region };
+  // Handle case-insensitive matching
+  const upperRegion = region?.toUpperCase() || "";
+  return regions[upperRegion] || { flag: "🌍", label: region || "Unknown" };
 }
 
 interface ServersContentProps {

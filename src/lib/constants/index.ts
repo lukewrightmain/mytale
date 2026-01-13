@@ -28,22 +28,20 @@ export const GAME_MODE_OPTIONS: FilterOption[] = [
 // ─── Regions ───
 
 export const REGIONS: Record<Region, { label: string; flag: string }> = {
-  "na-east": { label: "North America (East)", flag: "🇺🇸" },
-  "na-west": { label: "North America (West)", flag: "🇺🇸" },
-  eu: { label: "Europe", flag: "🇪🇺" },
-  asia: { label: "Asia", flag: "🌏" },
-  oceania: { label: "Oceania", flag: "🇦🇺" },
-  sa: { label: "South America", flag: "🇧🇷" },
+  NA: { label: "North America", flag: "🇺🇸" },
+  EU: { label: "Europe", flag: "🇪🇺" },
+  AS: { label: "Asia", flag: "🌏" },
+  SA: { label: "South America", flag: "🇧🇷" },
+  OC: { label: "Oceania", flag: "🇦🇺" },
 };
 
 export const REGION_OPTIONS: FilterOption[] = [
   { value: "all", label: "All Regions" },
-  { value: "na-east", label: "🇺🇸 NA East" },
-  { value: "na-west", label: "🇺🇸 NA West" },
-  { value: "eu", label: "🇪🇺 Europe" },
-  { value: "asia", label: "🌏 Asia" },
-  { value: "oceania", label: "🇦🇺 Oceania" },
-  { value: "sa", label: "🇧🇷 South America" },
+  { value: "NA", label: "🇺🇸 North America" },
+  { value: "EU", label: "🇪🇺 Europe" },
+  { value: "AS", label: "🌏 Asia" },
+  { value: "SA", label: "🇧🇷 South America" },
+  { value: "OC", label: "🇦🇺 Oceania" },
 ];
 
 // ─── Mod Categories ───
