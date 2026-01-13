@@ -99,8 +99,8 @@ export function ImageUpload({
       {value ? (
         // Image Preview
         <div className={`relative ${aspectRatio} rounded-lg overflow-hidden border border-border`}>
-          {/* Use unoptimized for GIFs to preserve animation, or use native img for better GIF support */}
-          {value.toLowerCase().endsWith('.gif') ? (
+          {/* Use native img for GIFs to preserve animation, Next.js Image breaks GIF animations */}
+          {value.toLowerCase().includes('.gif') || allowGif ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={value}
