@@ -197,6 +197,13 @@ export const SEO_KEYWORDS = {
     "Hytale mod ideas",
     "Hytale community ideas",
   ],
+  builders: [
+    "Hytale builders",
+    "Hytale building",
+    "Hytale portfolios",
+    "Hytale construction",
+    "Hytale builder profiles",
+  ],
   guides: [
     "Hytale guide",
     "Hytale tutorial",
@@ -223,6 +230,7 @@ export const PAGE_DESCRIPTIONS = {
   maps: "Download custom Hytale maps and worlds. Explore adventure maps, parkour challenges, PvP arenas, and creative builds made by the Hytale community.",
   textures: "Browse and download Hytale texture packs and resource packs. Transform your Hytale visuals with HD textures, realistic packs, and unique art styles.",
   ideas: "Share and vote on Hytale mod ideas and feature suggestions. Help shape the future of Hytale modding by contributing your creative ideas to the community.",
+  builders: "Browse talented Hytale builders and their portfolios. Showcase your building skills, connect with the community, and find builders for your projects.",
   guides: "Comprehensive guides and tutorials for Hytale. Learn how to set up and run a dedicated Hytale server, install mods, configure multiserver architecture, and optimize performance.",
 };
 
@@ -235,6 +243,7 @@ export const NAV_ITEMS = [
   { label: "Plugins", href: "/plugins" },
   { label: "Maps", href: "/maps" },
   { label: "Textures", href: "/textures" },
+  { label: "Builders", href: "/builders" },
   { label: "Ideas", href: "/ideas" },
   { label: "Guides", href: "/guides" },
 ];

@@ -15,7 +15,7 @@ export const IMAGE_REQUIREMENTS = {
 
 export async function uploadImage(
   file: File,
-  folder: "mods" | "servers" | "maps" | "textures" | "plugins"
+  folder: "mods" | "servers" | "maps" | "textures" | "plugins" | "builders"
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   try {
     const supabase = createClient();

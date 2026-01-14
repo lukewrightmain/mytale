@@ -790,3 +790,241 @@ export async function submitIdea(data: IdeaSubmissionData) {
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+// ==========================================
+// BUILDER PROFILE SUBMISSION & EDITING
+// ==========================================
+
+export interface BuilderSubmissionData {
+  name: string;
+  tagline?: string;
+  description?: string;
+  thumbnailUrl?: string;
+  bannerUrl?: string;
+  discordUrl?: string;
+  twitterUrl?: string;
+  youtubeUrl?: string;
+  websiteUrl?: string;
+}
+
+export interface PortfolioItemData {
+  type: "image" | "video";
+  url: string;
+  thumbnailUrl?: string;
+  title?: string;
+  description?: string;
+  displayOrder?: number;
+}
+
+export async function submitBuilder(data: BuilderSubmissionData, portfolioItems?: PortfolioItemData[]) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit a builder profile" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  // Generate slug
+  const baseSlug = generateSlug(data.name);
+  const timestamp = Date.now().toString(36);
+  const slug = `${baseSlug}-${timestamp}`;
+
+  try {
+    const { data: builderData, error: builderError } = await supabase
+      .from("builders")
+      .insert({
+        builder_id: profileId,
+        name: data.name,
+        slug,
+        tagline: data.tagline || null,
+        description: data.description || null,
+        thumbnail_url: data.thumbnailUrl || null,
+        banner_url: data.bannerUrl || null,
+        discord_url: data.discordUrl || null,
+        twitter_url: data.twitterUrl || null,
+        youtube_url: data.youtubeUrl || null,
+        website_url: data.websiteUrl || null,
+        status: "pending",
+        is_featured: false,
+        upvotes: 0,
+      } as never)
+      .select("id, slug")
+      .single();
+
+    if (builderError) {
+      console.error("Error submitting builder profile:", builderError);
+      return { success: false, error: "Failed to submit builder profile. Please try again." };
+    }
+
+    const builderId = (builderData as { id: string; slug: string }).id;
+
+    // Insert portfolio items if provided
+    if (portfolioItems && portfolioItems.length > 0) {
+      const portfolioInserts = portfolioItems.map((item, index) => ({
+        builder_id: builderId,
+        type: item.type,
+        url: item.url,
+        thumbnail_url: item.thumbnailUrl || null,
+        title: item.title || null,
+        description: item.description || null,
+        display_order: item.displayOrder ?? index,
+      }));
+
+      const { error: portfolioError } = await supabase
+        .from("builder_portfolio_items")
+        .insert(portfolioInserts as never[]);
+
+      if (portfolioError) {
+        console.error("Error adding portfolio items:", portfolioError);
+        // Don't fail the whole submission, just log the error
+      }
+    }
+
+    revalidatePath("/builders");
+    return { success: true, slug: (builderData as { slug: string }).slug };
+  } catch (err) {
+    console.error("Error submitting builder profile:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// Check if current user owns this builder profile
+export async function checkBuilderOwnership(builderId: string) {
+  const { userId } = await auth();
+  if (!userId) return false;
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) return false;
+
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("builders")
+    .select("builder_id")
+    .eq("id", builderId)
+    .single();
+
+  return (data as { builder_id: string } | null)?.builder_id === profileId;
+}
+
+export async function updateBuilder(builderId: string, data: BuilderSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to update a builder profile" };
+  }
+
+  const isOwner = await checkBuilderOwnership(builderId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to update this builder profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { error } = await supabase
+      .from("builders")
+      .update({
+        name: data.name,
+        tagline: data.tagline || null,
+        description: data.description || null,
+        thumbnail_url: data.thumbnailUrl || null,
+        banner_url: data.bannerUrl || null,
+        discord_url: data.discordUrl || null,
+        twitter_url: data.twitterUrl || null,
+        youtube_url: data.youtubeUrl || null,
+        website_url: data.websiteUrl || null,
+      } as never)
+      .eq("id", builderId);
+
+    if (error) {
+      console.error("Error updating builder profile:", error);
+      return { success: false, error: "Failed to update builder profile. Please try again." };
+    }
+
+    revalidatePath("/builders");
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating builder profile:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+export async function addPortfolioItem(builderId: string, data: PortfolioItemData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to add portfolio items" };
+  }
+
+  const isOwner = await checkBuilderOwnership(builderId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to add items to this portfolio" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { error } = await supabase
+      .from("builder_portfolio_items")
+      .insert({
+        builder_id: builderId,
+        type: data.type,
+        url: data.url,
+        thumbnail_url: data.thumbnailUrl || null,
+        title: data.title || null,
+        description: data.description || null,
+        display_order: data.displayOrder || 0,
+      } as never);
+
+    if (error) {
+      console.error("Error adding portfolio item:", error);
+      return { success: false, error: "Failed to add portfolio item. Please try again." };
+    }
+
+    revalidatePath("/builders");
+    return { success: true };
+  } catch (err) {
+    console.error("Error adding portfolio item:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+export async function deletePortfolioItem(itemId: string, builderId: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to delete portfolio items" };
+  }
+
+  const isOwner = await checkBuilderOwnership(builderId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to delete items from this portfolio" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { error } = await supabase
+      .from("builder_portfolio_items")
+      .delete()
+      .eq("id", itemId)
+      .eq("builder_id", builderId);
+
+    if (error) {
+      console.error("Error deleting portfolio item:", error);
+      return { success: false, error: "Failed to delete portfolio item. Please try again." };
+    }
+
+    revalidatePath("/builders");
+    return { success: true };
+  } catch (err) {
+    console.error("Error deleting portfolio item:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
