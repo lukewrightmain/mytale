@@ -709,12 +709,11 @@ export async function getIdeaById(id: string) {
   return data;
 }
 
-
 // ==========================================
 // BUILDER QUERIES
 // ==========================================
 
-// Builder types (will be in Database types after migration)
+// Builder types (defined explicitly until Database types are regenerated after migration)
 export type BuilderWithProfile = {
   id: string;
   builder_id: string | null;
