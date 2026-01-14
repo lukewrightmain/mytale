@@ -51,6 +51,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${SITE_URL}/builders`,
+      lastModified: new Date(),
+      changeFrequency: "hourly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/builders/submit`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
       url: `${SITE_URL}/mods/submit`,
       lastModified: new Date(),
       changeFrequency: "monthly",
@@ -184,6 +196,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.6,
     })) || [];
 
+  // Dynamic builder pages
+  const { data: builders } = await supabase
+    .from("builders")
+    .select("slug, updated_at")
+    .eq("status", "approved");
+
+  const builderPages: MetadataRoute.Sitemap =
+    (builders as { slug: string; updated_at: string }[] | null)?.map((builder) => ({
+      url: `${SITE_URL}/builders/${builder.slug}`,
+      lastModified: new Date(builder.updated_at),
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })) || [];
+
   return [
     ...staticPages,
     ...modPages,
@@ -192,6 +218,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...mapPages,
     ...texturePages,
     ...ideaPages,
+    ...builderPages,
   ];
 }
 

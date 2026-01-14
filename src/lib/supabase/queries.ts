@@ -709,3 +709,141 @@ export async function getIdeaById(id: string) {
   return data;
 }
 
+
+// ==========================================
+// BUILDER QUERIES
+// ==========================================
+
+// Builder types (will be in Database types after migration)
+export type BuilderWithProfile = {
+  id: string;
+  builder_id: string | null;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  description: string | null;
+  thumbnail_url: string | null;
+  banner_url: string | null;
+  discord_url: string | null;
+  twitter_url: string | null;
+  youtube_url: string | null;
+  website_url: string | null;
+  upvotes: number;
+  is_featured: boolean;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  profiles: Pick<Profile, "id" | "clerk_id" | "username" | "display_name" | "avatar_url"> | null;
+};
+
+export type PortfolioItem = {
+  id: string;
+  builder_id: string;
+  type: "image" | "video";
+  url: string;
+  thumbnail_url: string | null;
+  title: string | null;
+  description: string | null;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export async function getBuilders(options?: {
+  featured?: boolean;
+  limit?: number;
+  sortBy?: "upvotes" | "newest";
+  search?: string;
+}) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("builders")
+    .select(`
+      *,
+      profiles:builder_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("status", "approved");
+
+  if (options?.featured) {
+    query = query.eq("is_featured", true);
+  }
+
+  if (options?.search) {
+    query = query.or(`name.ilike.%${options.search}%,tagline.ilike.%${options.search}%,description.ilike.%${options.search}%`);
+  }
+
+  // Sorting
+  switch (options?.sortBy) {
+    case "newest":
+      query = query.order("created_at", { ascending: false });
+      break;
+    case "upvotes":
+    default:
+      query = query.order("upvotes", { ascending: false });
+      break;
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching builders:", error);
+    return [];
+  }
+
+  return data as BuilderWithProfile[];
+}
+
+export async function getBuilderBySlug(slug: string): Promise<(BuilderWithProfile & { portfolio_items: PortfolioItem[] }) | null> {
+  const supabase = await createClient();
+
+  const { data: builder, error: builderError } = await supabase
+    .from("builders")
+    .select(`
+      *,
+      profiles:builder_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (builderError || !builder) {
+    console.error("Error fetching builder:", builderError);
+    return null;
+  }
+
+  const { data: portfolioItems, error: portfolioError } = await supabase
+    .from("builder_portfolio_items")
+    .select("*")
+    .eq("builder_id", (builder as BuilderWithProfile).id)
+    .order("display_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (portfolioError) {
+    console.error("Error fetching portfolio items:", portfolioError);
+  }
+
+  return {
+    ...(builder as BuilderWithProfile),
+    portfolio_items: (portfolioItems || []) as PortfolioItem[],
+  };
+}
+
+export async function getFeaturedBuilders(limit = 4) {
+  return getBuilders({ featured: true, limit });
+}
