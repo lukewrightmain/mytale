@@ -70,12 +70,13 @@ export default function SubmitBuilderPage() {
     try {
       const result = await uploadImage(file, "builders");
       if (result.success && result.url) {
+        const uploadedUrl = result.url; // Capture for TypeScript narrowing
         setPortfolioItems((prev) => [
           ...prev,
           {
             id: Date.now().toString(),
-            type: "image",
-            url: result.url,
+            type: "image" as const,
+            url: uploadedUrl,
             title: "",
             description: "",
           },
