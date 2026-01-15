@@ -240,7 +240,6 @@ export const NAV_ITEMS = [
   { label: "Home", href: "/" },
   { label: "Servers", href: "/servers" },
   { label: "Mods", href: "/mods" },
-  { label: "Plugins", href: "/plugins" },
   { label: "Maps", href: "/maps" },
   { label: "Textures", href: "/textures" },
   { label: "Builders", href: "/builders" },

@@ -21,12 +21,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/plugins`,
-      lastModified: new Date(),
-      changeFrequency: "hourly",
-      priority: 0.9,
-    },
-    {
       url: `${SITE_URL}/servers`,
       lastModified: new Date(),
       changeFrequency: "hourly",
@@ -64,12 +58,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
     {
       url: `${SITE_URL}/mods/submit`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.5,
-    },
-    {
-      url: `${SITE_URL}/plugins/submit`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.5,
@@ -141,19 +129,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     })) || [];
 
-  // Dynamic plugin pages
-  const { data: plugins } = await supabase
-    .from("plugins")
-    .select("slug, updated_at")
-    .eq("status", "approved");
-
-  const pluginPages: MetadataRoute.Sitemap =
-    (plugins as { slug: string; updated_at: string }[] | null)?.map((plugin) => ({
-      url: `${SITE_URL}/plugins/${plugin.slug}`,
-      lastModified: new Date(plugin.updated_at),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    })) || [];
 
   // Dynamic map pages
   const { data: maps } = await supabase
@@ -214,7 +189,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...staticPages,
     ...modPages,
     ...serverPages,
-    ...pluginPages,
     ...mapPages,
     ...texturePages,
     ...ideaPages,
