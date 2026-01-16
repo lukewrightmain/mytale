@@ -38,7 +38,7 @@ export async function uploadImage(
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
-      .from("images")
+      .from("uploads")
       .upload(fileName, file, {
         cacheControl: "3600",
         upsert: false,
@@ -46,15 +46,16 @@ export async function uploadImage(
 
     if (error) {
       console.error("Storage upload error:", error);
+      console.error("Error details:", JSON.stringify(error, null, 2));
       return {
         success: false,
-        error: "Failed to upload image. Please try again.",
+        error: `Upload failed: ${error.message || "Unknown error"}`,
       };
     }
 
     // Get public URL
     const { data: urlData } = supabase.storage
-      .from("images")
+      .from("uploads")
       .getPublicUrl(data.path);
 
     return {
