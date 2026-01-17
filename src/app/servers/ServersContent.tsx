@@ -153,6 +153,7 @@ export function ServersContent({ initialServers }: ServersContentProps) {
                     src={server.banner_url || "/images/hero/Hero.png"}
                     alt={server.name}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
@@ -262,7 +263,7 @@ export function ServersContent({ initialServers }: ServersContentProps) {
                     alt={server.name}
                     fill
                     className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    unoptimized={(server as { banner_strip_url?: string }).banner_strip_url?.endsWith('.gif')}
+                    unoptimized
                   />
                   
                   {/* Gradient Overlay */}

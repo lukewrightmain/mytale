@@ -13,3 +13,4 @@ COMMENT ON COLUMN servers.banner_strip_url IS 'Classic server listing banner str
 -- Done!
 SELECT 'banner_strip_url column added to servers table' AS status;
 
+

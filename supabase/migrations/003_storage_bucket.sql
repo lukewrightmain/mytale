@@ -34,3 +34,4 @@ CREATE POLICY "Users can delete own files" ON storage.objects
   FOR DELETE
   USING (bucket_id = 'uploads');
 
+

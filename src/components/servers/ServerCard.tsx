@@ -25,6 +25,7 @@ export function ServerCard({ server }: ServerCardProps) {
           src={server.banner || "/images/hero/Hero2.png"}
           alt={server.name}
           fill
+          unoptimized
           className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-surface to-transparent" />
@@ -113,4 +114,5 @@ export function ServerCard({ server }: ServerCardProps) {
     </Card>
   );
 }
+
 

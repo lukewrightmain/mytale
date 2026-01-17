@@ -41,6 +41,7 @@ export async function FeaturedMods() {
                       src={mod.thumbnail_url || "/images/hero/Hero.png"}
                       alt={mod.name}
                       fill
+                      unoptimized
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     {/* Category Badge */}

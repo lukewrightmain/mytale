@@ -117,6 +117,7 @@ export function ImageUpload({
               src={value}
               alt="Upload preview"
               fill
+              unoptimized
               className="object-cover"
             />
           )}

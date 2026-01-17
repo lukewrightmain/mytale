@@ -64,6 +64,7 @@ export default async function ServerDetailPage({ params }: Props) {
                 src={server.banner_url || "/images/hero/Hero.png"}
                 alt={server.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
               {/* Status Badge */}

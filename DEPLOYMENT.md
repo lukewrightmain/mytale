@@ -336,3 +336,4 @@ Vercel automatically deploys on push to main branch.
 - **Supabase Status:** https://status.supabase.com
 - **Clerk Status:** https://status.clerk.com
 
+

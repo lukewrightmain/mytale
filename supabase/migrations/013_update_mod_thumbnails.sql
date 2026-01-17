@@ -23,3 +23,4 @@ WHERE slug = 'ymmersive-melodies';
 -- UPDATE mods SET thumbnail_url = 'PASTE_URL_HERE' WHERE slug = 'ymmersive-masonry';
 -- UPDATE mods SET thumbnail_url = 'PASTE_URL_HERE' WHERE slug = 'pixel-paintings';
 
+

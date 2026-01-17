@@ -43,6 +43,7 @@ export default async function BuilderDetailPage({ params }: Props) {
               src={builder.banner_url}
               alt={builder.name}
               fill
+              unoptimized
               className="object-cover"
             />
           </div>
@@ -57,6 +58,7 @@ export default async function BuilderDetailPage({ params }: Props) {
                 src={builder.thumbnail_url || "/images/hero/Hero.png"}
                 alt={builder.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>

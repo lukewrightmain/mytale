@@ -45,6 +45,7 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
                     src={item.thumbnail_url}
                     alt={item.title || "Video thumbnail"}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 ) : (
@@ -61,6 +62,7 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
                 src={item.url}
                 alt={item.title || "Portfolio image"}
                 fill
+                unoptimized
                 className="object-cover group-hover:scale-105 transition-transform"
               />
             )}
@@ -118,6 +120,7 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
                   alt={selectedItem.title || "Portfolio image"}
                   width={1920}
                   height={1080}
+                  unoptimized
                   className="w-full h-auto rounded-lg"
                   style={{ maxHeight: "90vh", objectFit: "contain" }}
                 />

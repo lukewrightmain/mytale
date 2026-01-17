@@ -70,6 +70,7 @@ export function BuildersContent({ initialBuilders }: BuildersContentProps) {
                     src={builder.thumbnail_url || "/images/hero/Hero.png"}
                     alt={builder.name}
                     fill
+                    unoptimized
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   {builder.is_featured && (

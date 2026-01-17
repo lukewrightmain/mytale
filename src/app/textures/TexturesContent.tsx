@@ -172,6 +172,7 @@ export function TexturesContent({ initialTextures }: TexturesContentProps) {
                       src={texture.thumbnail_url || "/images/hero/Hero4.png"}
                       alt={texture.name}
                       fill
+                      unoptimized
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3 flex gap-2">

@@ -136,6 +136,7 @@ export function MapsContent({ initialMaps }: MapsContentProps) {
                       src={map.thumbnail_url || "/images/hero/Hero3.png"}
                       alt={map.name}
                       fill
+                      unoptimized
                       className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3">
@@ -195,4 +196,5 @@ export function MapsContent({ initialMaps }: MapsContentProps) {
     </div>
   );
 }
+
 

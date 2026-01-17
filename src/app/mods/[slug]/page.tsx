@@ -54,6 +54,7 @@ export default async function ModDetailPage({ params }: Props) {
                 src={mod.thumbnail_url || "/images/hero/Hero.png"}
                 alt={mod.name}
                 fill
+                unoptimized
                 className="object-cover"
               />
             </div>
