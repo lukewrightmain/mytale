@@ -561,6 +561,10 @@ export interface MapSubmissionData {
   category: string;
   tags: string;
   thumbnailUrl?: string;
+  // Gallery (up to 5 images)
+  galleryImages?: string[];
+  // YouTube video URL
+  videoUrl?: string;
   // Version info
   versionNumber: string;
   gameVersion: string;
@@ -604,6 +608,8 @@ export async function submitMap(data: MapSubmissionData) {
         category: data.category,
         tags,
         thumbnail_url: data.thumbnailUrl || null,
+        gallery_images: data.galleryImages || [],
+        video_url: data.videoUrl || null,
         support_url: data.supportUrl || null,
         status: "pending",
         is_featured: false,
@@ -637,6 +643,89 @@ export async function submitMap(data: MapSubmissionData) {
     return { success: true, slug };
   } catch (err) {
     console.error("Error submitting map:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+// Check if user owns a map
+export async function checkMapOwnership(mapId: string) {
+  const { userId } = await auth();
+  if (!userId) return false;
+
+  const supabase = createAdminClient();
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("id")
+    .eq("clerk_id", userId)
+    .single();
+
+  if (!profile) return false;
+
+  const { data: map } = await supabase
+    .from("maps")
+    .select("author_id")
+    .eq("id", mapId)
+    .single();
+
+  return map?.author_id === profile.id;
+}
+
+// Update map data
+export interface MapUpdateData {
+  name?: string;
+  tagline?: string;
+  description?: string;
+  category?: string;
+  tags?: string;
+  thumbnailUrl?: string;
+  galleryImages?: string[];
+  videoUrl?: string;
+  supportUrl?: string;
+}
+
+export async function updateMap(mapId: string, data: MapUpdateData) {
+  const isOwner = await checkMapOwnership(mapId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to edit this map" };
+  }
+
+  const supabase = createAdminClient();
+
+  // Parse tags if provided
+  const tags = data.tags
+    ? data.tags
+        .split(",")
+        .map((tag) => tag.trim().toLowerCase())
+        .filter((tag) => tag.length > 0)
+    : undefined;
+
+  const updateData: Record<string, unknown> = {};
+  if (data.name !== undefined) updateData.name = data.name;
+  if (data.tagline !== undefined) updateData.tagline = data.tagline;
+  if (data.description !== undefined) updateData.description = data.description;
+  if (data.category !== undefined) updateData.category = data.category;
+  if (tags !== undefined) updateData.tags = tags;
+  if (data.thumbnailUrl !== undefined) updateData.thumbnail_url = data.thumbnailUrl;
+  if (data.galleryImages !== undefined) updateData.gallery_images = data.galleryImages;
+  if (data.videoUrl !== undefined) updateData.video_url = data.videoUrl;
+  if (data.supportUrl !== undefined) updateData.support_url = data.supportUrl;
+
+  try {
+    const { error } = await supabase
+      .from("maps")
+      .update(updateData)
+      .eq("id", mapId);
+
+    if (error) {
+      console.error("Error updating map:", error);
+      return { success: false, error: "Failed to update map" };
+    }
+
+    revalidatePath("/maps");
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating map:", err);
     return { success: false, error: "An unexpected error occurred" };
   }
 }

@@ -410,6 +410,32 @@ export async function getMapWithVersions(slug: string) {
   };
 }
 
+// Get map for editing (includes owner profile for ownership check)
+export async function getMapForEdit(slug: string) {
+  const supabase = await createClient();
+  
+  const { data, error } = await supabase
+    .from("maps")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        clerk_id,
+        username,
+        display_name
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching map for edit:", error);
+    return null;
+  }
+
+  return data;
+}
+
 // ==========================================
 // TEXTURE QUERIES
 // ==========================================

@@ -1,12 +1,13 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User } from "lucide-react";
+import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User, Youtube, Images } from "lucide-react";
 import { Button, Card, Badge } from "@/components/ui";
 import { getMapWithVersions } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
 import { DownloadButton } from "./DownloadButton";
 import { EditButton } from "./EditButton";
+import { MediaGallery } from "./MediaGallery";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -153,6 +154,20 @@ export default async function MapDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+
+        {/* Media Gallery Section */}
+        {(((map as { gallery_images?: string[] }).gallery_images?.length ?? 0) > 0 || (map as { video_url?: string }).video_url) && (
+          <div className="mb-8">
+            <h2 className="text-xl font-display font-bold text-foreground mb-4 flex items-center gap-2">
+              <Images className="w-5 h-5" />
+              Media Gallery
+            </h2>
+            <MediaGallery 
+              images={(map as { gallery_images?: string[] }).gallery_images || []}
+              videoUrl={(map as { video_url?: string }).video_url || null}
+            />
+          </div>
+        )}
 
         {/* Main Content */}
         <div className="grid lg:grid-cols-3 gap-8">

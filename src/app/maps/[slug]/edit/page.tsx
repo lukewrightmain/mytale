@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
-import { ArrowLeft, Upload, Loader2, CheckCircle, X, Plus, Youtube } from "lucide-react";
+import { ArrowLeft, Save, Loader2, Plus, CheckCircle, X, Youtube } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button, Card, Input, Badge, ImageUpload } from "@/components/ui";
-import { submitMap, type MapSubmissionData } from "@/lib/supabase/actions";
+import { updateMap } from "@/lib/supabase/actions";
 import { uploadImage } from "@/lib/supabase/storage";
+import type { MapUpdateData } from "@/lib/supabase/actions";
 
 const CATEGORIES = [
   { value: "Adventure", label: "Adventure" },
@@ -23,14 +24,36 @@ const CATEGORIES = [
   { value: "Recreation", label: "Recreation" },
 ];
 
-export default function SubmitMapPage() {
-  const router = useRouter();
-  const { isSignedIn, isLoaded } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface MapData {
+  id: string;
+  name: string;
+  slug: string;
+  tagline: string | null;
+  description: string | null;
+  category: string;
+  tags: string[];
+  thumbnail_url: string | null;
+  gallery_images: string[] | null;
+  video_url: string | null;
+  support_url: string | null;
+  profiles: {
+    clerk_id: string;
+  } | null;
+}
 
-  const [formData, setFormData] = useState<MapSubmissionData>({
+export default function EditMapPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = use(params);
+  const router = useRouter();
+  const { userId, isLoaded } = useAuth();
+  
+  const [map, setMap] = useState<MapData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState<MapUpdateData>({
     name: "",
     tagline: "",
     description: "",
@@ -39,15 +62,42 @@ export default function SubmitMapPage() {
     thumbnailUrl: "",
     galleryImages: [],
     videoUrl: "",
-    // Version info
-    versionNumber: "1.0.0",
-    gameVersion: "1.0",
-    downloadUrl: "",
-    changelog: "",
     supportUrl: "",
   });
 
-  const [isUploadingGallery, setIsUploadingGallery] = useState(false);
+  // Fetch map data
+  useEffect(() => {
+    async function fetchMap() {
+      try {
+        const response = await fetch(`/api/maps/${slug}`);
+        if (!response.ok) {
+          throw new Error("Failed to fetch map");
+        }
+        const data = await response.json();
+        setMap(data);
+        setFormData({
+          name: data.name,
+          tagline: data.tagline || "",
+          description: data.description || "",
+          category: data.category,
+          tags: data.tags.join(", "),
+          thumbnailUrl: data.thumbnail_url || "",
+          galleryImages: data.gallery_images || [],
+          videoUrl: data.video_url || "",
+          supportUrl: data.support_url || "",
+        });
+      } catch (err) {
+        console.error("Error fetching map:", err);
+        setError("Failed to load map data");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    if (slug) {
+      fetchMap();
+    }
+  }, [slug]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -108,31 +158,32 @@ export default function SubmitMapPage() {
     return null;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!map) return;
+
     setError(null);
-    setIsSubmitting(true);
+    setSuccess(null);
+    setIsSaving(true);
 
     try {
-      const result = await submitMap(formData);
+      const result = await updateMap(map.id, formData);
 
       if (result.success) {
-        setIsSuccess(true);
-        setTimeout(() => {
-          router.push("/maps");
-        }, 2000);
+        setSuccess("Map updated successfully!");
+        setTimeout(() => setSuccess(null), 3000);
       } else {
-        setError(result.error || "Something went wrong");
+        setError(result.error || "Failed to update map");
       }
     } catch {
       setError("An unexpected error occurred");
     } finally {
-      setIsSubmitting(false);
+      setIsSaving(false);
     }
   };
 
   // Loading state
-  if (!isLoaded) {
+  if (!isLoaded || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary-400" />
@@ -140,40 +191,39 @@ export default function SubmitMapPage() {
     );
   }
 
-  // Not signed in
-  if (!isSignedIn) {
+  // Not found or not owner
+  if (!map) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8 max-w-md text-center">
           <h2 className="text-2xl font-display font-bold text-foreground mb-4">
-            Sign In Required
+            Map Not Found
           </h2>
           <p className="text-foreground-muted mb-6">
-            You need to sign in to submit a map to Mytale.
+            This map doesn&apos;t exist or has been removed.
           </p>
-          <Link href="/">
-            <Button>Go Home</Button>
+          <Link href="/maps">
+            <Button>Back to Maps</Button>
           </Link>
         </Card>
       </div>
     );
   }
 
-  // Success state
-  if (isSuccess) {
+  // Check ownership
+  if (map.profiles?.clerk_id !== userId) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Card className="p-8 max-w-md text-center">
-          <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-8 h-8 text-green-400" />
-          </div>
-          <h2 className="text-2xl font-display font-bold text-foreground mb-2">
-            Map Submitted!
+          <h2 className="text-2xl font-display font-bold text-foreground mb-4">
+            Access Denied
           </h2>
-          <p className="text-foreground-muted mb-4">
-            Your map has been submitted for review. We&apos;ll notify you once it&apos;s approved.
+          <p className="text-foreground-muted mb-6">
+            You don&apos;t have permission to edit this map.
           </p>
-          <Badge variant="warning">Pending Review</Badge>
+          <Link href={`/maps/${slug}`}>
+            <Button>View Map</Button>
+          </Link>
         </Card>
       </div>
     );
@@ -185,42 +235,54 @@ export default function SubmitMapPage() {
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/maps"
+            href={`/maps/${slug}`}
             className="inline-flex items-center gap-2 text-foreground-muted hover:text-foreground transition-colors mb-4"
           >
             <ArrowLeft className="w-4 h-4" />
-            Back to Maps
+            Back to Map
           </Link>
           <h1 className="text-3xl sm:text-4xl font-display font-bold text-foreground mb-2">
-            Upload a <span className="gradient-text">Map</span>
+            Edit <span className="gradient-text">{map.name}</span>
           </h1>
           <p className="text-foreground-muted">
-            Share your world creation with the Hytale community
+            Update your map&apos;s information
           </p>
         </div>
 
-        {/* Form */}
-        <Card className="p-6 sm:p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Success Message */}
+        {success && (
+          <div className="mb-6 p-4 bg-green-500/10 border border-green-500/30 rounded-lg text-green-400 flex items-center gap-2">
+            <CheckCircle className="w-5 h-5" />
+            {success}
+          </div>
+        )}
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
+            {error}
+          </div>
+        )}
+
+        {/* Main Form */}
+        <Card className="p-6 sm:p-8 mb-8">
+          <form onSubmit={handleSave} className="space-y-6">
             {/* Thumbnail Image */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Thumbnail Image
               </label>
               <ImageUpload
-                value={formData.thumbnailUrl}
+                value={formData.thumbnailUrl || undefined}
                 onChange={handleImageChange}
                 onUpload={handleImageUpload}
               />
-              <p className="text-xs text-foreground-muted mt-2">
-                Recommended: 1280×720 pixels (16:9 ratio). Max 5MB. Show off your best screenshot!
-              </p>
             </div>
 
             {/* Gallery Images */}
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Gallery Images (Optional)
+                Gallery Images
               </label>
               <p className="text-xs text-foreground-muted mb-3">
                 Add up to 5 additional screenshots to showcase your map
@@ -276,15 +338,12 @@ export default function SubmitMapPage() {
               <label className="block text-sm font-medium text-foreground mb-2">
                 YouTube Video (Optional)
               </label>
-              <div className="flex gap-2">
-                <Input
-                  name="videoUrl"
-                  value={formData.videoUrl}
-                  onChange={handleChange}
-                  placeholder="https://www.youtube.com/watch?v=..."
-                  className="flex-1"
-                />
-              </div>
+              <Input
+                name="videoUrl"
+                value={formData.videoUrl}
+                onChange={handleChange}
+                placeholder="https://www.youtube.com/watch?v=..."
+              />
               {formData.videoUrl && getYouTubeVideoId(formData.videoUrl) && (
                 <div className="mt-3 relative aspect-video rounded-lg overflow-hidden border border-border">
                   <iframe
@@ -310,7 +369,7 @@ export default function SubmitMapPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
-                placeholder="The Lost Kingdom"
+                placeholder="My Awesome Map"
                 required
               />
             </div>
@@ -324,12 +383,9 @@ export default function SubmitMapPage() {
                 name="tagline"
                 value={formData.tagline}
                 onChange={handleChange}
-                placeholder="An epic adventure through ancient ruins"
+                placeholder="A short description of your map"
                 required
               />
-              <p className="text-xs text-foreground-muted mt-1">
-                A brief one-liner that describes your map (max 100 characters)
-              </p>
             </div>
 
             {/* Category */}
@@ -341,7 +397,7 @@ export default function SubmitMapPage() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary-500"
                 required
               >
                 {CATEGORIES.map((cat) => (
@@ -361,10 +417,10 @@ export default function SubmitMapPage() {
                 name="tags"
                 value={formData.tags}
                 onChange={handleChange}
-                placeholder="fantasy, medieval, castle, exploration"
+                placeholder="fantasy, medieval, castle"
               />
               <p className="text-xs text-foreground-muted mt-1">
-                Comma-separated tags to help users find your map
+                Comma-separated tags
               </p>
             </div>
 
@@ -377,88 +433,18 @@ export default function SubmitMapPage() {
                 name="description"
                 value={formData.description}
                 onChange={handleChange}
-                placeholder="Describe your map in detail. What's the story? What can players expect? Any special features or easter eggs?"
+                placeholder="Describe your map in detail..."
                 rows={6}
-                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary-500 resize-none"
                 required
               />
             </div>
 
-            {/* Divider - Version Info */}
-            <div className="border-t border-border pt-6">
-              <h3 className="text-lg font-display font-bold text-foreground mb-4">
-                Version & Download
-              </h3>
-              
-              {/* Version Number & Game Version */}
-              <div className="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Version Number *
-                  </label>
-                  <Input
-                    name="versionNumber"
-                    value={formData.versionNumber}
-                    onChange={handleChange}
-                    placeholder="1.0.0"
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Hytale Version *
-                  </label>
-                  <Input
-                    name="gameVersion"
-                    value={formData.gameVersion}
-                    onChange={handleChange}
-                    placeholder="1.0"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Download URL */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Download URL *
-                </label>
-                <Input
-                  name="downloadUrl"
-                  value={formData.downloadUrl}
-                  onChange={handleChange}
-                  placeholder="https://drive.google.com/file/d/.../view"
-                  required
-                />
-                <p className="text-xs text-foreground-muted mt-1">
-                  Direct link to your map file (Google Drive, Dropbox, MediaFire, etc.)
-                </p>
-              </div>
-
-              {/* Changelog */}
-              <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Changelog
-                </label>
-                <textarea
-                  name="changelog"
-                  value={formData.changelog}
-                  onChange={handleChange}
-                  placeholder="Initial release"
-                  rows={3}
-                  className="w-full px-4 py-2.5 bg-surface border border-border rounded-lg text-foreground placeholder:text-foreground-muted focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
-                />
-              </div>
-            </div>
-
-            {/* Divider - Support Link */}
-            <div className="border-t border-border pt-6">
-              <h3 className="text-lg font-display font-bold text-foreground mb-2">
+            {/* Support Link */}
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-2">
                 Support Link (Optional)
-              </h3>
-              <p className="text-sm text-foreground-muted mb-4">
-                Add a link where users can support you (Patreon, Ko-fi, Buy Me a Coffee, PayPal, etc.)
-              </p>
+              </label>
               <Input
                 name="supportUrl"
                 value={formData.supportUrl}
@@ -467,43 +453,24 @@ export default function SubmitMapPage() {
               />
             </div>
 
-            {/* Error */}
-            {error && (
-              <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400">
-                {error}
-              </div>
-            )}
-
-            {/* Submit */}
-            <div className="flex gap-4">
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex-1"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <Upload className="w-4 h-4" />
-                    Submit Map
-                  </>
-                )}
-              </Button>
-            </div>
-
-            <p className="text-xs text-foreground-muted text-center">
-              By submitting, you agree to our terms of service and content guidelines.
-              All submissions are reviewed before being published.
-            </p>
+            {/* Save Button */}
+            <Button type="submit" disabled={isSaving} className="w-full">
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Save Changes
+                </>
+              )}
+            </Button>
           </form>
         </Card>
       </div>
     </div>
   );
 }
-
 
