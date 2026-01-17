@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Jersey_25 } from "next/font/google";
 import Script from "next/script";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/react";
 import { Header, Footer } from "@/components/layout";
 import { SITE_NAME, SITE_DESCRIPTION, SITE_URL, SEO_KEYWORDS, PAGE_DESCRIPTIONS } from "@/lib/constants";
 import "./globals.css";
@@ -171,6 +172,7 @@ export default function RootLayout({
           <Header />
           <main className="flex-1 pt-16">{children}</main>
           <Footer />
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>
