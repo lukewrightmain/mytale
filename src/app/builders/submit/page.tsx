@@ -162,9 +162,23 @@ export default function SubmitBuilderPage() {
 
   // Extract YouTube thumbnail
   const getYouTubeThumbnail = (url: string) => {
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
-    if (match && match[1]) {
-      return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+    if (!url) return null;
+    
+    const patterns = [
+      /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,
+      /(?:youtu\.be\/)([^&\n?#]+)/,
+      /(?:youtube\.com\/embed\/)([^&\n?#]+)/,
+      /(?:youtube\.com\/v\/)([^&\n?#]+)/,
+      /(?:youtube\.com\/shorts\/)([^&\n?#]+)/,
+      /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+      /^([a-zA-Z0-9_-]{11})$/,
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match && match[1]) {
+        return `https://img.youtube.com/vi/${match[1]}/mqdefault.jpg`;
+      }
     }
     return null;
   };
@@ -339,6 +353,7 @@ export default function SubmitBuilderPage() {
                                 src={getYouTubeThumbnail(item.url)!}
                                 alt={item.title || "Video thumbnail"}
                                 fill
+                                unoptimized
                                 className="object-cover"
                               />
                             ) : (

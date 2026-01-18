@@ -10,10 +10,18 @@ interface MediaGalleryProps {
 }
 
 function getYouTubeVideoId(url: string): string | null {
+  if (!url) return null;
+  
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
+    /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,
+    /(?:youtu\.be\/)([^&\n?#]+)/,
+    /(?:youtube\.com\/embed\/)([^&\n?#]+)/,
+    /(?:youtube\.com\/v\/)([^&\n?#]+)/,
+    /(?:youtube\.com\/shorts\/)([^&\n?#]+)/,
     /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+    /^([a-zA-Z0-9_-]{11})$/,
   ];
+  
   for (const pattern of patterns) {
     const match = url.match(pattern);
     if (match && match[1]) return match[1];
@@ -24,7 +32,8 @@ function getYouTubeVideoId(url: string): string | null {
 function getYouTubeThumbnail(url: string): string | null {
   const videoId = getYouTubeVideoId(url);
   if (videoId) {
-    return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+    // hqdefault.jpg always exists, maxresdefault may not for all videos
+    return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   }
   return null;
 }

@@ -11,9 +11,17 @@ interface PortfolioGalleryProps {
 
 // Helper to extract YouTube video ID from URL
 function extractYouTubeId(url: string): string | null {
+  if (!url) return null;
+  
+  // Handle various YouTube URL formats
   const patterns = [
-    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/,
-    /youtube\.com\/watch\?.*v=([^&\n?#]+)/,
+    /(?:youtube\.com\/watch\?v=)([^&\n?#]+)/,        // youtube.com/watch?v=ID
+    /(?:youtu\.be\/)([^&\n?#]+)/,                     // youtu.be/ID
+    /(?:youtube\.com\/embed\/)([^&\n?#]+)/,           // youtube.com/embed/ID
+    /(?:youtube\.com\/v\/)([^&\n?#]+)/,               // youtube.com/v/ID
+    /(?:youtube\.com\/shorts\/)([^&\n?#]+)/,          // youtube.com/shorts/ID
+    /youtube\.com\/watch\?.*v=([^&\n?#]+)/,           // youtube.com/watch?other=params&v=ID
+    /^([a-zA-Z0-9_-]{11})$/,                          // Just the video ID (11 chars)
   ];
   
   for (const pattern of patterns) {
@@ -49,8 +57,14 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
           >
             {item.type === "video" ? (
               (() => {
-                const videoId = extractYouTubeId(item.url);
-                const thumbnailUrl = item.thumbnail_url || (videoId ? getYouTubeThumbnail(videoId) : null);
+                // Try to extract video ID from url OR thumbnail_url (in case user put YouTube URL in thumbnail field)
+                const videoIdFromUrl = extractYouTubeId(item.url);
+                const videoIdFromThumbnail = item.thumbnail_url ? extractYouTubeId(item.thumbnail_url) : null;
+                const videoId = videoIdFromUrl || videoIdFromThumbnail;
+                
+                // Only use thumbnail_url if it's NOT a YouTube URL (actual image)
+                const isYouTubeThumb = item.thumbnail_url && extractYouTubeId(item.thumbnail_url);
+                const thumbnailUrl = (!isYouTubeThumb && item.thumbnail_url) || (videoId ? getYouTubeThumbnail(videoId) : null);
                 
                 return (
                   <>
