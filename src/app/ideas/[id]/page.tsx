@@ -21,13 +21,13 @@ export default async function IdeaDetailPage({ params }: Props) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "in_progress":
-        return <Badge variant="warning" size="lg">In Progress</Badge>;
+        return <Badge variant="warning">In Progress</Badge>;
       case "completed":
-        return <Badge variant="success" size="lg">Completed</Badge>;
+        return <Badge variant="success">Completed</Badge>;
       case "closed":
-        return <Badge variant="default" size="lg">Closed</Badge>;
+        return <Badge variant="default">Closed</Badge>;
       default:
-        return <Badge variant="primary" size="lg">Open</Badge>;
+        return <Badge variant="primary">Open</Badge>;
     }
   };
 
