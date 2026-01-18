@@ -1223,3 +1223,183 @@ export async function deleteIdeaComment(commentId: string, ideaId: string) {
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+// ==========================================
+// CONTENT CREATOR ACTIONS
+// ==========================================
+
+export type ContentCreatorSubmissionData = {
+  name: string;
+  bio?: string;
+  thumbnailUrl?: string;
+  bannerUrl?: string;
+  twitchUrl?: string;
+  youtubeUrl?: string;
+  twitterUrl?: string;
+  tiktokUrl?: string;
+  discordUrl?: string;
+  websiteUrl?: string;
+  primaryPlatform: "twitch" | "youtube" | "tiktok" | "kick" | "other";
+  language: string;
+  timezone: string;
+  schedule?: Array<{ day: string; start: string; end: string }>;
+  serverIds?: string[];
+};
+
+export async function submitContentCreator(data: ContentCreatorSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to submit a creator profile" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  // Generate slug
+  const baseSlug = data.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+  const uniqueId = Math.random().toString(36).substring(2, 10);
+  const slug = `${baseSlug}-${uniqueId}`;
+
+  try {
+    const { data: creator, error } = await supabase
+      .from("content_creators")
+      .insert({
+        user_id: profileId,
+        name: data.name,
+        slug,
+        bio: data.bio || null,
+        thumbnail_url: data.thumbnailUrl || null,
+        banner_url: data.bannerUrl || null,
+        twitch_url: data.twitchUrl || null,
+        youtube_url: data.youtubeUrl || null,
+        twitter_url: data.twitterUrl || null,
+        tiktok_url: data.tiktokUrl || null,
+        discord_url: data.discordUrl || null,
+        website_url: data.websiteUrl || null,
+        primary_platform: data.primaryPlatform,
+        language: data.language,
+        timezone: data.timezone,
+        schedule: data.schedule || [],
+        status: "approved", // Auto-approve for now
+      })
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error submitting content creator:", error);
+      return { success: false, error: "Failed to submit profile. Please try again." };
+    }
+
+    // Add server associations
+    if (data.serverIds && data.serverIds.length > 0) {
+      const serverLinks = data.serverIds.map((serverId) => ({
+        creator_id: creator.id,
+        server_id: serverId,
+      }));
+
+      await supabase.from("content_creator_servers").insert(serverLinks);
+    }
+
+    revalidatePath("/creators");
+    return { success: true, slug };
+  } catch (err) {
+    console.error("Error submitting content creator:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+export async function updateContentCreator(creatorId: string, data: ContentCreatorSubmissionData) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to update your profile" };
+  }
+
+  const isOwner = await checkContentCreatorOwnership(creatorId);
+  if (!isOwner) {
+    return { success: false, error: "You don't have permission to edit this profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { error } = await supabase
+      .from("content_creators")
+      .update({
+        name: data.name,
+        bio: data.bio || null,
+        thumbnail_url: data.thumbnailUrl || null,
+        banner_url: data.bannerUrl || null,
+        twitch_url: data.twitchUrl || null,
+        youtube_url: data.youtubeUrl || null,
+        twitter_url: data.twitterUrl || null,
+        tiktok_url: data.tiktokUrl || null,
+        discord_url: data.discordUrl || null,
+        website_url: data.websiteUrl || null,
+        primary_platform: data.primaryPlatform,
+        language: data.language,
+        timezone: data.timezone,
+        schedule: data.schedule || [],
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", creatorId);
+
+    if (error) {
+      console.error("Error updating content creator:", error);
+      return { success: false, error: "Failed to update profile. Please try again." };
+    }
+
+    // Update server associations
+    await supabase.from("content_creator_servers").delete().eq("creator_id", creatorId);
+
+    if (data.serverIds && data.serverIds.length > 0) {
+      const serverLinks = data.serverIds.map((serverId) => ({
+        creator_id: creatorId,
+        server_id: serverId,
+      }));
+
+      await supabase.from("content_creator_servers").insert(serverLinks);
+    }
+
+    revalidatePath("/creators");
+    return { success: true };
+  } catch (err) {
+    console.error("Error updating content creator:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+export async function checkContentCreatorOwnership(creatorId: string): Promise<boolean> {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return false;
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return false;
+  }
+
+  const supabase = createAdminClient();
+
+  const { data, error } = await supabase
+    .from("content_creators")
+    .select("user_id")
+    .eq("id", creatorId)
+    .single();
+
+  if (error || !data) {
+    return false;
+  }
+
+  return data.user_id === profileId;
+}

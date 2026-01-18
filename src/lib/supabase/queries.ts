@@ -916,3 +916,182 @@ export async function getIdeaComments(ideaId: string) {
 
   return data as IdeaComment[];
 }
+
+// ==========================================
+// CONTENT CREATOR QUERIES
+// ==========================================
+
+export type ScheduleSlot = {
+  day: "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday";
+  start: string; // "HH:MM" format
+  end: string;   // "HH:MM" format
+};
+
+export type ContentCreator = {
+  id: string;
+  user_id: string | null;
+  name: string;
+  slug: string;
+  bio: string | null;
+  thumbnail_url: string | null;
+  banner_url: string | null;
+  twitch_url: string | null;
+  youtube_url: string | null;
+  twitter_url: string | null;
+  tiktok_url: string | null;
+  discord_url: string | null;
+  website_url: string | null;
+  primary_platform: "twitch" | "youtube" | "tiktok" | "kick" | "other";
+  language: string;
+  timezone: string;
+  schedule: ScheduleSlot[];
+  upvotes: number;
+  is_featured: boolean;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ContentCreatorWithProfile = ContentCreator & {
+  profiles: Pick<Profile, "id" | "clerk_id" | "username" | "display_name" | "avatar_url"> | null;
+  servers?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+    thumbnail_url: string | null;
+  }>;
+};
+
+export async function getContentCreators(options?: {
+  featured?: boolean;
+  limit?: number;
+  platform?: string;
+  language?: string;
+  timezone?: string;
+  search?: string;
+  sortBy?: "upvotes" | "newest";
+}) {
+  const supabase = await createClient();
+
+  let query = supabase
+    .from("content_creators")
+    .select(`
+      *,
+      profiles:user_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("status", "approved")
+    .order(options?.sortBy === "newest" ? "created_at" : "upvotes", { ascending: false });
+
+  if (options?.featured) {
+    query = query.eq("is_featured", true);
+  }
+
+  if (options?.platform && options.platform !== "all") {
+    query = query.eq("primary_platform", options.platform);
+  }
+
+  if (options?.language && options.language !== "all") {
+    query = query.eq("language", options.language);
+  }
+
+  if (options?.timezone && options.timezone !== "all") {
+    query = query.eq("timezone", options.timezone);
+  }
+
+  if (options?.search) {
+    query = query.ilike("name", `%${options.search}%`);
+  }
+
+  if (options?.limit) {
+    query = query.limit(options.limit);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Error fetching content creators:", error);
+    return [];
+  }
+
+  return data as ContentCreatorWithProfile[];
+}
+
+export async function getContentCreatorBySlug(slug: string): Promise<ContentCreatorWithProfile | null> {
+  const supabase = await createClient();
+
+  const { data: creator, error: creatorError } = await supabase
+    .from("content_creators")
+    .select(`
+      *,
+      profiles:user_id (
+        id,
+        clerk_id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("slug", slug)
+    .single();
+
+  if (creatorError || !creator) {
+    console.error("Error fetching content creator:", creatorError);
+    return null;
+  }
+
+  // Fetch associated servers
+  const { data: serverLinks } = await supabase
+    .from("content_creator_servers")
+    .select(`
+      servers:server_id (
+        id,
+        name,
+        slug,
+        thumbnail_url
+      )
+    `)
+    .eq("creator_id", creator.id);
+
+  const servers = serverLinks?.map((link) => link.servers).filter(Boolean) || [];
+
+  return {
+    ...(creator as ContentCreatorWithProfile),
+    servers: servers as ContentCreatorWithProfile["servers"],
+  };
+}
+
+export async function getFeaturedContentCreators(limit = 4) {
+  return getContentCreators({ featured: true, limit });
+}
+
+export async function getContentCreatorForEdit(slug: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("content_creators")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error) {
+    console.error("Error fetching content creator for edit:", error);
+    return null;
+  }
+
+  // Fetch associated server IDs
+  const { data: serverLinks } = await supabase
+    .from("content_creator_servers")
+    .select("server_id")
+    .eq("creator_id", data.id);
+
+  return {
+    ...data,
+    server_ids: serverLinks?.map((link) => link.server_id) || [],
+  };
+}
