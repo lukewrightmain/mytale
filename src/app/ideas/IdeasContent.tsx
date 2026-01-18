@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { ChevronUp, Search, Sparkles, Clock, Loader2, User, Lightbulb } from "lucide-react";
 import { Card, Badge, Input } from "@/components/ui";
 import { formatRelativeTime } from "@/lib/utils";
@@ -215,12 +216,16 @@ export function IdeasContent({ initialIdeas }: IdeasContentProps) {
             return (
               <Card
                 key={idea.id}
-                className="p-4 sm:p-6 flex gap-4"
+                className="p-4 sm:p-6 flex gap-4 hover:border-primary-500/50 transition-colors"
               >
                 {/* Vote Button */}
                 <div className="flex flex-col items-center gap-1">
                   <button
-                    onClick={() => handleVote(idea.id)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleVote(idea.id);
+                    }}
                     disabled={isVoting || hasVoted}
                     className={`
                       w-12 h-12 rounded-xl flex items-center justify-center transition-all
@@ -242,10 +247,10 @@ export function IdeasContent({ initialIdeas }: IdeasContentProps) {
                   </span>
                 </div>
 
-                {/* Content */}
-                <div className="flex-1 min-w-0">
+                {/* Content - Clickable Link */}
+                <Link href={`/ideas/${idea.id}`} className="flex-1 min-w-0 cursor-pointer">
                   <div className="flex items-start justify-between gap-4 mb-2">
-                    <h3 className="text-lg font-display font-semibold text-foreground">
+                    <h3 className="text-lg font-display font-semibold text-foreground hover:text-primary-400 transition-colors">
                       {idea.title}
                     </h3>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -288,7 +293,7 @@ export function IdeasContent({ initialIdeas }: IdeasContentProps) {
                       <span>{formatRelativeTime(idea.created_at)}</span>
                     </div>
                   </div>
-                </div>
+                </Link>
               </Card>
             );
           })}
