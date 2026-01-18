@@ -1117,3 +1117,109 @@ export async function deletePortfolioItem(itemId: string, builderId: string) {
     return { success: false, error: "An unexpected error occurred" };
   }
 }
+
+// ==========================================
+// IDEA COMMENTS
+// ==========================================
+
+export async function submitIdeaComment(ideaId: string, content: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to comment" };
+  }
+
+  if (!content || content.trim().length === 0) {
+    return { success: false, error: "Comment cannot be empty" };
+  }
+
+  if (content.length > 2000) {
+    return { success: false, error: "Comment must be less than 2000 characters" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to create user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    const { data, error } = await supabase
+      .from("idea_comments")
+      .insert({
+        idea_id: ideaId,
+        author_id: profileId,
+        content: content.trim(),
+      })
+      .select(`
+        *,
+        profiles:author_id (
+          id,
+          username,
+          display_name,
+          avatar_url
+        )
+      `)
+      .single();
+
+    if (error) {
+      console.error("Error submitting comment:", error);
+      return { success: false, error: "Failed to submit comment. Please try again." };
+    }
+
+    revalidatePath(`/ideas/${ideaId}`);
+    return { success: true, comment: data };
+  } catch (err) {
+    console.error("Error submitting comment:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}
+
+export async function deleteIdeaComment(commentId: string, ideaId: string) {
+  const { userId } = await auth();
+
+  if (!userId) {
+    return { success: false, error: "You must be signed in to delete comments" };
+  }
+
+  const profileId = await getOrCreateProfile();
+  if (!profileId) {
+    return { success: false, error: "Failed to verify user profile" };
+  }
+
+  const supabase = createAdminClient();
+
+  try {
+    // Check if user owns the comment
+    const { data: comment, error: fetchError } = await supabase
+      .from("idea_comments")
+      .select("author_id")
+      .eq("id", commentId)
+      .single();
+
+    if (fetchError || !comment) {
+      return { success: false, error: "Comment not found" };
+    }
+
+    if (comment.author_id !== profileId) {
+      return { success: false, error: "You can only delete your own comments" };
+    }
+
+    const { error } = await supabase
+      .from("idea_comments")
+      .delete()
+      .eq("id", commentId);
+
+    if (error) {
+      console.error("Error deleting comment:", error);
+      return { success: false, error: "Failed to delete comment. Please try again." };
+    }
+
+    revalidatePath(`/ideas/${ideaId}`);
+    return { success: true };
+  } catch (err) {
+    console.error("Error deleting comment:", err);
+    return { success: false, error: "An unexpected error occurred" };
+  }
+}

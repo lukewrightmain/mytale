@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ChevronUp, User, Clock, Tag, Sparkles, MessageSquare } from "lucide-react";
+import { ArrowLeft, User, Clock, Tag, Sparkles, FileText } from "lucide-react";
 import { Button, Card, Badge } from "@/components/ui";
-import { getIdeaById } from "@/lib/supabase/queries";
+import { getIdeaById, getIdeaComments } from "@/lib/supabase/queries";
 import { formatRelativeTime } from "@/lib/utils";
 import { VoteButton } from "./VoteButton";
+import { CommentsSection } from "./CommentsSection";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -12,7 +13,10 @@ interface Props {
 
 export default async function IdeaDetailPage({ params }: Props) {
   const { id } = await params;
-  const idea = await getIdeaById(id);
+  const [idea, comments] = await Promise.all([
+    getIdeaById(id),
+    getIdeaComments(id),
+  ]);
 
   if (!idea) {
     notFound();
@@ -92,7 +96,7 @@ export default async function IdeaDetailPage({ params }: Props) {
               {/* Description */}
               <div className="mb-6">
                 <h2 className="text-lg font-display font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5" />
+                  <FileText className="w-5 h-5" />
                   Description
                 </h2>
                 <div className="prose prose-invert max-w-none">
@@ -121,6 +125,9 @@ export default async function IdeaDetailPage({ params }: Props) {
             </div>
           </div>
         </Card>
+
+        {/* Comments Section */}
+        <CommentsSection ideaId={idea.id} initialComments={comments} />
 
         {/* Call to Action */}
         <div className="mt-8 text-center">

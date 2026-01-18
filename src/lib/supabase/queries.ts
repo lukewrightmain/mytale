@@ -872,3 +872,47 @@ export async function getBuilderBySlug(slug: string): Promise<(BuilderWithProfil
 export async function getFeaturedBuilders(limit = 4) {
   return getBuilders({ featured: true, limit });
 }
+
+// ==========================================
+// IDEA COMMENT QUERIES
+// ==========================================
+
+export type IdeaComment = {
+  id: string;
+  idea_id: string;
+  author_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  profiles: {
+    id: string;
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+};
+
+export async function getIdeaComments(ideaId: string) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("idea_comments")
+    .select(`
+      *,
+      profiles:author_id (
+        id,
+        username,
+        display_name,
+        avatar_url
+      )
+    `)
+    .eq("idea_id", ideaId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching idea comments:", error);
+    return [];
+  }
+
+  return data as IdeaComment[];
+}
