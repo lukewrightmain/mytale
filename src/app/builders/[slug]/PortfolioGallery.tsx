@@ -26,6 +26,15 @@ function extractYouTubeId(url: string): string | null {
   return null;
 }
 
+// Generate YouTube thumbnail URL from video ID
+function getYouTubeThumbnail(videoId: string): string {
+  // YouTube provides several thumbnail options:
+  // maxresdefault.jpg (1280x720) - may not exist for all videos
+  // hqdefault.jpg (480x360) - always exists
+  // mqdefault.jpg (320x180) - always exists
+  return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+}
+
 export function PortfolioGallery({ items }: PortfolioGalleryProps) {
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
 
@@ -39,24 +48,31 @@ export function PortfolioGallery({ items }: PortfolioGalleryProps) {
             onClick={() => setSelectedItem(item)}
           >
             {item.type === "video" ? (
-              <>
-                {item.thumbnail_url ? (
-                  <Image
-                    src={item.thumbnail_url}
-                    alt={item.title || "Video thumbnail"}
-                    fill
-                    unoptimized
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-surface-elevated flex items-center justify-center">
-                    <Youtube className="w-12 h-12 text-foreground-muted" />
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                  <Youtube className="w-12 h-12 text-white" />
-                </div>
-              </>
+              (() => {
+                const videoId = extractYouTubeId(item.url);
+                const thumbnailUrl = item.thumbnail_url || (videoId ? getYouTubeThumbnail(videoId) : null);
+                
+                return (
+                  <>
+                    {thumbnailUrl ? (
+                      <Image
+                        src={thumbnailUrl}
+                        alt={item.title || "Video thumbnail"}
+                        fill
+                        unoptimized
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-surface-elevated flex items-center justify-center">
+                        <Youtube className="w-12 h-12 text-foreground-muted" />
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                      <Youtube className="w-12 h-12 text-white" />
+                    </div>
+                  </>
+                );
+              })()
             ) : (
               <Image
                 src={item.url}
