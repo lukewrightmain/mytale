@@ -342,7 +342,7 @@ export default function EditCreatorPage({ params }: Props) {
                 </label>
                 <ImageUpload
                   value={thumbnailUrl}
-                  onChange={setThumbnailUrl}
+                  onChange={(url) => setThumbnailUrl(url || "")}
                   aspectRatio="square"
                 />
               </div>
@@ -353,7 +353,7 @@ export default function EditCreatorPage({ params }: Props) {
                 </label>
                 <ImageUpload
                   value={bannerUrl}
-                  onChange={setBannerUrl}
+                  onChange={(url) => setBannerUrl(url || "")}
                   aspectRatio="banner"
                 />
               </div>

@@ -314,7 +314,7 @@ export default function SubmitCreatorPage() {
                 </label>
                 <ImageUpload
                   value={thumbnailUrl}
-                  onChange={setThumbnailUrl}
+                  onChange={(url) => setThumbnailUrl(url || "")}
                   aspectRatio="square"
                 />
                 <p className="text-xs text-foreground-subtle mt-2">
@@ -328,7 +328,7 @@ export default function SubmitCreatorPage() {
                 </label>
                 <ImageUpload
                   value={bannerUrl}
-                  onChange={setBannerUrl}
+                  onChange={(url) => setBannerUrl(url || "")}
                   aspectRatio="banner"
                 />
                 <p className="text-xs text-foreground-subtle mt-2">
