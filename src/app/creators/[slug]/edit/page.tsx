@@ -11,6 +11,7 @@ import {
 import { Button, Card, Input } from "@/components/ui";
 import { ImageUpload } from "@/components/ui/ImageUpload";
 import { updateContentCreator } from "@/lib/supabase/actions";
+import { uploadImage } from "@/lib/supabase/storage";
 
 // Platform options
 const PLATFORMS = [
@@ -157,6 +158,10 @@ export default function EditCreatorPage({ params }: Props) {
 
   const removeScheduleSlot = (index: number) => {
     setSchedule(schedule.filter((_, i) => i !== index));
+  };
+
+  const handleImageUpload = async (file: File) => {
+    return await uploadImage(file, "creators");
   };
 
   const updateScheduleSlot = (index: number, field: keyof ScheduleSlot, value: string) => {
@@ -343,6 +348,7 @@ export default function EditCreatorPage({ params }: Props) {
                 <ImageUpload
                   value={thumbnailUrl}
                   onChange={(url) => setThumbnailUrl(url || "")}
+                  onUpload={handleImageUpload}
                   aspectRatio="square"
                 />
               </div>
@@ -354,6 +360,7 @@ export default function EditCreatorPage({ params }: Props) {
                 <ImageUpload
                   value={bannerUrl}
                   onChange={(url) => setBannerUrl(url || "")}
+                  onUpload={handleImageUpload}
                   aspectRatio="banner"
                 />
               </div>
