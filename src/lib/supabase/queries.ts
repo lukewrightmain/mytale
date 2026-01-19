@@ -1058,11 +1058,14 @@ export async function getContentCreatorBySlug(slug: string): Promise<ContentCrea
     `)
     .eq("creator_id", creator.id);
 
-  const servers = serverLinks?.map((link) => link.servers).filter(Boolean) || [];
+  const servers = serverLinks
+    ?.map((link) => link.servers)
+    .flat()
+    .filter(Boolean) as ContentCreatorWithProfile["servers"] || [];
 
   return {
     ...(creator as ContentCreatorWithProfile),
-    servers: servers as ContentCreatorWithProfile["servers"],
+    servers,
   };
 }
 
