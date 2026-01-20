@@ -264,9 +264,12 @@ export function Toolbar() {
         {/* Left: Logo & File Operations */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-accent-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">H</span>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img 
+              src="/favicon-32x32.png" 
+              alt="Mytale" 
+              className="w-8 h-8 rounded-lg"
+            />
             <span className="font-display text-lg text-foreground">UI Builder</span>
           </div>
           
