@@ -64,75 +64,80 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Common: Comments
-  result = result.replace(
-    /(\/\/.*$|\/\*[\s\S]*?\*\/|&lt;!--[\s\S]*?--&gt;)/gm,
-    '<span class="text-stone-500">$1</span>'
-  );
-
-  // Common: Strings
-  result = result.replace(
-    /("(?:[^"\\]|\\.)*")/g,
-    '<span class="text-secondary-400">$1</span>'
-  );
-
-  if (language === 'java') {
-    // Java keywords
-    const javaKeywords = /\b(package|import|public|private|protected|class|interface|extends|implements|static|final|void|new|return|if|else|for|while|try|catch|throw|throws|this|super|null|true|false)\b/g;
-    result = result.replace(javaKeywords, '<span class="text-primary-400">$1</span>');
-
-    // Java annotations
-    result = result.replace(
-      /(@\w+)/g,
-      '<span class="text-accent-400">$1</span>'
+  // Split into lines for processing
+  const lines = result.split('\n');
+  
+  const highlightedLines = lines.map(line => {
+    let highlighted = line;
+    
+    // Comments
+    highlighted = highlighted.replace(
+      /(\/\/.*$)/g,
+      '<span style="color: #78716c;">$1</span>'
     );
 
-    // Java types (capitalized words)
-    result = result.replace(
-      /\b([A-Z]\w*)\b(?!<\/span>)/g,
-      '<span class="text-accent-300">$1</span>'
-    );
-  } else if (language === 'ui') {
-    // .ui format keywords
-    const uiKeywords = /\b(Group|Label|TimerLabel|ColorPicker|RawButton|RawField|AssetImage|TextButton|CancelButton|CheckBox|TextInput|NumberInput|BackButton)\b/g;
-    result = result.replace(uiKeywords, '<span class="text-accent-400">$1</span>');
-
-    // .ui properties
-    const uiProperties = /\b(LayoutMode|Background|Anchor|Padding|Alignment|Style|Text|Placeholder|Value|Asset|Visible|FlexWeight|ScrollStyle|Fill|Width|Height|Left|Right|Top|Bottom|TextColor|FontSize|RenderBold|RenderItalic|Min|Max|Checked|Label)\b:/g;
-    result = result.replace(uiProperties, '<span class="text-primary-400">$1</span>:');
-
-    // .ui variable references
-    result = result.replace(
-      /(\$C)/g,
-      '<span class="text-secondary-400">$1</span>'
+    // Strings
+    highlighted = highlighted.replace(
+      /("(?:[^"\\]|\\.)*")/g,
+      '<span style="color: #a78bfa;">$1</span>'
     );
 
-    // .ui element IDs
-    result = result.replace(
-      /(#\w+)/g,
-      '<span class="text-accent-300">$1</span>'
-    );
-  } else if (language === 'hyuiml') {
-    // HTML tags
-    result = result.replace(
-      /(&lt;\/?)([\w-]+)/g,
-      '$1<span class="text-primary-400">$2</span>'
+    if (language === 'java') {
+      // Java keywords
+      const javaKeywords = /\b(package|import|public|private|protected|class|interface|extends|implements|static|final|void|new|return|if|else|for|while|try|catch|throw|throws|this|super|null|true|false)\b/g;
+      highlighted = highlighted.replace(javaKeywords, '<span style="color: #f59e0b;">$1</span>');
+
+      // Java annotations
+      highlighted = highlighted.replace(
+        /(@\w+)/g,
+        '<span style="color: #34d399;">$1</span>'
+      );
+    } else if (language === 'ui') {
+      // .ui format keywords
+      const uiKeywords = /\b(Group|Label|TimerLabel|ColorPicker|RawButton|RawField|AssetImage|TextButton|CancelButton|CheckBox|TextInput|NumberInput|BackButton)\b/g;
+      highlighted = highlighted.replace(uiKeywords, '<span style="color: #34d399;">$1</span>');
+
+      // .ui properties (before colon)
+      highlighted = highlighted.replace(
+        /\b(LayoutMode|Background|Anchor|Padding|Alignment|Style|Text|Placeholder|Value|Asset|Visible|FlexWeight|ScrollStyle|Fill|Width|Height|Left|Right|Top|Bottom|TextColor|FontSize|RenderBold|RenderItalic|Min|Max|Checked|Label):/g,
+        '<span style="color: #f59e0b;">$1</span>:'
+      );
+
+      // .ui variable references
+      highlighted = highlighted.replace(
+        /(\$C)/g,
+        '<span style="color: #a78bfa;">$1</span>'
+      );
+
+      // .ui element IDs
+      highlighted = highlighted.replace(
+        /(#[\w]+)/g,
+        '<span style="color: #60a5fa;">$1</span>'
+      );
+    } else if (language === 'hyuiml') {
+      // HTML tags
+      highlighted = highlighted.replace(
+        /(&lt;\/?)([\w-]+)/g,
+        '$1<span style="color: #f59e0b;">$2</span>'
+      );
+
+      // HTML attributes
+      highlighted = highlighted.replace(
+        /(\s)([\w-]+)(=)/g,
+        '$1<span style="color: #34d399;">$2</span>$3'
+      );
+    }
+
+    // Numbers (only match standalone numbers, not inside words or after hyphens)
+    highlighted = highlighted.replace(
+      /(?<![a-zA-Z\-#])(\d+(?:\.\d+)?)(?![a-zA-Z])/g,
+      '<span style="color: #fbbf24;">$1</span>'
     );
 
-    // HTML attributes
-    result = result.replace(
-      /(\s)([\w-]+)(=)/g,
-      '$1<span class="text-accent-400">$2</span>$3'
-    );
-  }
+    return highlighted;
+  });
 
-  // Numbers
-  result = result.replace(
-    /\b(\d+(?:\.\d+)?)\b/g,
-    '<span class="text-accent-300">$1</span>'
-  );
-
-  return result;
+  return highlightedLines.join('\n');
 }
 
 // ─── Main Code Output Component ───

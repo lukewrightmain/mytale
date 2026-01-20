@@ -2,36 +2,188 @@
 
 // ═══════════════════════════════════════════════════════════════════════════
 // Hytale UI Builder - Canvas Component
-// Visual design canvas with drag/drop, selection, and element rendering
+// Visual design canvas with drag/drop, selection, resize, and element rendering
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useEffect } from 'react';
 import { useEditor } from '@/lib/ui-builder/EditorContext';
 import { canHaveChildren } from '@/lib/ui-builder/defaults';
-import type { UIElement, ElementType, DragData } from '@/lib/ui-builder/types';
+import type { UIElement, ElementType, DragData, Anchor } from '@/lib/ui-builder/types';
 import { ZoomIn, ZoomOut, Grid3X3, Maximize2 } from 'lucide-react';
+
+// ─── Resize Handle Positions ───
+type ResizeHandle = 'nw' | 'n' | 'ne' | 'w' | 'e' | 'sw' | 's' | 'se';
+
+// ─── Resize Handles Component ───
+function ResizeHandles({ 
+  onResizeStart 
+}: { 
+  onResizeStart: (handle: ResizeHandle, e: React.MouseEvent) => void;
+}) {
+  const handles: { position: ResizeHandle; cursor: string; className: string }[] = [
+    { position: 'nw', cursor: 'nwse-resize', className: '-top-1 -left-1' },
+    { position: 'n', cursor: 'ns-resize', className: '-top-1 left-1/2 -translate-x-1/2' },
+    { position: 'ne', cursor: 'nesw-resize', className: '-top-1 -right-1' },
+    { position: 'w', cursor: 'ew-resize', className: 'top-1/2 -left-1 -translate-y-1/2' },
+    { position: 'e', cursor: 'ew-resize', className: 'top-1/2 -right-1 -translate-y-1/2' },
+    { position: 'sw', cursor: 'nesw-resize', className: '-bottom-1 -left-1' },
+    { position: 's', cursor: 'ns-resize', className: '-bottom-1 left-1/2 -translate-x-1/2' },
+    { position: 'se', cursor: 'nwse-resize', className: '-bottom-1 -right-1' },
+  ];
+
+  return (
+    <>
+      {handles.map(({ position, cursor, className }) => (
+        <div
+          key={position}
+          className={`absolute w-2.5 h-2.5 bg-primary-500 border border-white rounded-sm z-30 ${className}`}
+          style={{ cursor }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            onResizeStart(position, e);
+          }}
+        />
+      ))}
+    </>
+  );
+}
 
 // ─── Element Renderer ───
 function CanvasElement({ 
   element, 
   isRoot = false,
   depth = 0,
+  parentBounds,
+  zoom = 1,
 }: { 
   element: UIElement; 
   isRoot?: boolean;
   depth?: number;
+  parentBounds?: { width: number; height: number };
+  zoom?: number;
 }) {
-  const { state, selectElement, addElement, moveElement } = useEditor();
+  const { state, selectElement, addElement, moveElement, updateElement } = useEditor();
+  const elementRef = useRef<HTMLDivElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [initialPosition, setInitialPosition] = useState({ left: 0, top: 0 });
+  const [initialSize, setInitialSize] = useState({ width: 0, height: 0 });
+  const [resizeHandle, setResizeHandle] = useState<ResizeHandle | null>(null);
   
   const isSelected = state.selectedElementId === element.id;
   const canAcceptChildren = canHaveChildren(element.type);
+
+  // Get element dimensions and position
+  const anchor = element.properties.anchor || {};
+  const width = anchor.width || 100;
+  const height = anchor.height || 100;
+  const left = anchor.left ?? 0;
+  const top = anchor.top ?? 0;
+  const bgColor = element.properties.background?.color || 'transparent';
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     selectElement(element.id);
   };
 
+  // ─── Drag Start (Move) ───
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (isRoot || e.button !== 0) return;
+    
+    // Don't start drag if clicking on resize handle
+    if ((e.target as HTMLElement).closest('[data-resize-handle]')) return;
+    
+    e.stopPropagation();
+    selectElement(element.id);
+    
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setInitialPosition({ left: left, top: top });
+  };
+
+  // ─── Resize Start ───
+  const handleResizeStart = (handle: ResizeHandle, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsResizing(true);
+    setResizeHandle(handle);
+    setDragStart({ x: e.clientX, y: e.clientY });
+    setInitialPosition({ left: left, top: top });
+    setInitialSize({ width: width, height: height });
+  };
+
+  // ─── Mouse Move (Drag/Resize) ───
+  useEffect(() => {
+    if (!isDragging && !isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = (e.clientX - dragStart.x) / zoom;
+      const deltaY = (e.clientY - dragStart.y) / zoom;
+
+      if (isDragging) {
+        // Moving element
+        const newLeft = Math.round(initialPosition.left + deltaX);
+        const newTop = Math.round(initialPosition.top + deltaY);
+        
+        updateElement(element.id, {
+          anchor: {
+            ...anchor,
+            left: newLeft,
+            top: newTop,
+          },
+        });
+      } else if (isResizing && resizeHandle) {
+        // Resizing element
+        let newWidth = initialSize.width;
+        let newHeight = initialSize.height;
+        let newLeft = initialPosition.left;
+        let newTop = initialPosition.top;
+
+        // Handle horizontal resize
+        if (resizeHandle.includes('e')) {
+          newWidth = Math.max(20, initialSize.width + deltaX);
+        } else if (resizeHandle.includes('w')) {
+          newWidth = Math.max(20, initialSize.width - deltaX);
+          newLeft = initialPosition.left + (initialSize.width - newWidth);
+        }
+
+        // Handle vertical resize
+        if (resizeHandle.includes('s')) {
+          newHeight = Math.max(20, initialSize.height + deltaY);
+        } else if (resizeHandle.includes('n')) {
+          newHeight = Math.max(20, initialSize.height - deltaY);
+          newTop = initialPosition.top + (initialSize.height - newHeight);
+        }
+
+        updateElement(element.id, {
+          anchor: {
+            ...anchor,
+            width: Math.round(newWidth),
+            height: Math.round(newHeight),
+            left: Math.round(newLeft),
+            top: Math.round(newTop),
+          },
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setIsResizing(false);
+      setResizeHandle(null);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, isResizing, dragStart, initialPosition, initialSize, resizeHandle, element.id, anchor, updateElement, zoom]);
+
+  // ─── Drop Zone Handling ───
   const handleDragOver = (e: React.DragEvent) => {
     if (!canAcceptChildren) return;
     e.preventDefault();
@@ -58,7 +210,6 @@ function CanvasElement({
       if (data.type === 'palette' && data.elementType) {
         addElement(element.id, data.elementType as ElementType);
       } else if (data.type === 'hierarchy' && data.elementId) {
-        // Moving element within hierarchy
         if (data.elementId !== element.id) {
           moveElement(data.elementId, element.id);
         }
@@ -68,21 +219,30 @@ function CanvasElement({
     }
   };
 
-  // Get element dimensions and styling
-  const anchor = element.properties.anchor || {};
-  const width = anchor.width || 'auto';
-  const height = anchor.height || 'auto';
-  const bgColor = element.properties.background?.color || 'transparent';
-
   // Base styles
   const baseStyles: React.CSSProperties = {
+    position: isRoot ? 'relative' : 'absolute',
     width: typeof width === 'number' ? `${width}px` : width,
     height: typeof height === 'number' ? `${height}px` : height,
+    left: isRoot ? undefined : `${left}px`,
+    top: isRoot ? undefined : `${top}px`,
     backgroundColor: bgColor !== 'transparent' ? bgColor : undefined,
-    position: 'relative',
-    minWidth: isRoot ? '100%' : '40px',
-    minHeight: isRoot ? '100%' : '24px',
+    minWidth: isRoot ? '100%' : undefined,
+    minHeight: isRoot ? '100%' : undefined,
+    cursor: isRoot ? 'default' : (isDragging ? 'grabbing' : 'grab'),
+    userSelect: 'none',
   };
+
+  // Apply padding
+  const padding = element.properties.padding || {};
+  if (padding.all) {
+    baseStyles.padding = `${padding.all}px`;
+  } else {
+    if (padding.top) baseStyles.paddingTop = `${padding.top}px`;
+    if (padding.right) baseStyles.paddingRight = `${padding.right}px`;
+    if (padding.bottom) baseStyles.paddingBottom = `${padding.bottom}px`;
+    if (padding.left) baseStyles.paddingLeft = `${padding.left}px`;
+  }
 
   // Layout mode positioning for children
   const getLayoutStyles = (): React.CSSProperties => {
@@ -97,20 +257,9 @@ function CanvasElement({
       case 'MiddleCenter':
         return { display: 'flex', alignItems: 'center', justifyContent: 'center' };
       default:
-        return { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' };
+        return {};
     }
   };
-
-  // Apply padding
-  const padding = element.properties.padding || {};
-  if (padding.all) {
-    baseStyles.padding = `${padding.all}px`;
-  } else {
-    if (padding.top) baseStyles.paddingTop = `${padding.top}px`;
-    if (padding.right) baseStyles.paddingRight = `${padding.right}px`;
-    if (padding.bottom) baseStyles.paddingBottom = `${padding.bottom}px`;
-    if (padding.left) baseStyles.paddingLeft = `${padding.left}px`;
-  }
 
   // Render element based on type
   const renderContent = () => {
@@ -122,7 +271,7 @@ function CanvasElement({
         const alignment = 'alignment' in element.properties ? element.properties.alignment : 'Left';
         return (
           <div 
-            className="w-full h-full flex items-center"
+            className="w-full h-full flex items-center pointer-events-none"
             style={{
               color: style?.textColor || '#ffffff',
               fontSize: style?.fontSize ? `${style.fontSize}px` : '14px',
@@ -139,7 +288,7 @@ function CanvasElement({
 
       case 'AssetImage': {
         return (
-          <div className="w-full h-full flex items-center justify-center bg-stone-700/50 border border-dashed border-stone-600 rounded">
+          <div className="w-full h-full flex items-center justify-center bg-stone-700/50 border border-dashed border-stone-600 rounded pointer-events-none">
             <span className="text-xs text-foreground-subtle">Image</span>
           </div>
         );
@@ -151,7 +300,7 @@ function CanvasElement({
       case 'BackButton': {
         const text = 'text' in element.properties ? element.properties.text : 'Button';
         return (
-          <div className="w-full h-full flex items-center justify-center bg-stone-600 hover:bg-stone-500 rounded border border-stone-500 text-sm text-foreground cursor-pointer transition-colors">
+          <div className="w-full h-full flex items-center justify-center bg-stone-600 rounded border border-stone-500 text-sm text-foreground pointer-events-none">
             {text || 'Button'}
           </div>
         );
@@ -161,7 +310,7 @@ function CanvasElement({
       case 'TextInput': {
         const placeholder = 'placeholder' in element.properties ? element.properties.placeholder : 'Enter text...';
         return (
-          <div className="w-full h-full flex items-center px-3 bg-stone-800 border border-stone-600 rounded text-sm text-foreground-muted">
+          <div className="w-full h-full flex items-center px-3 bg-stone-800 border border-stone-600 rounded text-sm text-foreground-muted pointer-events-none">
             {placeholder || 'Enter text...'}
           </div>
         );
@@ -169,7 +318,7 @@ function CanvasElement({
 
       case 'NumberInput': {
         return (
-          <div className="w-full h-full flex items-center px-3 bg-stone-800 border border-stone-600 rounded text-sm text-foreground-muted">
+          <div className="w-full h-full flex items-center px-3 bg-stone-800 border border-stone-600 rounded text-sm text-foreground-muted pointer-events-none">
             0
           </div>
         );
@@ -178,7 +327,7 @@ function CanvasElement({
       case 'CheckBox': {
         const label = 'label' in element.properties ? element.properties.label : 'Option';
         return (
-          <div className="w-full h-full flex items-center gap-2">
+          <div className="w-full h-full flex items-center gap-2 pointer-events-none">
             <div className="w-4 h-4 border border-stone-500 rounded bg-stone-700" />
             <span className="text-sm text-foreground-muted">{label || 'Option'}</span>
           </div>
@@ -188,7 +337,7 @@ function CanvasElement({
       case 'ColorPicker': {
         const color = 'defaultColor' in element.properties ? element.properties.defaultColor : '#ffffff';
         return (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center pointer-events-none">
             <div 
               className="w-12 h-12 rounded border border-stone-600" 
               style={{ backgroundColor: color || '#ffffff' }}
@@ -201,10 +350,10 @@ function CanvasElement({
       case 'PageOverlay':
       case 'ContainerPanel':
       default: {
-        // Container elements - render children
+        // Container elements - render children with absolute positioning
         return (
           <div 
-            className="w-full h-full"
+            className="w-full h-full relative"
             style={getLayoutStyles()}
           >
             {element.children.map((child) => (
@@ -212,10 +361,12 @@ function CanvasElement({
                 key={child.id} 
                 element={child} 
                 depth={depth + 1}
+                parentBounds={{ width, height }}
+                zoom={zoom}
               />
             ))}
             {element.children.length === 0 && !isRoot && (
-              <div className="w-full h-full flex items-center justify-center text-xs text-foreground-subtle opacity-50">
+              <div className="absolute inset-0 flex items-center justify-center text-xs text-foreground-subtle opacity-50 pointer-events-none">
                 {canAcceptChildren ? 'Drop elements here' : ''}
               </div>
             )}
@@ -227,16 +378,19 @@ function CanvasElement({
 
   return (
     <div
+      ref={elementRef}
       onClick={handleClick}
+      onMouseDown={handleMouseDown}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        relative transition-all duration-100
+        transition-shadow duration-100
         ${isRoot ? '' : 'rounded'}
-        ${isSelected ? 'ring-2 ring-primary-500 ring-offset-1 ring-offset-background z-10' : ''}
+        ${isSelected ? 'ring-2 ring-primary-500 z-20' : ''}
         ${isDragOver && canAcceptChildren ? 'ring-2 ring-accent-400 bg-accent-500/10' : ''}
-        ${!isRoot && !isSelected ? 'hover:ring-1 hover:ring-stone-600' : ''}
+        ${!isRoot && !isSelected ? 'hover:ring-1 hover:ring-stone-500' : ''}
+        ${isDragging || isResizing ? 'opacity-90' : ''}
       `}
       style={baseStyles}
       data-element-id={element.id}
@@ -244,9 +398,14 @@ function CanvasElement({
     >
       {/* Element label overlay */}
       {isSelected && !isRoot && (
-        <div className="absolute -top-5 left-0 px-1.5 py-0.5 bg-primary-500 text-[10px] text-white rounded-t font-mono z-20">
+        <div className="absolute -top-5 left-0 px-1.5 py-0.5 bg-primary-500 text-[10px] text-white rounded-t font-mono z-30 pointer-events-none">
           {element.name || element.type}
         </div>
+      )}
+      
+      {/* Resize Handles */}
+      {isSelected && !isRoot && (
+        <ResizeHandles onResizeStart={handleResizeStart} />
       )}
       
       {renderContent()}
@@ -268,7 +427,7 @@ export function Canvas() {
 
   const handleCanvasClick = (e: React.MouseEvent) => {
     // Deselect when clicking on canvas background
-    if (e.target === canvasRef.current) {
+    if (e.target === canvasRef.current || (e.target as HTMLElement).dataset?.canvasBackground) {
       selectElement(null);
     }
   };
@@ -276,6 +435,7 @@ export function Canvas() {
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button === 1 || (e.button === 0 && e.altKey)) {
       // Middle mouse button or Alt+Left click for panning
+      e.preventDefault();
       setIsPanning(true);
       setPanStart({ x: e.clientX - panOffset.x, y: e.clientY - panOffset.y });
     }
@@ -363,6 +523,7 @@ export function Canvas() {
         onMouseLeave={handleMouseUp}
         onWheel={handleWheel}
         style={{ cursor: isPanning ? 'grabbing' : 'default' }}
+        data-canvas-background="true"
       >
         {/* Grid Background */}
         {state.showGrid && (
@@ -391,14 +552,13 @@ export function Canvas() {
         >
           {/* Design Canvas */}
           <div 
-            className="w-full h-full overflow-hidden rounded-lg border border-stone-700"
+            className="w-full h-full overflow-hidden rounded-lg border border-stone-700 relative"
             style={{ backgroundColor: state.design.root.properties.background?.color || '#2a2a2a' }}
           >
-            <CanvasElement element={state.design.root} isRoot />
+            <CanvasElement element={state.design.root} isRoot zoom={state.zoom} />
           </div>
         </div>
       </div>
     </div>
   );
 }
-
