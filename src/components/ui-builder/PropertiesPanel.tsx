@@ -5,10 +5,10 @@
 // Dynamic property editor for the selected element
 // ═══════════════════════════════════════════════════════════════════════════
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useEditor } from '@/lib/ui-builder/EditorContext';
-import type { UIElement, LayoutMode, Anchor, Padding, TextStyle } from '@/lib/ui-builder/types';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import type { UIElement, LayoutMode, Anchor, Padding, TextStyle, ImageFitMode } from '@/lib/ui-builder/types';
+import { ChevronDown, ChevronRight, Upload, Image as ImageIcon, X } from 'lucide-react';
 
 // ─── Property Section ───
 function PropertySection({ 
@@ -180,6 +180,138 @@ function CheckboxInput({
     </label>
   );
 }
+
+// ─── Image Upload Input ───
+function ImageUploadInput({
+  value,
+  assetPath,
+  onChange,
+  onAssetPathChange,
+}: {
+  value: string | undefined;
+  assetPath: string | undefined;
+  onChange: (value: string) => void;
+  onAssetPathChange: (value: string) => void;
+}) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleFileSelect = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const result = e.target?.result as string;
+      onChange(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleFileSelect(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleClear = () => {
+    onChange('');
+  };
+
+  return (
+    <div className="space-y-3">
+      {/* Asset Path Input */}
+      <div className="space-y-1">
+        <label className="text-[10px] text-foreground-subtle">Hytale Asset Path</label>
+        <input
+          type="text"
+          value={assetPath || ''}
+          onChange={(e) => onAssetPathChange(e.target.value)}
+          placeholder="assets/textures/ui/my_image.png"
+          className="w-full px-2 py-1 text-xs bg-surface-elevated border border-border rounded focus:outline-none focus:ring-1 focus:ring-primary-500 text-foreground font-mono"
+        />
+      </div>
+
+      {/* Image Preview / Upload Zone */}
+      <div className="space-y-1">
+        <label className="text-[10px] text-foreground-subtle">Preview Image</label>
+        
+        {value ? (
+          <div className="relative">
+            <div className="relative aspect-video w-full overflow-hidden rounded border border-border bg-stone-900">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img 
+                src={value} 
+                alt="Preview" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <button
+              onClick={handleClear}
+              className="absolute top-1 right-1 p-1 bg-red-500/80 hover:bg-red-500 rounded transition-colors"
+              title="Remove image"
+            >
+              <X className="w-3 h-3 text-white" />
+            </button>
+          </div>
+        ) : (
+          <div
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onClick={() => fileInputRef.current?.click()}
+            className={`
+              flex flex-col items-center justify-center gap-2 p-4 rounded border-2 border-dashed cursor-pointer transition-colors
+              ${isDragging 
+                ? 'border-primary-500 bg-primary-500/10' 
+                : 'border-border hover:border-primary-500/50 hover:bg-surface-elevated'
+              }
+            `}
+          >
+            <div className="flex items-center gap-2 text-foreground-muted">
+              <Upload className="w-4 h-4" />
+              <span className="text-xs">Drop image or click to upload</span>
+            </div>
+            <p className="text-[10px] text-foreground-subtle">PNG, JPG, GIF, SVG</p>
+          </div>
+        )}
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (file) handleFileSelect(file);
+          }}
+          className="hidden"
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Image Fit Options ───
+const IMAGE_FIT_OPTIONS = [
+  { value: 'contain', label: 'Contain (Fit)' },
+  { value: 'cover', label: 'Cover (Fill)' },
+  { value: 'fill', label: 'Stretch' },
+  { value: 'none', label: 'None (Original)' },
+  { value: 'scale-down', label: 'Scale Down' },
+];
 
 // ─── Anchor Editor ───
 function AnchorEditor({ 
@@ -455,6 +587,31 @@ export function PropertiesPanel() {
                 />
               </PropertyRow>
             )}
+          </PropertySection>
+        )}
+
+        {/* Image Section - for AssetImage elements */}
+        {element.type === 'AssetImage' && (
+          <PropertySection title="Image">
+            <ImageUploadInput
+              value={'imageSrc' in props ? (props as { imageSrc?: string }).imageSrc : undefined}
+              assetPath={'assetPath' in props ? (props as { assetPath?: string }).assetPath : undefined}
+              onChange={(v) => handlePropertyChange('imageSrc', v)}
+              onAssetPathChange={(v) => handlePropertyChange('assetPath', v)}
+            />
+            <PropertyRow label="Fit Mode">
+              <SelectInput
+                value={'objectFit' in props ? (props as { objectFit?: string }).objectFit : 'contain'}
+                onChange={(v) => handlePropertyChange('objectFit', v as ImageFitMode)}
+                options={IMAGE_FIT_OPTIONS}
+              />
+            </PropertyRow>
+            <PropertyRow label="Tint">
+              <ColorInput
+                value={'tint' in props ? (props as { tint?: string }).tint : undefined}
+                onChange={(v) => handlePropertyChange('tint', v)}
+              />
+            </PropertyRow>
           </PropertySection>
         )}
 

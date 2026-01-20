@@ -155,6 +155,9 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     canHaveChildren: false,
     defaultProperties: {
       anchor: { width: 100, height: 100 },
+      assetPath: '',
+      imageSrc: '',
+      objectFit: 'contain',
     },
   },
   // Macros
@@ -437,6 +440,14 @@ function getFieldPropertyFields(): PropertyField[] {
 function getImagePropertyFields(): PropertyField[] {
   return [
     { key: 'assetPath', label: 'Asset Path', type: 'string', group: 'Content' },
+    { key: 'imageSrc', label: 'Image Source', type: 'string', group: 'Content' },
+    { key: 'objectFit', label: 'Fit Mode', type: 'select', group: 'Content', options: [
+      { value: 'contain', label: 'Contain (Fit)' },
+      { value: 'cover', label: 'Cover (Fill)' },
+      { value: 'fill', label: 'Stretch' },
+      { value: 'none', label: 'None (Original)' },
+      { value: 'scale-down', label: 'Scale Down' },
+    ]},
     { key: 'tint', label: 'Tint', type: 'color', group: 'Style' },
   ];
 }

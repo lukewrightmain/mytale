@@ -152,11 +152,16 @@ export interface FieldProperties extends BaseElementProperties {
   style?: TextStyle;
 }
 
+// ─── Image Fit Modes ───
+export type ImageFitMode = 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+
 // ─── Image Properties ───
 export interface ImageProperties extends BaseElementProperties {
-  assetPath?: string;
-  preserveAspect?: boolean;
-  tint?: string;
+  assetPath?: string;          // Hytale asset path for code generation
+  imageSrc?: string;           // Base64 or URL for preview in editor
+  objectFit?: ImageFitMode;    // How the image fits within its container
+  preserveAspect?: boolean;    // Legacy: preserve aspect ratio
+  tint?: string;               // Color overlay tint
 }
 
 // ─── Color Picker Properties ───
