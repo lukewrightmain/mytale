@@ -227,6 +227,18 @@ export const SEO_KEYWORDS = {
     "Hytale server hosting guide",
     "Hytale port forwarding",
   ],
+  uiBuilder: [
+    "Hytale UI builder",
+    "Hytale mod UI",
+    "Hytale visual editor",
+    "Hytale UI designer",
+    "Hytale mod development",
+    "HYUIML",
+    "Hytale interface builder",
+    "Hytale UI tool",
+    "Hytale mod tools",
+    "Hytale GUI builder",
+  ],
 };
 
 // ─── Page Descriptions ───
@@ -242,6 +254,7 @@ export const PAGE_DESCRIPTIONS = {
   builders: "Browse talented Hytale builders and their portfolios. Showcase your building skills, connect with the community, and find builders for your projects.",
   creators: "Discover Hytale content creators, streamers, and YouTubers. Find your next favorite creator, check their streaming schedules, and connect with the Hytale content creation community.",
   guides: "Comprehensive guides and tutorials for Hytale. Learn how to set up and run a dedicated Hytale server, install mods, configure multiserver architecture, and optimize performance.",
+  uiBuilder: "Create beautiful Hytale mod UIs with our drag-and-drop visual builder. Export to .ui, Java, or HYUIML formats. No coding required for artists and designers.",
 };
 
 // ─── Navigation ───
@@ -256,6 +269,7 @@ export const NAV_ITEMS = [
   { label: "Creators", href: "/creators" },
   { label: "Ideas", href: "/ideas" },
   { label: "Guides", href: "/guides" },
+  { label: "UI Builder", href: "/ui-builder" },
 ];
 
 // ─── Social Links ───
