@@ -70,12 +70,13 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
   const highlightedLines = lines.map(line => {
     let highlighted = line;
     
-    // Use placeholder tokens to prevent nested matching issues
+    // Use placeholder tokens with letters to prevent number regex from matching
     const placeholders: string[] = [];
     const addPlaceholder = (content: string): string => {
       const index = placeholders.length;
       placeholders.push(content);
-      return `\x00${index}\x00`;
+      // Use PH prefix/suffix so the index number won't be matched by \b\d+\b
+      return `\x00PH${index}HP\x00`;
     };
 
     // Step 1: Extract and protect comments first
@@ -91,7 +92,7 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
     );
 
     // Step 3: Highlight numbers BEFORE adding any colored spans
-    // Only match numbers that are standalone (not part of identifiers)
+    // Only match numbers that are standalone (not part of identifiers or hex colors)
     highlighted = highlighted.replace(
       /\b(\d+(?:\.\d+)?)\b/g,
       (match) => addPlaceholder(`<span class="hl-number">${match}</span>`)
@@ -119,7 +120,7 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
 
       // .ui properties (before colon)
       highlighted = highlighted.replace(
-        /\b(LayoutMode|Background|Anchor|Padding|Alignment|Style|Text|Placeholder|Value|Asset|Visible|FlexWeight|ScrollStyle|Fill|Width|Height|Left|Right|Top|Bottom|TextColor|FontSize|RenderBold|RenderItalic|Min|Max|Checked|Label):/g,
+        /\b(LayoutMode|Background|Anchor|Padding|Alignment|Style|Text|Placeholder|Value|Asset|Visible|FlexWeight|ScrollStyle|Fill|Width|Height|Left|Right|Top|Bottom|TextColor|FontSize|RenderBold|RenderItalic|Min|Max|Checked|Label|ObjectFit):/g,
         (match, p1) => addPlaceholder(`<span class="hl-property">${p1}</span>`) + ':'
       );
 
@@ -129,7 +130,7 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
         (match) => addPlaceholder(`<span class="hl-variable">${match}</span>`)
       );
 
-      // .ui element IDs (but not inside placeholders)
+      // .ui element IDs
       highlighted = highlighted.replace(
         /(#[\w]+)/g,
         (match) => addPlaceholder(`<span class="hl-id">${match}</span>`)
@@ -150,7 +151,7 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
 
     // Step 5: Replace placeholders with actual styled spans
     for (let i = 0; i < placeholders.length; i++) {
-      highlighted = highlighted.replace(`\x00${i}\x00`, placeholders[i]);
+      highlighted = highlighted.replace(`\x00PH${i}HP\x00`, placeholders[i]);
     }
 
     // Step 6: Replace CSS classes with inline styles
