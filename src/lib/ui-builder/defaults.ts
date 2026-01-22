@@ -329,13 +329,17 @@ export const PALETTE_ITEMS: PaletteItem[] = [
   },
 ];
 
-// ─── Page Templates ───
+// ─── Complete Page Templates (Production-Ready) ───
 export const PAGE_TEMPLATES: UITemplate[] = [
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 1: Simple Page - Basic dialog with title, content, buttons
+  // ════════════════════════════════════════════════════════════════════════
   {
     id: 'simple-page',
     name: 'Simple Page',
     description: 'Basic page with title and content area',
     category: 'page',
+    preview: '📄',
     root: {
       id: 'tpl-root',
       type: 'PageOverlay',
@@ -348,23 +352,20 @@ export const PAGE_TEMPLATES: UITemplate[] = [
           name: 'Container',
           properties: { 
             macro: '$C.@DecoratedContainer',
-            anchor: { width: 600, height: 400 },
+            anchor: { width: 500, height: 350 },
+            layoutMode: 'Top',
+            padding: { full: 20 },
           },
           children: [
             {
-              id: 'tpl-title-wrapper',
-              type: 'Group',
-              name: 'Title',
-              properties: {},
-              children: [
-                {
-                  id: 'tpl-title',
-                  type: 'Title',
-                  name: 'Title',
-                  properties: { macro: '$C.@Title', text: 'PAGE TITLE' },
-                  children: [],
-                },
-              ],
+              id: 'tpl-title',
+              type: 'Title',
+              name: 'PageTitle',
+              properties: { 
+                macro: '$C.@Title', 
+                text: 'My Dialog',
+              },
+              children: [],
             },
             {
               id: 'tpl-content',
@@ -372,24 +373,75 @@ export const PAGE_TEMPLATES: UITemplate[] = [
               name: 'Content',
               properties: { 
                 layoutMode: 'Top',
-                padding: { full: 15 },
+                flexWeight: 1,
+                padding: { top: 20, bottom: 20 },
               },
-              children: [],
+              children: [
+                {
+                  id: 'tpl-message',
+                  type: 'Label',
+                  name: 'Message',
+                  properties: { 
+                    text: 'This is your content area. Add elements here!',
+                    alignment: 'Center',
+                    style: { textColor: '#aaaaaa', fontSize: 14 },
+                  },
+                  children: [],
+                },
+              ],
+            },
+            {
+              id: 'tpl-buttons',
+              type: 'Group',
+              name: 'ButtonRow',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 50 },
+              },
+              children: [
+                {
+                  id: 'tpl-ok-btn',
+                  type: 'TextButton',
+                  name: 'OkButton',
+                  properties: { 
+                    macro: '$C.@TextButton',
+                    text: 'Confirm',
+                    anchor: { width: 120, height: 36, right: 10 },
+                  },
+                  children: [],
+                },
+                {
+                  id: 'tpl-cancel-btn',
+                  type: 'TextButton',
+                  name: 'CancelButton',
+                  properties: { 
+                    macro: '$C.@TextButton',
+                    text: 'Cancel',
+                    anchor: { width: 120, height: 36 },
+                  },
+                  children: [],
+                },
+              ],
             },
           ],
         },
       ],
     },
     settings: {
-      pageType: 'CustomUIPage',
+      pageType: 'InteractiveCustomUIPage',
       pageLifetime: 'CanDismiss',
     },
   },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 2: Scrollable List - For rewards, shop items, leaderboards
+  // ════════════════════════════════════════════════════════════════════════
   {
     id: 'scrollable-list',
     name: 'Scrollable List',
     description: 'Page with scrollable list for items/cards',
     category: 'page',
+    preview: '📋',
     root: {
       id: 'tpl-root',
       type: 'PageOverlay',
@@ -402,39 +454,735 @@ export const PAGE_TEMPLATES: UITemplate[] = [
           name: 'Container',
           properties: { 
             macro: '$C.@DecoratedContainer',
-            anchor: { width: 800, height: 600 },
+            anchor: { width: 600, height: 500 },
+            layoutMode: 'Top',
           },
           children: [
             {
-              id: 'tpl-title-wrapper',
+              id: 'tpl-header',
               type: 'Group',
-              name: 'Title',
-              properties: {},
+              name: 'Header',
+              properties: { 
+                layoutMode: 'Left',
+                padding: { full: 15 },
+                anchor: { height: 60 },
+              },
               children: [
                 {
                   id: 'tpl-title',
                   type: 'Title',
                   name: 'Title',
-                  properties: { macro: '$C.@Title', text: 'LIST PAGE' },
+                  properties: { 
+                    macro: '$C.@Title', 
+                    text: 'REWARDS',
+                  },
                   children: [],
                 },
               ],
             },
             {
-              id: 'tpl-content',
+              id: 'tpl-scrollarea',
               type: 'Group',
-              name: 'Content',
+              name: 'ScrollArea',
               properties: { 
                 layoutMode: 'TopScrolling',
                 scrollbarStyle: '$C.@DefaultScrollbarStyle',
+                flexWeight: 1,
+                padding: { left: 15, right: 15 },
+              },
+              children: [
+                // Sample Card 1
+                {
+                  id: 'tpl-card1',
+                  type: 'Button',
+                  name: 'RewardCard1',
+                  properties: {
+                    anchor: { height: 80, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#1a1a1a(0.7)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.85)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-card1-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 56, height: 56 },
+                        itemId: 'Weapon_Sword_Diamond',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-card1-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 15 },
+                      },
+                      children: [
+                        {
+                          id: 'tpl-card1-title',
+                          type: 'Label',
+                          name: 'Title',
+                          properties: { 
+                            text: 'Diamond Sword',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'tpl-card1-desc',
+                          type: 'Label',
+                          name: 'Description',
+                          properties: { 
+                            text: 'A powerful weapon for skilled warriors',
+                            style: { fontSize: 12, textColor: '#888888' },
+                            anchor: { top: 4 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'tpl-card1-claim',
+                      type: 'TextButton',
+                      name: 'ClaimButton',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Claim',
+                        anchor: { width: 80, height: 32 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Sample Card 2
+                {
+                  id: 'tpl-card2',
+                  type: 'Button',
+                  name: 'RewardCard2',
+                  properties: {
+                    anchor: { height: 80, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#1a1a1a(0.7)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.85)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-card2-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 56, height: 56 },
+                        itemId: 'Armor_Shield_Gold',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-card2-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 15 },
+                      },
+                      children: [
+                        {
+                          id: 'tpl-card2-title',
+                          type: 'Label',
+                          name: 'Title',
+                          properties: { 
+                            text: 'Golden Shield',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffcc00' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'tpl-card2-desc',
+                          type: 'Label',
+                          name: 'Description',
+                          properties: { 
+                            text: 'Legendary protection from ancient times',
+                            style: { fontSize: 12, textColor: '#888888' },
+                            anchor: { top: 4 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'tpl-card2-claim',
+                      type: 'TextButton',
+                      name: 'ClaimButton',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Claim',
+                        anchor: { width: 80, height: 32 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Sample Card 3
+                {
+                  id: 'tpl-card3',
+                  type: 'Button',
+                  name: 'RewardCard3',
+                  properties: {
+                    anchor: { height: 80, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#1a1a1a(0.7)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.85)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-card3-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 56, height: 56 },
+                        itemId: 'Consumable_Potion_Health',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-card3-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 15 },
+                      },
+                      children: [
+                        {
+                          id: 'tpl-card3-title',
+                          type: 'Label',
+                          name: 'Title',
+                          properties: { 
+                            text: 'Health Potion x5',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ff6666' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'tpl-card3-desc',
+                          type: 'Label',
+                          name: 'Description',
+                          properties: { 
+                            text: 'Restores health when consumed',
+                            style: { fontSize: 12, textColor: '#888888' },
+                            anchor: { top: 4 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'tpl-card3-claim',
+                      type: 'TextButton',
+                      name: 'ClaimButton',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Claim',
+                        anchor: { width: 80, height: 32 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'tpl-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
                 padding: { full: 15 },
+                anchor: { height: 60 },
               },
               children: [
                 {
-                  id: 'tpl-list',
+                  id: 'tpl-close-btn',
+                  type: 'BackButton',
+                  name: 'CloseButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'InteractiveCustomUIPage',
+      pageLifetime: 'CanDismiss',
+    },
+  },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 3: Form Page - Settings, character creation, input forms
+  // ════════════════════════════════════════════════════════════════════════
+  {
+    id: 'form-page',
+    name: 'Form Page',
+    description: 'Page with text inputs, checkboxes, and buttons',
+    category: 'page',
+    preview: '📝',
+    root: {
+      id: 'tpl-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'tpl-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 450, height: 420 },
+            layoutMode: 'Top',
+            padding: { full: 25 },
+          },
+          children: [
+            {
+              id: 'tpl-title',
+              type: 'Title',
+              name: 'Title',
+              properties: { 
+                macro: '$C.@Title', 
+                text: 'SETTINGS',
+              },
+              children: [],
+            },
+            {
+              id: 'tpl-form',
+              type: 'Group',
+              name: 'FormContent',
+              properties: { 
+                layoutMode: 'Top',
+                flexWeight: 1,
+                padding: { top: 20 },
+              },
+              children: [
+                // Username Field
+                {
+                  id: 'tpl-username-row',
                   type: 'Group',
-                  name: 'ItemList',
-                  properties: { layoutMode: 'Top' },
+                  name: 'UsernameRow',
+                  properties: { 
+                    layoutMode: 'Left',
+                    anchor: { height: 45, bottom: 15 },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-username-label',
+                      type: 'Label',
+                      name: 'UsernameLabel',
+                      properties: { 
+                        text: 'Username:',
+                        style: { fontSize: 14, textColor: '#aaaaaa' },
+                        anchor: { width: 100 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-username-input',
+                      type: 'TextInput',
+                      name: 'UsernameInput',
+                      properties: { 
+                        macro: '$C.@TextInput',
+                        placeholder: 'Enter username...',
+                        anchor: { width: 250, height: 32 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Volume Slider Row
+                {
+                  id: 'tpl-volume-row',
+                  type: 'Group',
+                  name: 'VolumeRow',
+                  properties: { 
+                    layoutMode: 'Left',
+                    anchor: { height: 45, bottom: 15 },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-volume-label',
+                      type: 'Label',
+                      name: 'VolumeLabel',
+                      properties: { 
+                        text: 'Volume:',
+                        style: { fontSize: 14, textColor: '#aaaaaa' },
+                        anchor: { width: 100 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-volume-bar',
+                      type: 'ProgressBar',
+                      name: 'VolumeBar',
+                      properties: { 
+                        anchor: { width: 200, height: 16 },
+                        value: 0.7,
+                        fillColor: '#88ccff',
+                        backgroundColor: '#333333',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-volume-value',
+                      type: 'Label',
+                      name: 'VolumeValue',
+                      properties: { 
+                        text: '70%',
+                        style: { fontSize: 12, textColor: '#888888' },
+                        anchor: { left: 10, width: 40 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Checkbox options
+                {
+                  id: 'tpl-options',
+                  type: 'Group',
+                  name: 'Options',
+                  properties: { 
+                    layoutMode: 'Top',
+                    padding: { top: 10 },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-check1',
+                      type: 'CheckBox',
+                      name: 'EnableNotifications',
+                      properties: { 
+                        macro: '$C.@CheckBox',
+                        label: 'Enable notifications',
+                        anchor: { height: 30, bottom: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-check2',
+                      type: 'CheckBox',
+                      name: 'ShowTips',
+                      properties: { 
+                        macro: '$C.@CheckBox',
+                        label: 'Show gameplay tips',
+                        anchor: { height: 30, bottom: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-check3',
+                      type: 'CheckBox',
+                      name: 'AutoSave',
+                      properties: { 
+                        macro: '$C.@CheckBox',
+                        label: 'Auto-save progress',
+                        anchor: { height: 30, bottom: 8 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'tpl-buttons',
+              type: 'Group',
+              name: 'ButtonRow',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 50 },
+              },
+              children: [
+                {
+                  id: 'tpl-save-btn',
+                  type: 'TextButton',
+                  name: 'SaveButton',
+                  properties: { 
+                    macro: '$C.@TextButton',
+                    text: 'Save',
+                    anchor: { width: 100, height: 36, right: 10 },
+                  },
+                  children: [],
+                },
+                {
+                  id: 'tpl-cancel-btn',
+                  type: 'BackButton',
+                  name: 'CancelButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'InteractiveCustomUIPage',
+      pageLifetime: 'CanDismiss',
+    },
+  },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 4: Image Gallery - Cards with images
+  // ════════════════════════════════════════════════════════════════════════
+  {
+    id: 'image-gallery',
+    name: 'Image Gallery',
+    description: 'Grid of image cards with descriptions',
+    category: 'page',
+    preview: '🖼️',
+    root: {
+      id: 'tpl-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'tpl-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 700, height: 500 },
+            layoutMode: 'Top',
+          },
+          children: [
+            {
+              id: 'tpl-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 15 },
+                anchor: { height: 60 },
+              },
+              children: [
+                {
+                  id: 'tpl-title',
+                  type: 'Title',
+                  name: 'Title',
+                  properties: { 
+                    macro: '$C.@Title', 
+                    text: 'GALLERY',
+                  },
+                  children: [],
+                },
+              ],
+            },
+            {
+              id: 'tpl-grid',
+              type: 'Group',
+              name: 'ImageGrid',
+              properties: { 
+                layoutMode: 'Left',
+                flexWeight: 1,
+                padding: { full: 20 },
+              },
+              children: [
+                // Image Card 1
+                {
+                  id: 'tpl-imgcard1',
+                  type: 'Button',
+                  name: 'ImageCard1',
+                  properties: {
+                    anchor: { width: 200, height: 250, right: 15 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-img1',
+                      type: 'AssetImage',
+                      name: 'Image',
+                      properties: { 
+                        anchor: { width: 180, height: 150 },
+                        assetPath: 'Textures/MyImage1.png',
+                        objectFit: 'cover',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img1-title',
+                      type: 'Label',
+                      name: 'Title',
+                      properties: { 
+                        text: 'Forest Scene',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ffffff' },
+                        anchor: { top: 10 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img1-desc',
+                      type: 'Label',
+                      name: 'Description',
+                      properties: { 
+                        text: 'A peaceful forest clearing',
+                        style: { fontSize: 11, textColor: '#888888' },
+                        anchor: { top: 5 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Image Card 2
+                {
+                  id: 'tpl-imgcard2',
+                  type: 'Button',
+                  name: 'ImageCard2',
+                  properties: {
+                    anchor: { width: 200, height: 250, right: 15 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-img2',
+                      type: 'AssetImage',
+                      name: 'Image',
+                      properties: { 
+                        anchor: { width: 180, height: 150 },
+                        assetPath: 'Textures/MyImage2.png',
+                        objectFit: 'cover',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img2-title',
+                      type: 'Label',
+                      name: 'Title',
+                      properties: { 
+                        text: 'Mountain View',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ffffff' },
+                        anchor: { top: 10 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img2-desc',
+                      type: 'Label',
+                      name: 'Description',
+                      properties: { 
+                        text: 'Snow-capped peaks at dawn',
+                        style: { fontSize: 11, textColor: '#888888' },
+                        anchor: { top: 5 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Image Card 3
+                {
+                  id: 'tpl-imgcard3',
+                  type: 'Button',
+                  name: 'ImageCard3',
+                  properties: {
+                    anchor: { width: 200, height: 250 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-img3',
+                      type: 'AssetImage',
+                      name: 'Image',
+                      properties: { 
+                        anchor: { width: 180, height: 150 },
+                        assetPath: 'Textures/MyImage3.png',
+                        objectFit: 'cover',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img3-title',
+                      type: 'Label',
+                      name: 'Title',
+                      properties: { 
+                        text: 'Castle Ruins',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ffffff' },
+                        anchor: { top: 10 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-img3-desc',
+                      type: 'Label',
+                      name: 'Description',
+                      properties: { 
+                        text: 'Ancient stone walls remain',
+                        style: { fontSize: 11, textColor: '#888888' },
+                        anchor: { top: 5 },
+                        alignment: 'Center',
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'tpl-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 15 },
+                anchor: { height: 60 },
+              },
+              children: [
+                {
+                  id: 'tpl-close',
+                  type: 'BackButton',
+                  name: 'CloseButton',
+                  properties: { macro: '$C.@BackButton' },
                   children: [],
                 },
               ],
@@ -448,75 +1196,217 @@ export const PAGE_TEMPLATES: UITemplate[] = [
       pageLifetime: 'CanDismiss',
     },
   },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 5: Inventory Page - Item grids with slots
+  // ════════════════════════════════════════════════════════════════════════
   {
-    id: 'item-card',
-    name: 'Item Card',
-    description: 'Reusable card for list items',
-    category: 'card',
+    id: 'inventory-page',
+    name: 'Inventory Page',
+    description: 'Item grid with slots and equipment',
+    category: 'page',
+    preview: '🎒',
     root: {
-      id: 'tpl-card',
-      type: 'Button',
-      name: 'Card',
-      properties: {
-        anchor: { height: 80, bottom: 10 },
-        padding: { full: 12 },
-        background: { color: '#1a1a1a(0.7)' },
-        layoutMode: 'Left',
-        interactiveStyle: {
-          hovered: { background: '#2a2a2a(0.85)' },
-          pressed: { background: '#3a3a3a(0.95)' },
-        },
-      },
+      id: 'tpl-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
       children: [
         {
-          id: 'tpl-icon',
-          type: 'ItemIcon',
-          name: 'CardIcon',
-          properties: { anchor: { width: 64, height: 64 } },
-          children: [],
-        },
-        {
-          id: 'tpl-info',
-          type: 'Group',
-          name: 'CardInfo',
+          id: 'tpl-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
           properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 550, height: 450 },
             layoutMode: 'Top',
-            anchor: { left: 15 },
-            flexWeight: 1,
+            padding: { full: 20 },
           },
           children: [
             {
-              id: 'tpl-card-title',
-              type: 'Label',
-              name: 'CardTitle',
+              id: 'tpl-title',
+              type: 'Title',
+              name: 'Title',
               properties: { 
-                text: 'Item Title',
-                style: { fontSize: 18, renderBold: true, textColor: '#ffffff' },
+                macro: '$C.@Title', 
+                text: 'INVENTORY',
               },
               children: [],
             },
             {
-              id: 'tpl-card-desc',
-              type: 'Label',
-              name: 'CardDescription',
+              id: 'tpl-main',
+              type: 'Group',
+              name: 'MainContent',
               properties: { 
-                text: 'Item description',
-                style: { fontSize: 14, textColor: '#aaaaaa' },
-                anchor: { top: 4 },
+                layoutMode: 'Left',
+                flexWeight: 1,
+                padding: { top: 15 },
               },
-              children: [],
+              children: [
+                // Left: Character/Equipment preview
+                {
+                  id: 'tpl-equipment',
+                  type: 'Group',
+                  name: 'EquipmentSlots',
+                  properties: { 
+                    layoutMode: 'Top',
+                    anchor: { width: 150 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.5)' },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-equip-label',
+                      type: 'Label',
+                      name: 'EquipLabel',
+                      properties: { 
+                        text: 'Equipment',
+                        style: { fontSize: 14, renderBold: true, textColor: '#aaaaaa' },
+                        alignment: 'Center',
+                        anchor: { bottom: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-helmet-slot',
+                      type: 'ItemIcon',
+                      name: 'HelmetSlot',
+                      properties: { 
+                        anchor: { width: 56, height: 56, bottom: 8 },
+                        itemId: 'Armor_Helmet_Iron',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-chest-slot',
+                      type: 'ItemIcon',
+                      name: 'ChestSlot',
+                      properties: { 
+                        anchor: { width: 56, height: 56, bottom: 8 },
+                        itemId: 'Armor_Chest_Iron',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-weapon-slot',
+                      type: 'ItemIcon',
+                      name: 'WeaponSlot',
+                      properties: { 
+                        anchor: { width: 56, height: 56 },
+                        itemId: 'Weapon_Sword_Iron',
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Right: Item Grid
+                {
+                  id: 'tpl-items',
+                  type: 'Group',
+                  name: 'ItemsArea',
+                  properties: { 
+                    layoutMode: 'Top',
+                    flexWeight: 1,
+                    padding: { left: 20 },
+                  },
+                  children: [
+                    {
+                      id: 'tpl-items-label',
+                      type: 'Label',
+                      name: 'ItemsLabel',
+                      properties: { 
+                        text: 'Items',
+                        style: { fontSize: 14, renderBold: true, textColor: '#aaaaaa' },
+                        anchor: { bottom: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-item-grid',
+                      type: 'ItemGrid',
+                      name: 'InventoryGrid',
+                      properties: { 
+                        slotsPerRow: 6,
+                        slotSize: 48,
+                        slotSpacing: 4,
+                        slotIconSize: 44,
+                        renderItemQualityBackground: true,
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              id: 'tpl-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'Left',
+                anchor: { height: 50 },
+                padding: { top: 10 },
+              },
+              children: [
+                {
+                  id: 'tpl-gold',
+                  type: 'Group',
+                  name: 'GoldDisplay',
+                  properties: { 
+                    layoutMode: 'Left',
+                    flexWeight: 1,
+                  },
+                  children: [
+                    {
+                      id: 'tpl-gold-icon',
+                      type: 'ItemIcon',
+                      name: 'GoldIcon',
+                      properties: { 
+                        anchor: { width: 24, height: 24, right: 8 },
+                        itemId: 'Currency_Gold',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'tpl-gold-amount',
+                      type: 'Label',
+                      name: 'GoldAmount',
+                      properties: { 
+                        text: '1,250',
+                        style: { fontSize: 16, textColor: '#ffcc00' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                {
+                  id: 'tpl-close',
+                  type: 'BackButton',
+                  name: 'CloseButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
             },
           ],
         },
       ],
     },
-    settings: {},
+    settings: {
+      pageType: 'InteractiveCustomUIPage',
+      pageLifetime: 'CanDismiss',
+    },
   },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // TEMPLATE 6: HUD Element - Always-visible overlay
+  // ════════════════════════════════════════════════════════════════════════
   {
     id: 'hud-element',
     name: 'HUD Element',
     description: 'Always-visible overlay for game HUD',
     category: 'hud',
+    preview: '🎮',
     root: {
       id: 'tpl-hud',
       type: 'Group',
@@ -563,6 +1453,75 @@ export const PAGE_TEMPLATES: UITemplate[] = [
     settings: {
       pageType: 'CustomUIHud',
     },
+  },
+
+  // ════════════════════════════════════════════════════════════════════════
+  // REUSABLE CARDS (for building your own pages)
+  // ════════════════════════════════════════════════════════════════════════
+  {
+    id: 'item-card',
+    name: 'Item Card',
+    description: 'Reusable card for list items with icon, title, and description',
+    category: 'card',
+    preview: '🃏',
+    root: {
+      id: 'tpl-card',
+      type: 'Button',
+      name: 'Card',
+      properties: {
+        anchor: { height: 80, bottom: 10 },
+        padding: { full: 12 },
+        background: { color: '#1a1a1a(0.7)' },
+        layoutMode: 'Left',
+        interactiveStyle: {
+          hovered: { background: '#2a2a2a(0.85)' },
+          pressed: { background: '#3a3a3a(0.95)' },
+        },
+      },
+      children: [
+        {
+          id: 'tpl-icon',
+          type: 'ItemIcon',
+          name: 'CardIcon',
+          properties: { anchor: { width: 56, height: 56 } },
+          children: [],
+        },
+        {
+          id: 'tpl-info',
+          type: 'Group',
+          name: 'CardInfo',
+          properties: { 
+            layoutMode: 'Top',
+            anchor: { left: 15 },
+            flexWeight: 1,
+          },
+          children: [
+            {
+              id: 'tpl-card-title',
+              type: 'Label',
+              name: 'CardTitle',
+              properties: { 
+                text: 'Item Title',
+                style: { fontSize: 18, renderBold: true, textColor: '#ffffff' },
+              },
+              children: [],
+            },
+            {
+              id: 'tpl-card-desc',
+              type: 'Label',
+              name: 'CardDescription',
+              properties: { 
+                text: 'Item description goes here',
+                style: { fontSize: 13, textColor: '#888888' },
+                anchor: { top: 4 },
+              },
+              children: [],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {},
   },
 ];
 
@@ -932,3 +1891,14 @@ export const COLOR_REFERENCE = {
   bgDarkHover: '#2a2a2a(0.85)',
   bgDarkPressed: '#3a3a3a(0.95)',
 };
+
+// ─── Background Presets for Canva-like selection ───
+export const BACKGROUND_PRESETS = [
+  { name: 'Dark Gray', color: '#2a2a2a' },
+  { name: 'Charcoal', color: '#1a1a1a' },
+  { name: 'Deep Blue', color: '#1a2633' },
+  { name: 'Dark Green', color: '#1a2a1a' },
+  { name: 'Purple', color: '#2a1a33' },
+  { name: 'Dark Red', color: '#2a1a1a' },
+  { name: 'Transparent', color: 'transparent' },
+];

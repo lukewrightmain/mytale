@@ -8,4 +8,5 @@ export { HierarchyTree } from './HierarchyTree';
 export { PropertiesPanel } from './PropertiesPanel';
 export { CodeOutput } from './CodeOutput';
 export { Toolbar } from './Toolbar';
+export { SettingsPanel } from './SettingsPanel';
 

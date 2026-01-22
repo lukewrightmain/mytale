@@ -400,9 +400,15 @@ function CanvasElement({
                 zoom={zoom}
               />
             ))}
-            {element.children.length === 0 && !isRoot && (
-              <div className="absolute inset-0 flex items-center justify-center text-xs text-foreground-subtle opacity-50 pointer-events-none">
-                {canAcceptChildren ? 'Drop elements here' : ''}
+            {element.children.length === 0 && !isRoot && canAcceptChildren && (
+              <div className={`
+                absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none
+                border-2 border-dashed rounded transition-colors
+                ${isDragOver ? 'border-accent-400 bg-accent-500/10' : 'border-stone-600/50'}
+              `}>
+                <div className={`text-xs ${isDragOver ? 'text-accent-300' : 'text-foreground-subtle opacity-60'}`}>
+                  {isDragOver ? '✓ Drop here' : 'Drop elements here'}
+                </div>
               </div>
             )}
           </div>
@@ -420,12 +426,13 @@ function CanvasElement({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        transition-shadow duration-100
+        transition-all duration-100
         ${isRoot ? '' : 'rounded'}
-        ${isSelected ? 'ring-2 ring-primary-500 z-20' : ''}
-        ${isDragOver && canAcceptChildren ? 'ring-2 ring-accent-400 bg-accent-500/10' : ''}
-        ${!isRoot && !isSelected ? 'hover:ring-1 hover:ring-stone-500' : ''}
-        ${isDragging || isResizing ? 'opacity-90' : ''}
+        ${isSelected ? 'ring-2 ring-primary-500 z-20 shadow-lg shadow-primary-500/20' : ''}
+        ${isDragOver && canAcceptChildren ? 'ring-2 ring-accent-400 bg-accent-500/20 scale-[1.01]' : ''}
+        ${!isRoot && !isSelected ? 'hover:ring-1 hover:ring-stone-400 hover:shadow-md' : ''}
+        ${isDragging ? 'opacity-80 scale-105 shadow-xl z-50' : ''}
+        ${isResizing ? 'opacity-90' : ''}
       `}
       style={baseStyles}
       data-element-id={element.id}

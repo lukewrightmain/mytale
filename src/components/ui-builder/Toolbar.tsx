@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useEditor } from '@/lib/ui-builder/EditorContext';
 import { saveDesignToLocal, loadDesignFromLocal, getLocalDesigns, deleteLocalDesign } from '@/lib/ui-builder/storage';
+import { SettingsPanel } from './SettingsPanel';
 import { 
   FilePlus, 
   Save, 
@@ -89,103 +90,6 @@ function LoadModal({
               ))}
             </div>
           )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ─── Settings Modal ───
-function SettingsModal({ 
-  onClose 
-}: { 
-  onClose: () => void;
-}) {
-  const { state, updateSettings } = useEditor();
-  const settings = state.design.settings;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-surface border border-border rounded-xl shadow-2xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-          <h3 className="text-lg font-semibold text-foreground">Design Settings</h3>
-          <button
-            onClick={onClose}
-            className="p-1 rounded hover:bg-surface-elevated transition-colors"
-          >
-            <X className="w-5 h-5 text-foreground-muted" />
-          </button>
-        </div>
-        
-        <div className="p-4 space-y-4">
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">Canvas Width</label>
-            <input
-              type="number"
-              value={settings.canvasWidth}
-              onChange={(e) => updateSettings({ canvasWidth: Number(e.target.value) })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">Canvas Height</label>
-            <input
-              type="number"
-              value={settings.canvasHeight}
-              onChange={(e) => updateSettings({ canvasHeight: Number(e.target.value) })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">Package Name (Java)</label>
-            <input
-              type="text"
-              value={settings.packageName}
-              onChange={(e) => updateSettings({ packageName: e.target.value })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground font-mono text-sm"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">Class Name (Java)</label>
-            <input
-              type="text"
-              value={settings.className}
-              onChange={(e) => updateSettings({ className: e.target.value })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground font-mono text-sm"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">UI File Path</label>
-            <input
-              type="text"
-              value={settings.uiFilePath}
-              onChange={(e) => updateSettings({ uiFilePath: e.target.value })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground font-mono text-sm"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <label className="text-sm text-foreground-muted">Common.ui Path</label>
-            <input
-              type="text"
-              value={settings.commonUiPath}
-              onChange={(e) => updateSettings({ commonUiPath: e.target.value })}
-              className="w-full px-3 py-2 bg-surface-elevated border border-border rounded text-foreground font-mono text-sm"
-            />
-          </div>
-        </div>
-        
-        <div className="flex justify-end px-4 py-3 border-t border-border">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 bg-primary-500 hover:bg-primary-600 text-white rounded transition-colors"
-          >
-            Done
-          </button>
         </div>
       </div>
     </div>
@@ -384,9 +288,11 @@ export function Toolbar() {
         />
       )}
       
-      {showSettingsModal && (
-        <SettingsModal onClose={() => setShowSettingsModal(false)} />
-      )}
+      {/* Settings Panel */}
+      <SettingsPanel 
+        isOpen={showSettingsModal} 
+        onClose={() => setShowSettingsModal(false)} 
+      />
     </>
   );
 }

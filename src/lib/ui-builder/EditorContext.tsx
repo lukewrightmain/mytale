@@ -12,11 +12,13 @@ import type {
   EditorState,
   ElementType,
   ElementProperties,
+  UITemplate,
 } from './types';
 import {
   createNewDesign,
   createDefaultEditorState,
   createElementFromPalette,
+  createElementFromTemplate,
   getPaletteItem,
   canHaveChildren,
   generateId,
@@ -27,6 +29,7 @@ type EditorAction =
   | { type: 'SET_DESIGN'; payload: UIDesign }
   | { type: 'SELECT_ELEMENT'; payload: string | null }
   | { type: 'ADD_ELEMENT'; payload: { parentId: string; elementType: ElementType } }
+  | { type: 'ADD_TEMPLATE_ELEMENT'; payload: { parentId: string; template: UITemplate } }
   | { type: 'DELETE_ELEMENT'; payload: string }
   | { type: 'UPDATE_ELEMENT'; payload: { id: string; properties: Partial<ElementProperties> } }
   | { type: 'UPDATE_ELEMENT_NAME'; payload: { id: string; name: string } }
@@ -41,6 +44,7 @@ type EditorAction =
   | { type: 'TOGGLE_GRID' }
   | { type: 'TOGGLE_COLLAPSE'; payload: string }
   | { type: 'NEW_DESIGN' }
+  | { type: 'APPLY_TEMPLATE'; payload: UITemplate }
   | { type: 'UPDATE_SETTINGS'; payload: Partial<UIDesign['settings']> };
 
 // ─── History Management ───
@@ -159,6 +163,28 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
 
       const newElement = createElementFromPalette(paletteItem);
       const newRoot = addElementToParent(state.design.root, action.payload.parentId, newElement);
+      
+      const newDesign: UIDesign = {
+        ...state.design,
+        root: newRoot,
+        updatedAt: new Date().toISOString(),
+      };
+
+      return pushToHistory({
+        ...state,
+        design: newDesign,
+        selectedElementId: newElement.id,
+      });
+    }
+
+    case 'ADD_TEMPLATE_ELEMENT': {
+      const { parentId, template } = action.payload;
+      
+      const parent = findElement(state.design.root, parentId);
+      if (!parent || !canHaveChildren(parent.type)) return state;
+
+      const newElement = createElementFromTemplate(template);
+      const newRoot = addElementToParent(state.design.root, parentId, newElement);
       
       const newDesign: UIDesign = {
         ...state.design,
@@ -384,6 +410,28 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       };
     }
 
+    case 'APPLY_TEMPLATE': {
+      const template = action.payload;
+      const templateRoot = createElementFromTemplate(template);
+      
+      // Create a new design based on the template
+      const newDesign: UIDesign = {
+        ...state.design,
+        root: templateRoot,
+        settings: {
+          ...state.design.settings,
+          ...template.settings,
+        },
+        updatedAt: new Date().toISOString(),
+      };
+
+      return pushToHistory({
+        ...state,
+        design: newDesign,
+        selectedElementId: templateRoot.id,
+      });
+    }
+
     case 'UPDATE_SETTINGS': {
       const newDesign: UIDesign = {
         ...state.design,
@@ -443,6 +491,7 @@ interface EditorContextType {
   getSelectedElement: () => UIElement | null;
   // Element Operations
   addElement: (parentId: string, elementType: ElementType) => void;
+  addTemplateElement: (parentId: string, template: UITemplate) => void;
   deleteElement: (id: string) => void;
   updateElement: (id: string, properties: Partial<ElementProperties>) => void;
   updateElementName: (id: string, name: string) => void;
@@ -463,6 +512,7 @@ interface EditorContextType {
   // Design
   newDesign: () => void;
   loadDesign: (design: UIDesign) => void;
+  applyTemplate: (template: UITemplate) => void;
   updateSettings: (settings: Partial<UIDesign['settings']>) => void;
   // Utilities
   findElement: (id: string) => UIElement | null;
@@ -486,6 +536,10 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
 
   const addElement = useCallback((parentId: string, elementType: ElementType) => {
     dispatch({ type: 'ADD_ELEMENT', payload: { parentId, elementType } });
+  }, []);
+
+  const addTemplateElement = useCallback((parentId: string, template: UITemplate) => {
+    dispatch({ type: 'ADD_TEMPLATE_ELEMENT', payload: { parentId, template } });
   }, []);
 
   const deleteElement = useCallback((id: string) => {
@@ -548,6 +602,10 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     dispatch({ type: 'SET_DESIGN', payload: design });
   }, []);
 
+  const applyTemplate = useCallback((template: UITemplate) => {
+    dispatch({ type: 'APPLY_TEMPLATE', payload: template });
+  }, []);
+
   const updateSettings = useCallback((settings: Partial<UIDesign['settings']>) => {
     dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
   }, []);
@@ -568,6 +626,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     selectElement,
     getSelectedElement,
     addElement,
+    addTemplateElement,
     deleteElement,
     updateElement,
     updateElementName,
@@ -585,6 +644,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     toggleCollapse,
     newDesign,
     loadDesign,
+    applyTemplate,
     updateSettings,
     findElement: findElementById,
     findParent: findParentById,
@@ -593,6 +653,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     selectElement,
     getSelectedElement,
     addElement,
+    addTemplateElement,
     deleteElement,
     updateElement,
     updateElementName,
@@ -610,6 +671,7 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
     toggleCollapse,
     newDesign,
     loadDesign,
+    applyTemplate,
     updateSettings,
     findElementById,
     findParentById,
