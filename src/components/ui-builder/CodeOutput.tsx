@@ -70,69 +70,102 @@ function highlightSyntax(code: string, language: 'ui' | 'java' | 'hyuiml'): stri
   const highlightedLines = lines.map(line => {
     let highlighted = line;
     
-    // Comments
+    // Use placeholder tokens to prevent nested matching issues
+    const placeholders: string[] = [];
+    const addPlaceholder = (content: string): string => {
+      const index = placeholders.length;
+      placeholders.push(content);
+      return `\x00${index}\x00`;
+    };
+
+    // Step 1: Extract and protect comments first
     highlighted = highlighted.replace(
       /(\/\/.*$)/g,
-      '<span style="color: #78716c;">$1</span>'
+      (match) => addPlaceholder(`<span class="hl-comment">${match}</span>`)
     );
 
-    // Strings
+    // Step 2: Extract and protect strings
     highlighted = highlighted.replace(
       /("(?:[^"\\]|\\.)*")/g,
-      '<span style="color: #a78bfa;">$1</span>'
+      (match) => addPlaceholder(`<span class="hl-string">${match}</span>`)
     );
 
+    // Step 3: Highlight numbers BEFORE adding any colored spans
+    // Only match numbers that are standalone (not part of identifiers)
+    highlighted = highlighted.replace(
+      /\b(\d+(?:\.\d+)?)\b/g,
+      (match) => addPlaceholder(`<span class="hl-number">${match}</span>`)
+    );
+
+    // Step 4: Language-specific highlighting
     if (language === 'java') {
       // Java keywords
       const javaKeywords = /\b(package|import|public|private|protected|class|interface|extends|implements|static|final|void|new|return|if|else|for|while|try|catch|throw|throws|this|super|null|true|false)\b/g;
-      highlighted = highlighted.replace(javaKeywords, '<span style="color: #f59e0b;">$1</span>');
+      highlighted = highlighted.replace(javaKeywords, 
+        (match) => addPlaceholder(`<span class="hl-keyword">${match}</span>`)
+      );
 
       // Java annotations
       highlighted = highlighted.replace(
         /(@\w+)/g,
-        '<span style="color: #34d399;">$1</span>'
+        (match) => addPlaceholder(`<span class="hl-annotation">${match}</span>`)
       );
     } else if (language === 'ui') {
       // .ui format keywords
       const uiKeywords = /\b(Group|Label|TimerLabel|ColorPicker|RawButton|RawField|AssetImage|TextButton|CancelButton|CheckBox|TextInput|NumberInput|BackButton)\b/g;
-      highlighted = highlighted.replace(uiKeywords, '<span style="color: #34d399;">$1</span>');
+      highlighted = highlighted.replace(uiKeywords, 
+        (match) => addPlaceholder(`<span class="hl-type">${match}</span>`)
+      );
 
       // .ui properties (before colon)
       highlighted = highlighted.replace(
         /\b(LayoutMode|Background|Anchor|Padding|Alignment|Style|Text|Placeholder|Value|Asset|Visible|FlexWeight|ScrollStyle|Fill|Width|Height|Left|Right|Top|Bottom|TextColor|FontSize|RenderBold|RenderItalic|Min|Max|Checked|Label):/g,
-        '<span style="color: #f59e0b;">$1</span>:'
+        (match, p1) => addPlaceholder(`<span class="hl-property">${p1}</span>`) + ':'
       );
 
       // .ui variable references
       highlighted = highlighted.replace(
         /(\$C)/g,
-        '<span style="color: #a78bfa;">$1</span>'
+        (match) => addPlaceholder(`<span class="hl-variable">${match}</span>`)
       );
 
-      // .ui element IDs
+      // .ui element IDs (but not inside placeholders)
       highlighted = highlighted.replace(
         /(#[\w]+)/g,
-        '<span style="color: #60a5fa;">$1</span>'
+        (match) => addPlaceholder(`<span class="hl-id">${match}</span>`)
       );
     } else if (language === 'hyuiml') {
       // HTML tags
       highlighted = highlighted.replace(
         /(&lt;\/?)([\w-]+)/g,
-        '$1<span style="color: #f59e0b;">$2</span>'
+        (match, p1, p2) => p1 + addPlaceholder(`<span class="hl-tag">${p2}</span>`)
       );
 
       // HTML attributes
       highlighted = highlighted.replace(
         /(\s)([\w-]+)(=)/g,
-        '$1<span style="color: #34d399;">$2</span>$3'
+        (match, p1, p2, p3) => p1 + addPlaceholder(`<span class="hl-attr">${p2}</span>`) + p3
       );
     }
 
-    // Numbers (only match standalone numbers, not inside words or after hyphens)
-    highlighted = highlighted.replace(
-      /(?<![a-zA-Z\-#])(\d+(?:\.\d+)?)(?![a-zA-Z])/g,
-      '<span style="color: #fbbf24;">$1</span>'
-    );
+    // Step 5: Replace placeholders with actual styled spans
+    for (let i = 0; i < placeholders.length; i++) {
+      highlighted = highlighted.replace(`\x00${i}\x00`, placeholders[i]);
+    }
+
+    // Step 6: Replace CSS classes with inline styles
+    highlighted = highlighted
+      .replace(/class="hl-comment"/g, 'style="color: #78716c;"')
+      .replace(/class="hl-string"/g, 'style="color: #a78bfa;"')
+      .replace(/class="hl-number"/g, 'style="color: #fbbf24;"')
+      .replace(/class="hl-keyword"/g, 'style="color: #f59e0b;"')
+      .replace(/class="hl-annotation"/g, 'style="color: #34d399;"')
+      .replace(/class="hl-type"/g, 'style="color: #34d399;"')
+      .replace(/class="hl-property"/g, 'style="color: #f59e0b;"')
+      .replace(/class="hl-variable"/g, 'style="color: #a78bfa;"')
+      .replace(/class="hl-id"/g, 'style="color: #60a5fa;"')
+      .replace(/class="hl-tag"/g, 'style="color: #f59e0b;"')
+      .replace(/class="hl-attr"/g, 'style="color: #34d399;"');
 
     return highlighted;
   });
