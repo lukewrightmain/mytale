@@ -69,7 +69,7 @@ function generateElementHYUIML(element: UIElement, lines: string[], indent: numb
       attrs.push(`placeholder="${escapeHtml(element.properties.placeholder)}"`);
     }
     if ('value' in element.properties && element.properties.value !== undefined) {
-      attrs.push(`value="${escapeHtml(element.properties.value)}"`);
+      attrs.push(`value="${escapeHtml(String(element.properties.value))}"`);
     }
   }
   

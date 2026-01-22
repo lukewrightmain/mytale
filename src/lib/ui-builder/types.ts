@@ -1,23 +1,28 @@
 // ═══════════════════════════════════════════════════════════════════════════
 // Hytale UI Builder - Core Types
 // Types matching the Hytale UI system for .ui, Java, and HYUIML code generation
+// Based on reverse-engineering Hytale's UI system and successful mod implementations
 // ═══════════════════════════════════════════════════════════════════════════
 
-// ─── Layout Modes ───
+// ─── Layout Modes (from Hytale UI system) ───
 export type LayoutMode = 
   | 'None'
-  | 'Top'
+  | 'Top'              // Vertical stacking (top to bottom)
+  | 'Left'             // Horizontal stacking (left to right)
   | 'Middle'
   | 'Bottom'
   | 'MiddleCenter'
   | 'TopLeft'
   | 'TopRight'
   | 'BottomLeft'
-  | 'BottomRight';
+  | 'BottomRight'
+  | 'TopScrolling'     // Vertical with scrollbar
+  | 'LeftScrolling';   // Horizontal with scrollbar
 
 // ─── Text Alignment ───
 export type TextAlignment = 'Left' | 'Center' | 'Right';
 export type VerticalAlignment = 'Top' | 'Center' | 'Bottom';
+export type HorizontalAlignment = 'Left' | 'Center' | 'Right';
 
 // ─── Element Types ───
 export type ElementType = 
@@ -25,19 +30,26 @@ export type ElementType =
   | 'Group'
   | 'Label'
   | 'TimerLabel'
+  | 'Button'            // Interactive button with states
   | 'ColorPicker'
   | 'RawButton'
   | 'RawField'
   | 'AssetImage'
+  | 'ItemIcon'          // Display game items
+  | 'ItemGrid'          // Grid of items (inventory-style)
+  | 'ProgressBar'       // Progress indicator
   // Macros (from Common.ui)
-  | 'PageOverlay'
+  | 'PageOverlay'       // $C.@PageOverlay - Full-screen overlay container
+  | 'DecoratedContainer'// $C.@DecoratedContainer - Styled panel with border
+  | 'Title'             // $C.@Title - Page title with @Text parameter
   | 'ContainerPanel'
   | 'TextButton'
   | 'CancelButton'
   | 'CheckBox'
   | 'TextInput'
   | 'NumberInput'
-  | 'BackButton';
+  | 'BackButton'        // $C.@BackButton - Back/close button
+  | 'ScrollbarStyle';   // $C.@DefaultScrollbarStyle
 
 // ─── Anchor Properties ───
 export interface Anchor {
@@ -51,6 +63,7 @@ export interface Anchor {
   maxWidth?: number;
   minHeight?: number;
   maxHeight?: number;
+  full?: number;        // Margin on all sides
 }
 
 // ─── Padding Properties ───
@@ -60,7 +73,9 @@ export interface Padding {
   bottom?: number;
   left?: number;
   horizontal?: number;
+  vertical?: number;
   all?: number;
+  full?: number;        // Hytale uses Full: for all-sides padding
 }
 
 // ─── Fill Constraints ───
@@ -77,31 +92,50 @@ export interface TextStyle {
   renderBold?: boolean;
   renderItalic?: boolean;
   fontFamily?: string;
+  horizontalAlignment?: HorizontalAlignment;  // Text alignment within label
 }
 
-// ─── Background ───
+// ─── Background (supports color with alpha) ───
+// Format: #RRGGBB or #RRGGBB(alpha) where alpha is 0.0-1.0
 export interface Background {
-  color?: string;
-  image?: string;
+  color?: string;           // e.g., "#1a1a1a" or "#1a1a1a(0.7)"
+  image?: string;           // TexturePath
+  texturePath?: string;     // Alternative for textures
+  border?: number;          // 9-slice border size
+}
+
+// ─── Style State (for hover/pressed states) ───
+export interface StyleState {
+  background?: string;      // Background color for this state
+  textColor?: string;       // Text color for this state
+  scale?: number;           // Scale factor
+}
+
+// ─── Interactive Style (Button states) ───
+export interface InteractiveStyle {
+  hovered?: StyleState;
+  pressed?: StyleState;
+  disabled?: StyleState;
 }
 
 // ─── Binding Configuration ───
 export interface Binding {
   enabled?: boolean;
-  // Additional binding properties for Java code generation
-  eventType?: string;
+  eventType?: 'Activating' | 'ValueChanged' | 'KeyDown';
   eventHandler?: string;
+  eventData?: Record<string, string>;
 }
 
 // ─── Base Element Properties ───
 export interface BaseElementProperties {
   // Identity
   visible?: boolean;
-  macro?: string;
+  macro?: string;           // e.g., "$C.@PageOverlay"
   
   // Layout
   scrollStyle?: string;
-  flexWeight?: number;
+  scrollbarStyle?: string;  // e.g., "$C.@DefaultScrollbarStyle"
+  flexWeight?: number;      // Takes remaining space (FlexWeight: 1)
   layoutMode?: LayoutMode;
   
   // Anchor & Size
@@ -115,6 +149,9 @@ export interface BaseElementProperties {
   
   // Background
   background?: Background;
+  
+  // Interactive style
+  interactiveStyle?: InteractiveStyle;
   
   // Binding
   binding?: Binding;
@@ -164,6 +201,31 @@ export interface ImageProperties extends BaseElementProperties {
   tint?: string;               // Color overlay tint
 }
 
+// ─── Item Icon Properties ───
+export interface ItemIconProperties extends BaseElementProperties {
+  itemId?: string;            // e.g., "Weapon_Sword_Iron"
+  showQuantity?: boolean;
+  quantity?: number;
+}
+
+// ─── Item Grid Properties ───
+export interface ItemGridProperties extends BaseElementProperties {
+  slotsPerRow?: number;                   // Number of slots per row
+  renderItemQualityBackground?: boolean; // Show quality colors
+  infoDisplay?: 'None' | 'Tooltip' | 'Overlay';
+  slotSize?: number;
+  slotSpacing?: number;
+  slotIconSize?: number;
+}
+
+// ─── Progress Bar Properties ───
+export interface ProgressBarProperties extends BaseElementProperties {
+  value?: number;             // 0.0 to 1.0
+  barTexturePath?: string;    // Custom fill texture
+  fillColor?: string;         // Fill color
+  backgroundColor?: string;   // Background color
+}
+
 // ─── Color Picker Properties ───
 export interface ColorPickerProperties extends BaseElementProperties {
   defaultColor?: string;
@@ -183,6 +245,22 @@ export interface NumberInputProperties extends FieldProperties {
   step?: number;
 }
 
+// ─── Title Macro Properties ───
+export interface TitleProperties extends BaseElementProperties {
+  text?: string;              // @Text parameter
+  style?: TextStyle;
+}
+
+// ─── Page Overlay Properties ───
+export interface PageOverlayProperties extends BaseElementProperties {
+  // Container for page content
+}
+
+// ─── Decorated Container Properties ───
+export interface DecoratedContainerProperties extends BaseElementProperties {
+  // Styled panel - uses anchor for size
+}
+
 // ─── Union of all property types ───
 export type ElementProperties = 
   | BaseElementProperties
@@ -191,9 +269,15 @@ export type ElementProperties =
   | ButtonProperties
   | FieldProperties
   | ImageProperties
+  | ItemIconProperties
+  | ItemGridProperties
+  | ProgressBarProperties
   | ColorPickerProperties
   | CheckBoxProperties
-  | NumberInputProperties;
+  | NumberInputProperties
+  | TitleProperties
+  | PageOverlayProperties
+  | DecoratedContainerProperties;
 
 // ─── UI Element (Tree Node) ───
 export interface UIElement {
@@ -228,6 +312,9 @@ export interface DesignSettings {
   packageName: string;
   className: string;
   uiFilePath: string;
+  // Page type settings
+  pageType: 'CustomUIPage' | 'InteractiveCustomUIPage' | 'CustomUIHud';
+  pageLifetime: 'CanDismiss' | 'Persistent';
 }
 
 // ─── Editor State ───
@@ -249,26 +336,40 @@ export interface PaletteItem {
   type: ElementType;
   label: string;
   icon: string; // Icon identifier
-  category: 'primitive' | 'macro';
+  category: 'primitive' | 'macro' | 'data' | 'layout';
+  description?: string;
   defaultProperties: ElementProperties;
   canHaveChildren: boolean;
 }
 
+// ─── Template Definition ───
+export interface UITemplate {
+  id: string;
+  name: string;
+  description: string;
+  category: 'page' | 'card' | 'hud' | 'component';
+  preview?: string;     // Preview image URL
+  root: UIElement;
+  settings: Partial<DesignSettings>;
+}
+
 // ─── Drag Data ───
 export interface DragData {
-  type: 'palette' | 'hierarchy';
+  type: 'palette' | 'hierarchy' | 'template';
   elementType?: ElementType;
   elementId?: string;
+  templateId?: string;
 }
 
 // ─── Property Editor Field Definition ───
 export interface PropertyField {
   key: string;
   label: string;
-  type: 'string' | 'number' | 'boolean' | 'color' | 'select' | 'anchor' | 'padding';
+  type: 'string' | 'number' | 'boolean' | 'color' | 'select' | 'anchor' | 'padding' | 'style' | 'binding';
   options?: { value: string; label: string }[];
   group: string;
   placeholder?: string;
+  description?: string;
 }
 
 // ─── Component Definition (for code generation) ───
@@ -277,7 +378,15 @@ export interface ComponentDefinition {
   uiKeyword: string;        // Keyword in .ui format
   hyuimlTag: string;        // HTML tag for HYUIML
   supportsChildren: boolean;
+  isMacro: boolean;         // Uses $C.@MacroName syntax
   defaultProperties: ElementProperties;
   propertyFields: PropertyField[];
 }
 
+// ─── Export Options ───
+export interface ExportOptions {
+  includeManifest: boolean;
+  includeReadme: boolean;
+  format: 'zip' | 'files';
+  outputPath?: string;
+}
