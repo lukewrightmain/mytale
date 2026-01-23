@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,7 @@ import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User } f
 import { Button, Card, Badge } from "@/components/ui";
 import { getModWithVersions } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { DownloadButton } from "./DownloadButton";
 import { EditButton } from "./EditButton";
 
@@ -21,6 +23,43 @@ interface ModVersion {
   file_size: number | null;
   downloads: number;
   created_at: string;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const mod = await getModWithVersions(slug);
+
+  if (!mod) {
+    return {
+      title: "Mod Not Found",
+      description: "The requested mod could not be found.",
+    };
+  }
+
+  const title = `${mod.name} - Download Hytale ${mod.mod_type.replace("_", " ")}`;
+  const description = mod.tagline || `Download ${mod.name} for Hytale. ${mod.description?.substring(0, 150)}...`;
+
+  return {
+    title,
+    description,
+    keywords: [mod.name, `Hytale ${mod.mod_type}`, mod.category, ...mod.tags].filter(Boolean),
+    openGraph: {
+      title: `${mod.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/mods/${slug}`,
+      type: "website",
+      images: mod.thumbnail_url ? [{ url: mod.thumbnail_url, width: 1200, height: 630, alt: mod.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${mod.name} | Mytale`,
+      description,
+      images: mod.thumbnail_url ? [mod.thumbnail_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/mods/${slug}`,
+    },
+  };
 }
 
 export default async function ModDetailPage({ params }: Props) {

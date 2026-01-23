@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,7 @@ import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User } f
 import { Button, Card, Badge } from "@/components/ui";
 import { getTextureWithVersions } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { DownloadButton } from "./DownloadButton";
 import { EditButton } from "./EditButton";
 
@@ -21,6 +23,43 @@ interface TextureVersion {
   file_size: number | null;
   downloads: number;
   created_at: string;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const texture = await getTextureWithVersions(slug);
+
+  if (!texture) {
+    return {
+      title: "Texture Pack Not Found",
+      description: "The requested texture pack could not be found.",
+    };
+  }
+
+  const title = `${texture.name} - Download ${texture.resolution} Hytale Texture Pack`;
+  const description = texture.tagline || `Download ${texture.name} for Hytale. ${texture.description?.substring(0, 150)}...`;
+
+  return {
+    title,
+    description,
+    keywords: [texture.name, `Hytale ${texture.resolution} texture pack`, texture.category, ...texture.tags].filter(Boolean),
+    openGraph: {
+      title: `${texture.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/textures/${slug}`,
+      type: "website",
+      images: texture.thumbnail_url ? [{ url: texture.thumbnail_url, width: 1200, height: 630, alt: texture.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${texture.name} | Mytale`,
+      description,
+      images: texture.thumbnail_url ? [texture.thumbnail_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/textures/${slug}`,
+    },
+  };
 }
 
 export default async function TextureDetailPage({ params }: Props) {

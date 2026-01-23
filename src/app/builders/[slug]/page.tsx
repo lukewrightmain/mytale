@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,7 @@ import { ArrowLeft, ChevronUp, User, ExternalLink, Edit, Youtube, Image as Image
 import { Button, Card, Badge } from "@/components/ui";
 import { getBuilderBySlug } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { checkBuilderOwnership } from "@/lib/supabase/actions";
 import { EditButton } from "./EditButton";
 import { UpvoteButton } from "./UpvoteButton";
@@ -12,6 +14,43 @@ import { PortfolioGallery } from "./PortfolioGallery";
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const builder = await getBuilderBySlug(slug);
+
+  if (!builder) {
+    return {
+      title: "Builder Not Found",
+      description: "The requested builder profile could not be found.",
+    };
+  }
+
+  const title = `${builder.name} - Hytale Builder Portfolio`;
+  const description = builder.tagline || builder.description?.substring(0, 160) || `View ${builder.name}'s Hytale building portfolio and showcase.`;
+
+  return {
+    title,
+    description,
+    keywords: [builder.name, "Hytale builder", "Hytale portfolio", "Hytale builds"].filter(Boolean),
+    openGraph: {
+      title: `${builder.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/builders/${slug}`,
+      type: "profile",
+      images: builder.thumbnail_url ? [{ url: builder.thumbnail_url, width: 1200, height: 630, alt: builder.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${builder.name} | Mytale`,
+      description,
+      images: builder.thumbnail_url ? [builder.thumbnail_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/builders/${slug}`,
+    },
+  };
 }
 
 export default async function BuilderDetailPage({ params }: Props) {

@@ -1,5 +1,29 @@
+import type { Metadata } from "next";
 import { Hero, Stats, FeaturedMods, FeaturedServers, CallToAction, SeoContent } from "@/components/home";
 import { OrganizationJsonLd, FaqJsonLd } from "@/components/seo";
+import { SITE_URL, PAGE_DESCRIPTIONS, SEO_KEYWORDS } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Mytale - Hytale Servers, Mods, Plugins, Texture Packs & Server List",
+  description: PAGE_DESCRIPTIONS.home,
+  keywords: SEO_KEYWORDS.global,
+  openGraph: {
+    title: "Mytale - Your Ultimate Hytale Community Hub",
+    description: PAGE_DESCRIPTIONS.home,
+    url: SITE_URL,
+    type: "website",
+    images: [{ url: "/images/og-image.png", width: 1200, height: 630, alt: "Mytale - Hytale Community Hub" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mytale - Your Ultimate Hytale Community Hub",
+    description: PAGE_DESCRIPTIONS.home,
+    images: ["/images/og-image.png"],
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+};
 
 // FAQ data for SEO
 const faqData = [

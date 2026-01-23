@@ -1,14 +1,51 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, User, Clock, Tag, Sparkles, FileText } from "lucide-react";
 import { Button, Card, Badge } from "@/components/ui";
 import { getIdeaById, getIdeaComments } from "@/lib/supabase/queries";
 import { formatRelativeTime } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { VoteButton } from "./VoteButton";
 import { CommentsSection } from "./CommentsSection";
 
 interface Props {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const idea = await getIdeaById(id);
+
+  if (!idea) {
+    return {
+      title: "Idea Not Found",
+      description: "The requested idea could not be found.",
+    };
+  }
+
+  const title = `${idea.title} - Hytale ${idea.category} Idea`;
+  const description = idea.description?.substring(0, 160) || `A Hytale community idea: ${idea.title}`;
+
+  return {
+    title,
+    description,
+    keywords: [idea.category, "Hytale idea", "Hytale suggestion", ...(idea.tags || [])].filter(Boolean),
+    openGraph: {
+      title: `${idea.title} | Mytale Ideas`,
+      description,
+      url: `${SITE_URL}/ideas/${id}`,
+      type: "article",
+    },
+    twitter: {
+      card: "summary",
+      title: `${idea.title} | Mytale Ideas`,
+      description,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/ideas/${id}`,
+    },
+  };
 }
 
 export default async function IdeaDetailPage({ params }: Props) {

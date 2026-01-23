@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,6 +6,7 @@ import { ArrowLeft, Download, Star, Calendar, Tag, ExternalLink, Heart, User, Yo
 import { Button, Card, Badge } from "@/components/ui";
 import { getMapWithVersions } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { DownloadButton } from "./DownloadButton";
 import { EditButton } from "./EditButton";
 import { MediaGallery } from "./MediaGallery";
@@ -22,6 +24,43 @@ interface MapVersion {
   file_size: number | null;
   downloads: number;
   created_at: string;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const map = await getMapWithVersions(slug);
+
+  if (!map) {
+    return {
+      title: "Map Not Found",
+      description: "The requested map could not be found.",
+    };
+  }
+
+  const title = `${map.name} - Download Hytale ${map.category} Map`;
+  const description = map.tagline || `Download ${map.name} for Hytale. ${map.description?.substring(0, 150)}...`;
+
+  return {
+    title,
+    description,
+    keywords: [map.name, `Hytale ${map.category} map`, "Hytale custom map", ...map.tags].filter(Boolean),
+    openGraph: {
+      title: `${map.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/maps/${slug}`,
+      type: "website",
+      images: map.thumbnail_url ? [{ url: map.thumbnail_url, width: 1200, height: 630, alt: map.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${map.name} | Mytale`,
+      description,
+      images: map.thumbnail_url ? [map.thumbnail_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/maps/${slug}`,
+    },
+  };
 }
 
 export default async function MapDetailPage({ params }: Props) {

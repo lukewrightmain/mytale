@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -7,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button, Card, Badge } from "@/components/ui";
 import { getContentCreatorBySlug } from "@/lib/supabase/queries";
+import { SITE_URL } from "@/lib/constants";
 import { VoteButton } from "./VoteButton";
 import { EditButton } from "./EditButton";
 import { ScheduleDisplay } from "./ScheduleDisplay";
@@ -42,6 +44,44 @@ const SOCIAL_LINKS = [
 
 interface Props {
   params: Promise<{ slug: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const creator = await getContentCreatorBySlug(slug);
+
+  if (!creator) {
+    return {
+      title: "Creator Not Found",
+      description: "The requested content creator could not be found.",
+    };
+  }
+
+  const platform = PLATFORM_CONFIG[creator.primary_platform]?.label || "Content";
+  const title = `${creator.name} - Hytale ${platform} Creator`;
+  const description = creator.bio?.substring(0, 160) || `Follow ${creator.name}, a Hytale ${platform.toLowerCase()} content creator.`;
+
+  return {
+    title,
+    description,
+    keywords: [creator.name, `Hytale ${platform.toLowerCase()}`, "Hytale content creator", "Hytale streamer"].filter(Boolean),
+    openGraph: {
+      title: `${creator.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/creators/${slug}`,
+      type: "profile",
+      images: creator.thumbnail_url ? [{ url: creator.thumbnail_url, width: 1200, height: 630, alt: creator.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${creator.name} | Mytale`,
+      description,
+      images: creator.thumbnail_url ? [creator.thumbnail_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/creators/${slug}`,
+    },
+  };
 }
 
 export default async function ContentCreatorDetailPage({ params }: Props) {

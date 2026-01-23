@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -15,6 +16,7 @@ import {
 import { Button, Card, Badge } from "@/components/ui";
 import { getServerBySlug } from "@/lib/supabase/queries";
 import { formatNumber } from "@/lib/utils";
+import { SITE_URL } from "@/lib/constants";
 import { EditButton } from "./EditButton";
 import { CopyButton } from "./CopyButton";
 
@@ -30,6 +32,44 @@ const REGION_NAMES: Record<string, string> = {
   OC: "Oceania",
   AF: "Africa",
 };
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+  const server = await getServerBySlug(slug);
+
+  if (!server) {
+    return {
+      title: "Server Not Found",
+      description: "The requested server could not be found.",
+    };
+  }
+
+  const gameModes = server.game_modes.length > 0 ? server.game_modes.join(", ") : "";
+  const title = `${server.name} - Hytale ${gameModes} Server`;
+  const description = server.description?.substring(0, 160) || `Join ${server.name} - a ${REGION_NAMES[server.region] || server.region} Hytale server with ${gameModes} gameplay.`;
+
+  return {
+    title,
+    description,
+    keywords: [server.name, "Hytale server", `Hytale ${server.region} server`, ...server.game_modes].filter(Boolean),
+    openGraph: {
+      title: `${server.name} | Mytale`,
+      description,
+      url: `${SITE_URL}/servers/${slug}`,
+      type: "website",
+      images: server.banner_url ? [{ url: server.banner_url, width: 1200, height: 630, alt: server.name }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${server.name} | Mytale`,
+      description,
+      images: server.banner_url ? [server.banner_url] : undefined,
+    },
+    alternates: {
+      canonical: `${SITE_URL}/servers/${slug}`,
+    },
+  };
+}
 
 export default async function ServerDetailPage({ params }: Props) {
   const { slug } = await params;
