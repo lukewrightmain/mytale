@@ -48,18 +48,25 @@ function ResizeHandles({
   );
 }
 
+// ─── Check if layout mode uses flow-based positioning ───
+function isFlowLayout(layoutMode: string | undefined): boolean {
+  return ['Top', 'Middle', 'Bottom', 'Left', 'Right', 'MiddleCenter', 'TopLeft', 'TopRight', 'BottomLeft', 'BottomRight', 'TopScrolling', 'MiddleScrolling', 'BottomScrolling'].includes(layoutMode || '');
+}
+
 // ─── Element Renderer ───
 function CanvasElement({ 
   element, 
   isRoot = false,
   depth = 0,
   parentBounds,
+  parentLayoutMode,
   zoom = 1,
 }: { 
   element: UIElement; 
   isRoot?: boolean;
   depth?: number;
   parentBounds?: { width: number; height: number };
+  parentLayoutMode?: string;
   zoom?: number;
 }) {
   const { state, selectElement, addElement, moveElement, updateElement } = useEditor();
@@ -72,13 +79,19 @@ function CanvasElement({
   const [initialSize, setInitialSize] = useState({ width: 0, height: 0 });
   const [resizeHandle, setResizeHandle] = useState<ResizeHandle | null>(null);
   
+  // Determine if this element should use flow-based positioning (based on parent's layoutMode)
+  const useFlowPositioning = !isRoot && isFlowLayout(parentLayoutMode);
+  
   const isSelected = state.selectedElementId === element.id;
   const canAcceptChildren = canHaveChildren(element.type);
 
   // Get element dimensions and position
   const anchor = element.properties.anchor || {};
-  const width = anchor.width || 100;
-  const height = anchor.height || 100;
+  // For flow layout elements without explicit size, use 'auto' instead of default 100
+  const hasExplicitWidth = anchor.width !== undefined;
+  const hasExplicitHeight = anchor.height !== undefined;
+  const width = hasExplicitWidth ? anchor.width : (useFlowPositioning ? 'auto' : 100);
+  const height = hasExplicitHeight ? anchor.height : (useFlowPositioning ? 'auto' : 100);
   const left = anchor.left ?? 0;
   const top = anchor.top ?? 0;
   const bgColor = element.properties.background?.color || 'transparent';
@@ -241,18 +254,29 @@ function CanvasElement({
     }
   };
 
-  // Base styles
+  // Base styles - support both absolute and flow-based positioning
   const baseStyles: React.CSSProperties = {
-    position: isRoot ? 'relative' : 'absolute',
-    width: typeof width === 'number' ? `${width}px` : width,
-    height: typeof height === 'number' ? `${height}px` : height,
-    left: isRoot ? undefined : `${left}px`,
-    top: isRoot ? undefined : `${top}px`,
+    // Use relative for root, and for children in flow layouts; absolute for free positioning
+    position: isRoot ? 'relative' : (useFlowPositioning ? 'relative' : 'absolute'),
+    // Width: explicit value in px, 'auto' for flow layout without explicit width, or stretch to full width for certain layouts
+    width: width === 'auto' ? (isFlowLayout(parentLayoutMode) && ['Top', 'TopScrolling', 'Middle', 'MiddleScrolling', 'Bottom', 'BottomScrolling'].includes(parentLayoutMode || '') ? '100%' : 'auto') : (typeof width === 'number' ? `${width}px` : width),
+    height: height === 'auto' ? 'auto' : (typeof height === 'number' ? `${height}px` : height),
+    // Only apply left/top for absolute positioned elements
+    left: isRoot || useFlowPositioning ? undefined : `${left}px`,
+    top: isRoot || useFlowPositioning ? undefined : `${top}px`,
     backgroundColor: bgColor !== 'transparent' ? bgColor : undefined,
     minWidth: isRoot ? '100%' : undefined,
-    minHeight: isRoot ? '100%' : undefined,
+    minHeight: isRoot ? '100%' : (useFlowPositioning && height === 'auto' && hasExplicitHeight === false ? undefined : undefined),
     cursor: isRoot ? 'default' : (isDragging ? 'grabbing' : 'grab'),
     userSelect: 'none',
+    // For flow layouts, apply margin spacing from anchor.bottom (commonly used for vertical spacing)
+    marginBottom: useFlowPositioning && anchor.bottom ? `${anchor.bottom}px` : undefined,
+    marginRight: useFlowPositioning && anchor.right ? `${anchor.right}px` : undefined,
+    marginTop: useFlowPositioning && anchor.top ? `${anchor.top}px` : undefined,
+    marginLeft: useFlowPositioning && anchor.left ? `${anchor.left}px` : undefined,
+    // Apply flex properties if specified - flexWeight means this element should grow
+    flex: element.properties.flexWeight ? `${element.properties.flexWeight} 1 0%` : undefined,
+    flexShrink: element.properties.flexWeight ? undefined : 0, // Don't shrink unless using flex
   };
 
   // Apply padding
@@ -266,20 +290,37 @@ function CanvasElement({
     if (padding.left) baseStyles.paddingLeft = `${padding.left}px`;
   }
 
+  // Get current element's layout mode
+  const currentLayoutMode = element.properties.layoutMode || 'None';
+
   // Layout mode positioning for children
   const getLayoutStyles = (): React.CSSProperties => {
-    const mode = element.properties.layoutMode || 'None';
-    switch (mode) {
+    switch (currentLayoutMode) {
       case 'Top':
-        return { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start' };
+      case 'TopScrolling':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' };
       case 'Middle':
-        return { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' };
+      case 'MiddleScrolling':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center' };
       case 'Bottom':
-        return { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end' };
+      case 'BottomScrolling':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-end' };
+      case 'Left':
+        return { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' };
+      case 'Right':
+        return { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' };
       case 'MiddleCenter':
         return { display: 'flex', alignItems: 'center', justifyContent: 'center' };
+      case 'TopLeft':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' };
+      case 'TopRight':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-start' };
+      case 'BottomLeft':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-end' };
+      case 'BottomRight':
+        return { display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'flex-end' };
       default:
-        return {};
+        return { position: 'relative' }; // Default: children use absolute positioning
     }
   };
 
@@ -406,12 +447,20 @@ function CanvasElement({
       case 'Group':
       case 'PageOverlay':
       case 'ContainerPanel':
+      case 'DecoratedContainer':
+      case 'Button':
       default: {
-        // Container elements - render children with absolute positioning
+        // Container elements - render children with layout-aware positioning
+        const layoutStyles = getLayoutStyles();
+        const hasFlowLayout = isFlowLayout(currentLayoutMode);
+        
         return (
           <div 
-            className="w-full h-full relative"
-            style={getLayoutStyles()}
+            className={`w-full h-full ${hasFlowLayout ? '' : 'relative'}`}
+            style={{
+              ...layoutStyles,
+              overflow: currentLayoutMode?.includes('Scrolling') ? 'auto' : 'visible',
+            }}
           >
             {element.children.map((child) => (
               <CanvasElement 
@@ -419,12 +468,13 @@ function CanvasElement({
                 element={child} 
                 depth={depth + 1}
                 parentBounds={{ width, height }}
+                parentLayoutMode={currentLayoutMode}
                 zoom={zoom}
               />
             ))}
             {element.children.length === 0 && !isRoot && canAcceptChildren && (
               <div className={`
-                absolute inset-0 flex flex-col items-center justify-center gap-1 pointer-events-none
+                ${hasFlowLayout ? 'w-full h-full' : 'absolute inset-0'} flex flex-col items-center justify-center gap-1 pointer-events-none
                 border-2 border-dashed rounded transition-colors
                 ${isDragOver ? 'border-accent-400 bg-accent-500/10' : 'border-stone-600/50'}
               `}>
@@ -448,7 +498,7 @@ function CanvasElement({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
       className={`
-        transition-all duration-100
+        ${isDragging || isResizing ? '' : 'transition-all duration-100'}
         ${isRoot ? '' : 'rounded'}
         ${isSelected ? 'ring-2 ring-primary-500 z-20 shadow-lg shadow-primary-500/20' : ''}
         ${isDragOver && canAcceptChildren ? 'ring-2 ring-accent-400 bg-accent-500/20 scale-[1.01]' : ''}
