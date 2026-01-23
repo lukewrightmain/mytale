@@ -347,7 +347,7 @@ export interface UITemplate {
   id: string;
   name: string;
   description: string;
-  category: 'page' | 'card' | 'hud' | 'component';
+  category: 'page' | 'card' | 'hud' | 'component' | 'example';
   preview?: string;     // Preview image URL
   root: UIElement;
   settings: Partial<DesignSettings>;

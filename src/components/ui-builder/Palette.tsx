@@ -60,7 +60,7 @@ function Section({
   );
 }
 
-// ─── Template Card (Canva-like) ───
+// ─── Template Card (Compact) ───
 function TemplateCard({ template }: { template: UITemplate }) {
   const { applyTemplate } = useEditor();
   
@@ -70,30 +70,27 @@ function TemplateCard({ template }: { template: UITemplate }) {
 
   // Category colors
   const categoryColors: Record<string, string> = {
-    page: 'bg-primary-500/20 border-primary-500/30',
-    hud: 'bg-accent-500/20 border-accent-500/30',
-    card: 'bg-green-500/20 border-green-500/30',
+    page: 'bg-primary-500/15 border-primary-500/30 hover:bg-primary-500/25',
+    hud: 'bg-accent-500/15 border-accent-500/30 hover:bg-accent-500/25',
+    card: 'bg-green-500/15 border-green-500/30 hover:bg-green-500/25',
+    example: 'bg-amber-500/15 border-amber-500/30 hover:bg-amber-500/25',
   };
 
   return (
     <button
       onClick={handleClick}
       className={`
-        w-full p-3 rounded-lg border text-left transition-all duration-150
-        hover:scale-[1.02] hover:shadow-lg active:scale-[0.98]
+        w-full px-2 py-1.5 rounded border text-left transition-all duration-100
+        hover:shadow-md active:scale-[0.98]
         ${categoryColors[template.category] || 'bg-surface-elevated border-border'}
       `}
+      title={template.description}
     >
-      <div className="flex items-start gap-3">
-        <div className="text-2xl">{template.preview || '📄'}</div>
-        <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm text-foreground truncate">
-            {template.name}
-          </div>
-          <div className="text-[11px] text-foreground-muted mt-0.5 line-clamp-2">
-            {template.description}
-          </div>
-        </div>
+      <div className="flex items-center gap-2">
+        <span className="text-base flex-shrink-0">{template.preview || '📄'}</span>
+        <span className="text-xs text-foreground truncate font-medium">
+          {template.name}
+        </span>
       </div>
     </button>
   );
@@ -138,7 +135,7 @@ function PaletteItemCard({ item }: { item: PaletteItem }) {
 // ─── Quick Tips Panel ───
 function QuickTips() {
   const tips = [
-    { key: 'drag', label: 'Drag components onto the canvas or click to add' },
+    { key: 'start', label: 'Drag components onto the canvas or click to add' },
     { key: 'select', label: 'Click elements to select, drag to move' },
     { key: 'resize', label: 'Use corner handles to resize elements' },
     { key: 'delete', label: 'Press Delete or Backspace to remove' },
@@ -146,13 +143,13 @@ function QuickTips() {
   ];
 
   return (
-    <div className="p-3 border-t border-border">
-      <div className="text-[10px] text-foreground-subtle uppercase tracking-wide mb-2 flex items-center gap-1">
-        <Sparkles className="w-3 h-3" /> Quick Tips
+    <div className="flex-shrink-0 p-2 border-t border-border bg-stone-900/50">
+      <div className="text-[9px] text-foreground-subtle uppercase tracking-wide mb-1.5 flex items-center gap-1">
+        💡 QUICK TIPS
       </div>
-      <ul className="space-y-1">
+      <ul className="space-y-0.5">
         {tips.map(tip => (
-          <li key={tip.key} className="text-[10px] text-foreground-muted leading-relaxed">
+          <li key={tip.key} className="text-[9px] text-foreground-muted leading-relaxed">
             • {tip.label}
           </li>
         ))}
@@ -164,6 +161,7 @@ function QuickTips() {
 // ─── Main Palette Component ───
 export function Palette() {
   // Separate templates by category
+  const exampleTemplates = PAGE_TEMPLATES.filter(t => t.category === 'example');
   const pageTemplates = PAGE_TEMPLATES.filter(t => t.category === 'page');
   const cardTemplates = PAGE_TEMPLATES.filter(t => t.category === 'card');
   const hudTemplates = PAGE_TEMPLATES.filter(t => t.category === 'hud');
@@ -181,13 +179,27 @@ export function Palette() {
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
+        {/* Complete Examples Section */}
+        {exampleTemplates.length > 0 && (
+          <Section title="⭐ Complete Examples" count={exampleTemplates.length} icon={Sparkles} defaultOpen={true}>
+            <div className="space-y-1.5 pb-1">
+              <p className="text-[10px] text-foreground-subtle px-1">
+                Click to load a ready-to-use UI design
+              </p>
+              {exampleTemplates.map(template => (
+                <TemplateCard key={template.id} template={template} />
+              ))}
+            </div>
+          </Section>
+        )}
+
         {/* Templates Section */}
-        <Section title="Templates" count={PAGE_TEMPLATES.length} icon={Layers} defaultOpen={true}>
-          <div className="space-y-2">
-            <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1 pt-1">
+        <Section title="Templates" count={pageTemplates.length + cardTemplates.length + hudTemplates.length} icon={Layers} defaultOpen={false}>
+          <div className="space-y-1.5">
+            <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1">
               Pages
             </div>
-            <div className="space-y-2">
+            <div className="space-y-1">
               {pageTemplates.map(template => (
                 <TemplateCard key={template.id} template={template} />
               ))}
@@ -195,10 +207,10 @@ export function Palette() {
             
             {cardTemplates.length > 0 && (
               <>
-                <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1 pt-2">
+                <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1 pt-1">
                   Cards
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {cardTemplates.map(template => (
                     <TemplateCard key={template.id} template={template} />
                   ))}
@@ -208,10 +220,10 @@ export function Palette() {
             
             {hudTemplates.length > 0 && (
               <>
-                <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1 pt-2">
+                <div className="text-[10px] text-foreground-subtle uppercase tracking-wide px-1 pt-1">
                   HUD
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1">
                   {hudTemplates.map(template => (
                     <TemplateCard key={template.id} template={template} />
                   ))}

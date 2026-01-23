@@ -113,11 +113,17 @@ function CanvasElement({
     setInitialSize({ width: width, height: height });
   };
 
-  // ─── Mouse Move (Drag/Resize) ───
+  // ─── Mouse Move (Drag/Resize) with RAF throttling for smooth performance ───
   useEffect(() => {
     if (!isDragging && !isResizing) return;
 
-    const handleMouseMove = (e: MouseEvent) => {
+    let rafId: number | null = null;
+    let lastMouseEvent: MouseEvent | null = null;
+
+    const processMove = () => {
+      if (!lastMouseEvent) return;
+      
+      const e = lastMouseEvent;
       const deltaX = (e.clientX - dragStart.x) / zoom;
       const deltaY = (e.clientY - dragStart.y) / zoom;
 
@@ -166,9 +172,22 @@ function CanvasElement({
           },
         });
       }
+      
+      rafId = null;
+    };
+
+    const handleMouseMove = (e: MouseEvent) => {
+      lastMouseEvent = e;
+      // Throttle updates using requestAnimationFrame for smooth 60fps
+      if (rafId === null) {
+        rafId = requestAnimationFrame(processMove);
+      }
     };
 
     const handleMouseUp = () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       setIsDragging(false);
       setIsResizing(false);
       setResizeHandle(null);
@@ -178,6 +197,9 @@ function CanvasElement({
     document.addEventListener('mouseup', handleMouseUp);
 
     return () => {
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };

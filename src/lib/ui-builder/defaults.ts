@@ -86,7 +86,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Group',
     icon: '⬚',
     category: 'primitive',
-    description: 'Container for organizing elements',
+    description: 'Container to hold other elements. Use for rows, columns, sections. Set LayoutMode to "Top" for vertical, "Left" for horizontal.',
     canHaveChildren: true,
     defaultProperties: {
       layoutMode: 'Top',
@@ -99,7 +99,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Label',
     icon: 'T',
     category: 'primitive',
-    description: 'Text display',
+    description: 'Display text. Use for titles, descriptions, stats. Change "Text" in properties to set content.',
     canHaveChildren: false,
     defaultProperties: {
       text: 'Label Text',
@@ -112,7 +112,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Button',
     icon: '▢',
     category: 'primitive',
-    description: 'Clickable button with hover/press states',
+    description: 'Clickable element. Can contain other elements like icons + text. Add click events in Java code.',
     canHaveChildren: true,
     defaultProperties: {
       anchor: { width: 150, height: 40, bottom: 8 },
@@ -130,7 +130,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Image',
     icon: '🖼',
     category: 'primitive',
-    description: 'Display images and textures',
+    description: 'Display images. Set "Asset Path" to your texture path (e.g., "Textures/MyMod/icon.png") or upload a preview image.',
     canHaveChildren: false,
     defaultProperties: {
       anchor: { width: 100, height: 100 },
@@ -144,7 +144,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Item Icon',
     icon: '⚔',
     category: 'primitive',
-    description: 'Display game items (use .ItemId in Java)',
+    description: 'Display game items like swords, potions. Set the item dynamically in Java: uiBuilder.set("#Icon.ItemId", itemId);',
     canHaveChildren: false,
     defaultProperties: {
       anchor: { width: 64, height: 64 },
@@ -156,7 +156,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Item Grid',
     icon: '▦',
     category: 'primitive',
-    description: 'Display items in a grid (inventory style)',
+    description: 'Inventory-style grid for multiple items. Set slots per row and bind items in Java code.',
     canHaveChildren: false,
     defaultProperties: {
       slotsPerRow: 9,
@@ -172,7 +172,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Progress Bar',
     icon: '▰',
     category: 'primitive',
-    description: 'Show progress (0.0 to 1.0)',
+    description: 'Show progress from 0 to 1. Great for XP bars, health, loading. Update value in Java.',
     canHaveChildren: false,
     defaultProperties: {
       anchor: { width: 200, height: 20 },
@@ -186,7 +186,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Timer Label',
     icon: '⏱',
     category: 'primitive',
-    description: 'Countdown or timer display',
+    description: 'Countdown timer display. Set duration in Java and it auto-updates.',
     canHaveChildren: false,
     defaultProperties: {
       text: '00:00',
@@ -200,7 +200,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Color Picker',
     icon: '🎨',
     category: 'primitive',
-    description: 'Color selection input',
+    description: 'Let players choose a color. Get selected color via events in Java.',
     canHaveChildren: false,
     defaultProperties: {
       defaultColor: '#ffffff',
@@ -212,7 +212,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Text Field',
     icon: '📝',
     category: 'primitive',
-    description: 'Text input field',
+    description: 'Text input for player typing. Get entered text via events in Java. Set placeholder text.',
     canHaveChildren: false,
     defaultProperties: {
       placeholder: 'Enter text...',
@@ -230,7 +230,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Page Overlay',
     icon: '📄',
     category: 'macro',
-    description: '$C.@PageOverlay - Full-screen overlay container',
+    description: 'START HERE! Full-screen backdrop with darkening. Put DecoratedContainer inside this.',
     canHaveChildren: true,
     defaultProperties: {
       macro: '$C.@PageOverlay',
@@ -242,7 +242,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Decorated Container',
     icon: '🪟',
     category: 'macro',
-    description: '$C.@DecoratedContainer - Styled panel with border',
+    description: 'Main content panel with nice border. Put inside PageOverlay. Add your content here!',
     canHaveChildren: true,
     defaultProperties: {
       macro: '$C.@DecoratedContainer',
@@ -254,7 +254,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Title',
     icon: 'H',
     category: 'macro',
-    description: '$C.@Title - Page title with @Text parameter',
+    description: 'Pre-styled page title. Great for panel headers. Change text in properties.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@Title',
@@ -266,7 +266,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Text Button',
     icon: '🔘',
     category: 'macro',
-    description: '$C.@TextButton - Styled button',
+    description: 'Styled clickable button with text. Use for Buy, Confirm, Cancel. Bind events in Java.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@TextButton',
@@ -279,7 +279,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Back Button',
     icon: '←',
     category: 'macro',
-    description: '$C.@BackButton - Close/back navigation',
+    description: 'Standard close/back button. Place at bottom of page. Auto-closes page when clicked.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@BackButton',
@@ -290,7 +290,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Check Box',
     icon: '☑',
     category: 'macro',
-    description: '$C.@CheckBox - Toggle checkbox',
+    description: 'Toggle on/off option. Use for settings. Get checked state via events in Java.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@CheckBox',
@@ -304,7 +304,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Text Input',
     icon: '✏️',
     category: 'macro',
-    description: '$C.@TextInput - Styled text input',
+    description: 'Styled text input field. For player names, search. Get typed text via events in Java.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@TextInput',
@@ -317,7 +317,7 @@ export const PALETTE_ITEMS: PaletteItem[] = [
     label: 'Number Input',
     icon: '#',
     category: 'macro',
-    description: '$C.@NumberInput - Number input with min/max',
+    description: 'Number input with +/- buttons. Set min/max. Use for quantities, settings.',
     canHaveChildren: false,
     defaultProperties: {
       macro: '$C.@NumberInput',
@@ -331,6 +331,1907 @@ export const PALETTE_ITEMS: PaletteItem[] = [
 
 // ─── Complete Page Templates (Production-Ready) ───
 export const PAGE_TEMPLATES: UITemplate[] = [
+  // ════════════════════════════════════════════════════════════════════════
+  // COMPLETE EXAMPLES - Ready-to-use fully populated UIs
+  // ════════════════════════════════════════════════════════════════════════
+  
+  // Example 1: Killstreak Rewards (like in Hytale)
+  {
+    id: 'example-killstreak',
+    name: 'Killstreak Rewards',
+    description: 'Complete rewards page with tier icons, progression, and status',
+    category: 'example',
+    preview: '⚔️',
+    root: {
+      id: 'ks-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'ks-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 650, height: 520 },
+            layoutMode: 'Top',
+          },
+          children: [
+            // Header with title
+            {
+              id: 'ks-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 50 },
+                padding: { full: 10 },
+              },
+              children: [
+                {
+                  id: 'ks-title',
+                  type: 'Label',
+                  name: 'Title',
+                  properties: { 
+                    text: 'KILLSTREAK REWARDS',
+                    alignment: 'Center',
+                    style: { fontSize: 22, renderBold: true, textColor: '#d4af37' },
+                  },
+                  children: [],
+                },
+              ],
+            },
+            // Scrollable rewards list
+            {
+              id: 'ks-scrollarea',
+              type: 'Group',
+              name: 'ScrollArea',
+              properties: { 
+                layoutMode: 'TopScrolling',
+                scrollbarStyle: '$C.@DefaultScrollbarStyle',
+                flexWeight: 1,
+                padding: { left: 15, right: 15 },
+              },
+              children: [
+                // Tier 1: Kringla
+                {
+                  id: 'ks-tier1',
+                  type: 'Button',
+                  name: 'Tier1',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#1a3050(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4060(0.9)' },
+                      pressed: { background: '#3a5070(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier1-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier1.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier1-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier1-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Kringla',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier1-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(Circle/Beginning) Random Copper Weapon',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier1-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/3 Kills - 3 more needed',
+                            style: { fontSize: 11, textColor: '#66aaff' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier1-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Tier 2: Einherjar
+                {
+                  id: 'ks-tier2',
+                  type: 'Button',
+                  name: 'Tier2',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#1a3050(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4060(0.9)' },
+                      pressed: { background: '#3a5070(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier2-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier2.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier2-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier2-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Einherjar',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier2-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(Single Fighter) +10% Speed + Bronze Weapon',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier2-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/5 Kills - 5 more needed',
+                            style: { fontSize: 11, textColor: '#66aaff' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier2-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Tier 3: Berserkr
+                {
+                  id: 'ks-tier3',
+                  type: 'Button',
+                  name: 'Tier3',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#1a3050(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4060(0.9)' },
+                      pressed: { background: '#3a5070(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier3-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier3.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier3-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier3-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Berserkr',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier3-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(Berserker) +20% Attack, +15% Speed',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier3-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/10 Kills - 10 more needed',
+                            style: { fontSize: 11, textColor: '#66aaff' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier3-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Tier 4: Drengr
+                {
+                  id: 'ks-tier4',
+                  type: 'Button',
+                  name: 'Tier4',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#1a3050(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4060(0.9)' },
+                      pressed: { background: '#3a5070(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier4-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier4.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier4-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier4-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Drengr',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier4-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(Warrior) +15% Defense + Iron Weapon',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier4-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/15 Kills - 15 more needed',
+                            style: { fontSize: 11, textColor: '#66aaff' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier4-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Tier 5: Ulfhednar
+                {
+                  id: 'ks-tier5',
+                  type: 'Button',
+                  name: 'Tier5',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#1a3050(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4060(0.9)' },
+                      pressed: { background: '#3a5070(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier5-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier5.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier5-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier5-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Ulfhednar',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffffff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier5-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(Wolf-Warrior) All Buffs + Steel Sword',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier5-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/20 Kills - 20 more needed',
+                            style: { fontSize: 11, textColor: '#66aaff' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier5-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Tier 6: Ragnarok
+                {
+                  id: 'ks-tier6',
+                  type: 'Button',
+                  name: 'Tier6',
+                  properties: {
+                    anchor: { height: 70, bottom: 8 },
+                    padding: { full: 10 },
+                    background: { color: '#3a1a1a(0.8)' },
+                    layoutMode: 'Left',
+                    interactiveStyle: {
+                      hovered: { background: '#4a2a2a(0.9)' },
+                      pressed: { background: '#5a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'ks-tier6-icon',
+                      type: 'AssetImage',
+                      name: 'Icon',
+                      properties: { 
+                        anchor: { width: 48, height: 48 },
+                        imageSrc: '/images/ui-builder/killstreakicons/tier6.png',
+                        objectFit: 'contain',
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'ks-tier6-info',
+                      type: 'Group',
+                      name: 'Info',
+                      properties: { 
+                        layoutMode: 'Top',
+                        flexWeight: 1,
+                        padding: { left: 12 },
+                      },
+                      children: [
+                        {
+                          id: 'ks-tier6-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: 'Ragnarök',
+                            style: { fontSize: 16, renderBold: true, textColor: '#ffcc00' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier6-desc',
+                          type: 'Label',
+                          name: 'Desc',
+                          properties: { 
+                            text: '(End of Days) Ultimate Power + Legendary Weapon',
+                            style: { fontSize: 11, textColor: '#888888' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'ks-tier6-progress',
+                          type: 'Label',
+                          name: 'Progress',
+                          properties: { 
+                            text: '0/30 Kills - 30 more needed',
+                            style: { fontSize: 11, textColor: '#ffaa00' },
+                            anchor: { top: 2 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'ks-tier6-status',
+                      type: 'Label',
+                      name: 'Status',
+                      properties: { 
+                        text: 'LOCKED',
+                        style: { fontSize: 12, textColor: '#ff6666' },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Footer with back button
+            {
+              id: 'ks-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 10 },
+                anchor: { height: 50 },
+              },
+              children: [
+                {
+                  id: 'ks-back',
+                  type: 'BackButton',
+                  name: 'BackButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'CustomUIPage',
+      pageLifetime: 'CanDismiss',
+      className: 'KillstreakRewardsPage',
+      uiFilePath: 'Pages/KillstreakRewards.ui',
+    },
+  },
+
+  // Example 2: Item Shop
+  {
+    id: 'example-shop',
+    name: 'Item Shop',
+    description: 'Complete shop with items, prices, and buy buttons',
+    category: 'example',
+    preview: '🛒',
+    root: {
+      id: 'shop-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'shop-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 700, height: 500 },
+            layoutMode: 'Top',
+          },
+          children: [
+            // Header
+            {
+              id: 'shop-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'Left',
+                anchor: { height: 60 },
+                padding: { full: 15 },
+              },
+              children: [
+                {
+                  id: 'shop-title',
+                  type: 'Label',
+                  name: 'Title',
+                  properties: { 
+                    text: '🏪 ITEM SHOP',
+                    style: { fontSize: 24, renderBold: true, textColor: '#ffffff' },
+                  },
+                  children: [],
+                },
+                {
+                  id: 'shop-gold',
+                  type: 'Group',
+                  name: 'GoldDisplay',
+                  properties: { 
+                    layoutMode: 'Left',
+                    anchor: { right: 0 },
+                  },
+                  children: [
+                    {
+                      id: 'shop-gold-icon',
+                      type: 'Label',
+                      name: 'GoldIcon',
+                      properties: { 
+                        text: '💰',
+                        style: { fontSize: 18 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-gold-amount',
+                      type: 'Label',
+                      name: 'GoldAmount',
+                      properties: { 
+                        text: '1,250 Gold',
+                        style: { fontSize: 16, textColor: '#ffcc00' },
+                        anchor: { left: 5 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Items grid
+            {
+              id: 'shop-items',
+              type: 'Group',
+              name: 'ItemsGrid',
+              properties: { 
+                layoutMode: 'Left',
+                flexWeight: 1,
+                padding: { full: 15 },
+              },
+              children: [
+                // Item 1: Sword
+                {
+                  id: 'shop-item1',
+                  type: 'Button',
+                  name: 'Item1',
+                  properties: {
+                    anchor: { width: 150, height: 180, right: 15 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'shop-item1-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { anchor: { width: 64, height: 64 }, itemId: 'Weapon_Sword_Iron' },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item1-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'Iron Sword',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ffffff' },
+                        alignment: 'Center',
+                        anchor: { top: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item1-price',
+                      type: 'Label',
+                      name: 'Price',
+                      properties: { 
+                        text: '💰 100',
+                        style: { fontSize: 12, textColor: '#ffcc00' },
+                        alignment: 'Center',
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item1-buy',
+                      type: 'TextButton',
+                      name: 'BuyBtn',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Buy',
+                        anchor: { width: 80, height: 28, top: 8 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Item 2: Shield
+                {
+                  id: 'shop-item2',
+                  type: 'Button',
+                  name: 'Item2',
+                  properties: {
+                    anchor: { width: 150, height: 180, right: 15 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'shop-item2-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { anchor: { width: 64, height: 64 }, itemId: 'Armor_Shield_Wood' },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item2-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'Wooden Shield',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ffffff' },
+                        alignment: 'Center',
+                        anchor: { top: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item2-price',
+                      type: 'Label',
+                      name: 'Price',
+                      properties: { 
+                        text: '💰 75',
+                        style: { fontSize: 12, textColor: '#ffcc00' },
+                        alignment: 'Center',
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item2-buy',
+                      type: 'TextButton',
+                      name: 'BuyBtn',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Buy',
+                        anchor: { width: 80, height: 28, top: 8 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Item 3: Potion
+                {
+                  id: 'shop-item3',
+                  type: 'Button',
+                  name: 'Item3',
+                  properties: {
+                    anchor: { width: 150, height: 180, right: 15 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'shop-item3-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { anchor: { width: 64, height: 64 }, itemId: 'Consumable_Potion_Health' },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item3-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'Health Potion',
+                        style: { fontSize: 14, renderBold: true, textColor: '#ff6666' },
+                        alignment: 'Center',
+                        anchor: { top: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item3-price',
+                      type: 'Label',
+                      name: 'Price',
+                      properties: { 
+                        text: '💰 25',
+                        style: { fontSize: 12, textColor: '#ffcc00' },
+                        alignment: 'Center',
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item3-buy',
+                      type: 'TextButton',
+                      name: 'BuyBtn',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Buy',
+                        anchor: { width: 80, height: 28, top: 8 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Item 4: Arrow
+                {
+                  id: 'shop-item4',
+                  type: 'Button',
+                  name: 'Item4',
+                  properties: {
+                    anchor: { width: 150, height: 180 },
+                    padding: { full: 10 },
+                    background: { color: '#1a1a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a2a(0.9)' },
+                      pressed: { background: '#3a3a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'shop-item4-icon',
+                      type: 'ItemIcon',
+                      name: 'Icon',
+                      properties: { anchor: { width: 64, height: 64 }, itemId: 'Weapon_Bow_Wood' },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item4-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'Wooden Bow',
+                        style: { fontSize: 14, renderBold: true, textColor: '#8b4513' },
+                        alignment: 'Center',
+                        anchor: { top: 8 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item4-price',
+                      type: 'Label',
+                      name: 'Price',
+                      properties: { 
+                        text: '💰 150',
+                        style: { fontSize: 12, textColor: '#ffcc00' },
+                        alignment: 'Center',
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'shop-item4-buy',
+                      type: 'TextButton',
+                      name: 'BuyBtn',
+                      properties: { 
+                        macro: '$C.@TextButton',
+                        text: 'Buy',
+                        anchor: { width: 80, height: 28, top: 8 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Footer
+            {
+              id: 'shop-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 15 },
+                anchor: { height: 60 },
+              },
+              children: [
+                {
+                  id: 'shop-back',
+                  type: 'BackButton',
+                  name: 'BackButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'InteractiveCustomUIPage',
+      pageLifetime: 'CanDismiss',
+      className: 'ItemShopPage',
+      uiFilePath: 'Pages/ItemShop.ui',
+    },
+  },
+
+  // Example 3: Leaderboard
+  {
+    id: 'example-leaderboard',
+    name: 'Leaderboard',
+    description: 'Player rankings with scores and positions',
+    category: 'example',
+    preview: '🏆',
+    root: {
+      id: 'lb-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'lb-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 500, height: 480 },
+            layoutMode: 'Top',
+          },
+          children: [
+            // Header
+            {
+              id: 'lb-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 60 },
+                padding: { full: 15 },
+              },
+              children: [
+                {
+                  id: 'lb-title',
+                  type: 'Label',
+                  name: 'Title',
+                  properties: { 
+                    text: '🏆 LEADERBOARD',
+                    style: { fontSize: 24, renderBold: true, textColor: '#ffcc00' },
+                    alignment: 'Center',
+                  },
+                  children: [],
+                },
+              ],
+            },
+            // Leaderboard entries
+            {
+              id: 'lb-list',
+              type: 'Group',
+              name: 'LeaderboardList',
+              properties: { 
+                layoutMode: 'Top',
+                flexWeight: 1,
+                padding: { left: 15, right: 15 },
+              },
+              children: [
+                // 1st Place
+                {
+                  id: 'lb-entry1',
+                  type: 'Group',
+                  name: 'Entry1',
+                  properties: {
+                    anchor: { height: 50, bottom: 8 },
+                    padding: { left: 15, right: 15 },
+                    background: { color: '#ffd700(0.2)' },
+                    layoutMode: 'Left',
+                  },
+                  children: [
+                    {
+                      id: 'lb-entry1-rank',
+                      type: 'Label',
+                      name: 'Rank',
+                      properties: { 
+                        text: '🥇',
+                        style: { fontSize: 24 },
+                        anchor: { width: 40 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry1-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'DragonSlayer99',
+                        style: { fontSize: 16, renderBold: true, textColor: '#ffd700' },
+                        anchor: { left: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry1-score',
+                      type: 'Label',
+                      name: 'Score',
+                      properties: { 
+                        text: '15,420 pts',
+                        style: { fontSize: 14, textColor: '#ffffff' },
+                        anchor: { right: 0 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // 2nd Place
+                {
+                  id: 'lb-entry2',
+                  type: 'Group',
+                  name: 'Entry2',
+                  properties: {
+                    anchor: { height: 50, bottom: 8 },
+                    padding: { left: 15, right: 15 },
+                    background: { color: '#c0c0c0(0.2)' },
+                    layoutMode: 'Left',
+                  },
+                  children: [
+                    {
+                      id: 'lb-entry2-rank',
+                      type: 'Label',
+                      name: 'Rank',
+                      properties: { 
+                        text: '🥈',
+                        style: { fontSize: 24 },
+                        anchor: { width: 40 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry2-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'ShadowNinja',
+                        style: { fontSize: 16, renderBold: true, textColor: '#c0c0c0' },
+                        anchor: { left: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry2-score',
+                      type: 'Label',
+                      name: 'Score',
+                      properties: { 
+                        text: '12,850 pts',
+                        style: { fontSize: 14, textColor: '#ffffff' },
+                        anchor: { right: 0 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // 3rd Place
+                {
+                  id: 'lb-entry3',
+                  type: 'Group',
+                  name: 'Entry3',
+                  properties: {
+                    anchor: { height: 50, bottom: 8 },
+                    padding: { left: 15, right: 15 },
+                    background: { color: '#cd7f32(0.2)' },
+                    layoutMode: 'Left',
+                  },
+                  children: [
+                    {
+                      id: 'lb-entry3-rank',
+                      type: 'Label',
+                      name: 'Rank',
+                      properties: { 
+                        text: '🥉',
+                        style: { fontSize: 24 },
+                        anchor: { width: 40 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry3-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'MysticMage',
+                        style: { fontSize: 16, renderBold: true, textColor: '#cd7f32' },
+                        anchor: { left: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry3-score',
+                      type: 'Label',
+                      name: 'Score',
+                      properties: { 
+                        text: '10,200 pts',
+                        style: { fontSize: 14, textColor: '#ffffff' },
+                        anchor: { right: 0 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // 4th Place
+                {
+                  id: 'lb-entry4',
+                  type: 'Group',
+                  name: 'Entry4',
+                  properties: {
+                    anchor: { height: 45, bottom: 6 },
+                    padding: { left: 15, right: 15 },
+                    background: { color: '#1a1a1a(0.5)' },
+                    layoutMode: 'Left',
+                  },
+                  children: [
+                    {
+                      id: 'lb-entry4-rank',
+                      type: 'Label',
+                      name: 'Rank',
+                      properties: { 
+                        text: '#4',
+                        style: { fontSize: 16, textColor: '#888888' },
+                        anchor: { width: 40 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry4-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'SwiftArcher',
+                        style: { fontSize: 14, textColor: '#ffffff' },
+                        anchor: { left: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry4-score',
+                      type: 'Label',
+                      name: 'Score',
+                      properties: { 
+                        text: '8,750 pts',
+                        style: { fontSize: 14, textColor: '#aaaaaa' },
+                        anchor: { right: 0 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // 5th Place
+                {
+                  id: 'lb-entry5',
+                  type: 'Group',
+                  name: 'Entry5',
+                  properties: {
+                    anchor: { height: 45, bottom: 6 },
+                    padding: { left: 15, right: 15 },
+                    background: { color: '#1a1a1a(0.5)' },
+                    layoutMode: 'Left',
+                  },
+                  children: [
+                    {
+                      id: 'lb-entry5-rank',
+                      type: 'Label',
+                      name: 'Rank',
+                      properties: { 
+                        text: '#5',
+                        style: { fontSize: 16, textColor: '#888888' },
+                        anchor: { width: 40 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry5-name',
+                      type: 'Label',
+                      name: 'Name',
+                      properties: { 
+                        text: 'StoneGuard',
+                        style: { fontSize: 14, textColor: '#ffffff' },
+                        anchor: { left: 10 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'lb-entry5-score',
+                      type: 'Label',
+                      name: 'Score',
+                      properties: { 
+                        text: '7,100 pts',
+                        style: { fontSize: 14, textColor: '#aaaaaa' },
+                        anchor: { right: 0 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Footer
+            {
+              id: 'lb-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 15 },
+                anchor: { height: 60 },
+              },
+              children: [
+                {
+                  id: 'lb-back',
+                  type: 'BackButton',
+                  name: 'BackButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'CustomUIPage',
+      pageLifetime: 'CanDismiss',
+      className: 'LeaderboardPage',
+      uiFilePath: 'Pages/Leaderboard.ui',
+    },
+  },
+
+  // Example 4: Quest Log
+  {
+    id: 'example-quests',
+    name: 'Quest Log',
+    description: 'Quest list with objectives and progress',
+    category: 'example',
+    preview: '📜',
+    root: {
+      id: 'q-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'q-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 550, height: 450 },
+            layoutMode: 'Top',
+          },
+          children: [
+            // Header
+            {
+              id: 'q-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 55 },
+                padding: { full: 15 },
+              },
+              children: [
+                {
+                  id: 'q-title',
+                  type: 'Label',
+                  name: 'Title',
+                  properties: { 
+                    text: '📜 QUEST LOG',
+                    style: { fontSize: 22, renderBold: true, textColor: '#ffffff' },
+                    alignment: 'Center',
+                  },
+                  children: [],
+                },
+              ],
+            },
+            // Quest list
+            {
+              id: 'q-list',
+              type: 'Group',
+              name: 'QuestList',
+              properties: { 
+                layoutMode: 'TopScrolling',
+                scrollbarStyle: '$C.@DefaultScrollbarStyle',
+                flexWeight: 1,
+                padding: { left: 15, right: 15 },
+              },
+              children: [
+                // Quest 1: Active
+                {
+                  id: 'q-quest1',
+                  type: 'Button',
+                  name: 'Quest1',
+                  properties: {
+                    anchor: { height: 85, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#1a3a1a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a4a2a(0.9)' },
+                      pressed: { background: '#3a5a3a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'q-quest1-header',
+                      type: 'Group',
+                      name: 'Header',
+                      properties: { layoutMode: 'Left' },
+                      children: [
+                        {
+                          id: 'q-quest1-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: '⚔️ Defeat the Forest Wolves',
+                            style: { fontSize: 15, renderBold: true, textColor: '#88ff88' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'q-quest1-status',
+                          type: 'Label',
+                          name: 'Status',
+                          properties: { 
+                            text: 'ACTIVE',
+                            style: { fontSize: 10, textColor: '#88ff88' },
+                            anchor: { right: 0 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'q-quest1-obj',
+                      type: 'Label',
+                      name: 'Objective',
+                      properties: { 
+                        text: 'Kill 5 wolves in the Dark Forest',
+                        style: { fontSize: 12, textColor: '#aaaaaa' },
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'q-quest1-progress',
+                      type: 'Group',
+                      name: 'Progress',
+                      properties: { layoutMode: 'Left', anchor: { top: 6 } },
+                      children: [
+                        {
+                          id: 'q-quest1-bar',
+                          type: 'ProgressBar',
+                          name: 'ProgressBar',
+                          properties: { 
+                            anchor: { width: 150, height: 12 },
+                            value: 0.6,
+                            fillColor: '#88ff88',
+                            backgroundColor: '#333333',
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'q-quest1-count',
+                          type: 'Label',
+                          name: 'Count',
+                          properties: { 
+                            text: '3/5',
+                            style: { fontSize: 11, textColor: '#ffffff' },
+                            anchor: { left: 8 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                  ],
+                },
+                // Quest 2: Available
+                {
+                  id: 'q-quest2',
+                  type: 'Button',
+                  name: 'Quest2',
+                  properties: {
+                    anchor: { height: 85, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#1a1a3a(0.8)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#2a2a4a(0.9)' },
+                      pressed: { background: '#3a3a5a(0.95)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'q-quest2-header',
+                      type: 'Group',
+                      name: 'Header',
+                      properties: { layoutMode: 'Left' },
+                      children: [
+                        {
+                          id: 'q-quest2-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: '💎 Collect Ancient Gems',
+                            style: { fontSize: 15, renderBold: true, textColor: '#8888ff' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'q-quest2-status',
+                          type: 'Label',
+                          name: 'Status',
+                          properties: { 
+                            text: 'AVAILABLE',
+                            style: { fontSize: 10, textColor: '#8888ff' },
+                            anchor: { right: 0 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'q-quest2-obj',
+                      type: 'Label',
+                      name: 'Objective',
+                      properties: { 
+                        text: 'Find 10 gems in the Crystal Caves',
+                        style: { fontSize: 12, textColor: '#aaaaaa' },
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                    {
+                      id: 'q-quest2-reward',
+                      type: 'Label',
+                      name: 'Reward',
+                      properties: { 
+                        text: 'Reward: 💰 500 Gold + Magic Ring',
+                        style: { fontSize: 11, textColor: '#ffcc00' },
+                        anchor: { top: 6 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+                // Quest 3: Completed
+                {
+                  id: 'q-quest3',
+                  type: 'Button',
+                  name: 'Quest3',
+                  properties: {
+                    anchor: { height: 70, bottom: 10 },
+                    padding: { full: 12 },
+                    background: { color: '#2a2a2a(0.5)' },
+                    layoutMode: 'Top',
+                    interactiveStyle: {
+                      hovered: { background: '#3a3a3a(0.6)' },
+                      pressed: { background: '#4a4a4a(0.7)' },
+                    },
+                  },
+                  children: [
+                    {
+                      id: 'q-quest3-header',
+                      type: 'Group',
+                      name: 'Header',
+                      properties: { layoutMode: 'Left' },
+                      children: [
+                        {
+                          id: 'q-quest3-name',
+                          type: 'Label',
+                          name: 'Name',
+                          properties: { 
+                            text: '✅ Talk to the Village Elder',
+                            style: { fontSize: 15, textColor: '#666666' },
+                          },
+                          children: [],
+                        },
+                        {
+                          id: 'q-quest3-status',
+                          type: 'Label',
+                          name: 'Status',
+                          properties: { 
+                            text: 'COMPLETED',
+                            style: { fontSize: 10, textColor: '#888888' },
+                            anchor: { right: 0 },
+                          },
+                          children: [],
+                        },
+                      ],
+                    },
+                    {
+                      id: 'q-quest3-obj',
+                      type: 'Label',
+                      name: 'Objective',
+                      properties: { 
+                        text: 'Speak with Elder Thornwood',
+                        style: { fontSize: 12, textColor: '#555555' },
+                        anchor: { top: 4 },
+                      },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Footer
+            {
+              id: 'q-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                padding: { full: 12 },
+                anchor: { height: 55 },
+              },
+              children: [
+                {
+                  id: 'q-back',
+                  type: 'BackButton',
+                  name: 'BackButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'InteractiveCustomUIPage',
+      pageLifetime: 'CanDismiss',
+      className: 'QuestLogPage',
+      uiFilePath: 'Pages/QuestLog.ui',
+    },
+  },
+
+  // Example 5: Character Stats
+  {
+    id: 'example-stats',
+    name: 'Character Stats',
+    description: 'Player stats with progress bars and attributes',
+    category: 'example',
+    preview: '📊',
+    root: {
+      id: 'st-root',
+      type: 'PageOverlay',
+      name: 'PageOverlay',
+      properties: { macro: '$C.@PageOverlay' },
+      children: [
+        {
+          id: 'st-container',
+          type: 'DecoratedContainer',
+          name: 'Container',
+          properties: { 
+            macro: '$C.@DecoratedContainer',
+            anchor: { width: 400, height: 450 },
+            layoutMode: 'Top',
+            padding: { full: 20 },
+          },
+          children: [
+            // Header with name and level
+            {
+              id: 'st-header',
+              type: 'Group',
+              name: 'Header',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 60 },
+              },
+              children: [
+                {
+                  id: 'st-name',
+                  type: 'Label',
+                  name: 'PlayerName',
+                  properties: { 
+                    text: '⚔️ Hero Knight',
+                    style: { fontSize: 22, renderBold: true, textColor: '#ffffff' },
+                    alignment: 'Center',
+                  },
+                  children: [],
+                },
+                {
+                  id: 'st-level',
+                  type: 'Label',
+                  name: 'Level',
+                  properties: { 
+                    text: 'Level 24 Warrior',
+                    style: { fontSize: 14, textColor: '#ffcc00' },
+                    alignment: 'Center',
+                    anchor: { top: 5 },
+                  },
+                  children: [],
+                },
+              ],
+            },
+            // XP Bar
+            {
+              id: 'st-xp',
+              type: 'Group',
+              name: 'XPSection',
+              properties: { 
+                layoutMode: 'Top',
+                anchor: { height: 50 },
+                padding: { top: 10 },
+              },
+              children: [
+                {
+                  id: 'st-xp-label',
+                  type: 'Label',
+                  name: 'XPLabel',
+                  properties: { 
+                    text: 'Experience',
+                    style: { fontSize: 12, textColor: '#aaaaaa' },
+                  },
+                  children: [],
+                },
+                {
+                  id: 'st-xp-bar',
+                  type: 'ProgressBar',
+                  name: 'XPBar',
+                  properties: { 
+                    anchor: { width: 320, height: 18, top: 4 },
+                    value: 0.65,
+                    fillColor: '#66ffcc',
+                    backgroundColor: '#333333',
+                  },
+                  children: [],
+                },
+                {
+                  id: 'st-xp-text',
+                  type: 'Label',
+                  name: 'XPText',
+                  properties: { 
+                    text: '6,500 / 10,000 XP',
+                    style: { fontSize: 11, textColor: '#888888' },
+                    anchor: { top: 2 },
+                  },
+                  children: [],
+                },
+              ],
+            },
+            // Stats
+            {
+              id: 'st-stats',
+              type: 'Group',
+              name: 'StatsSection',
+              properties: { 
+                layoutMode: 'Top',
+                flexWeight: 1,
+                padding: { top: 15 },
+              },
+              children: [
+                // Health
+                {
+                  id: 'st-health',
+                  type: 'Group',
+                  name: 'Health',
+                  properties: { layoutMode: 'Left', anchor: { height: 35, bottom: 10 } },
+                  children: [
+                    {
+                      id: 'st-health-icon',
+                      type: 'Label',
+                      name: 'Icon',
+                      properties: { text: '❤️', style: { fontSize: 16 }, anchor: { width: 30 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-health-label',
+                      type: 'Label',
+                      name: 'Label',
+                      properties: { text: 'Health', style: { fontSize: 14, textColor: '#ffffff' }, anchor: { width: 80 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-health-bar',
+                      type: 'ProgressBar',
+                      name: 'Bar',
+                      properties: { anchor: { width: 150, height: 14 }, value: 0.85, fillColor: '#ff4444', backgroundColor: '#333333' },
+                      children: [],
+                    },
+                    {
+                      id: 'st-health-val',
+                      type: 'Label',
+                      name: 'Value',
+                      properties: { text: '850/1000', style: { fontSize: 12, textColor: '#aaaaaa' }, anchor: { left: 10 } },
+                      children: [],
+                    },
+                  ],
+                },
+                // Mana
+                {
+                  id: 'st-mana',
+                  type: 'Group',
+                  name: 'Mana',
+                  properties: { layoutMode: 'Left', anchor: { height: 35, bottom: 10 } },
+                  children: [
+                    {
+                      id: 'st-mana-icon',
+                      type: 'Label',
+                      name: 'Icon',
+                      properties: { text: '💧', style: { fontSize: 16 }, anchor: { width: 30 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-mana-label',
+                      type: 'Label',
+                      name: 'Label',
+                      properties: { text: 'Mana', style: { fontSize: 14, textColor: '#ffffff' }, anchor: { width: 80 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-mana-bar',
+                      type: 'ProgressBar',
+                      name: 'Bar',
+                      properties: { anchor: { width: 150, height: 14 }, value: 0.45, fillColor: '#4488ff', backgroundColor: '#333333' },
+                      children: [],
+                    },
+                    {
+                      id: 'st-mana-val',
+                      type: 'Label',
+                      name: 'Value',
+                      properties: { text: '225/500', style: { fontSize: 12, textColor: '#aaaaaa' }, anchor: { left: 10 } },
+                      children: [],
+                    },
+                  ],
+                },
+                // Attack
+                {
+                  id: 'st-attack',
+                  type: 'Group',
+                  name: 'Attack',
+                  properties: { layoutMode: 'Left', anchor: { height: 35, bottom: 10 } },
+                  children: [
+                    {
+                      id: 'st-attack-icon',
+                      type: 'Label',
+                      name: 'Icon',
+                      properties: { text: '⚔️', style: { fontSize: 16 }, anchor: { width: 30 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-attack-label',
+                      type: 'Label',
+                      name: 'Label',
+                      properties: { text: 'Attack', style: { fontSize: 14, textColor: '#ffffff' }, anchor: { width: 80 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-attack-val',
+                      type: 'Label',
+                      name: 'Value',
+                      properties: { text: '156', style: { fontSize: 16, renderBold: true, textColor: '#ff8844' } },
+                      children: [],
+                    },
+                  ],
+                },
+                // Defense
+                {
+                  id: 'st-defense',
+                  type: 'Group',
+                  name: 'Defense',
+                  properties: { layoutMode: 'Left', anchor: { height: 35, bottom: 10 } },
+                  children: [
+                    {
+                      id: 'st-defense-icon',
+                      type: 'Label',
+                      name: 'Icon',
+                      properties: { text: '🛡️', style: { fontSize: 16 }, anchor: { width: 30 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-defense-label',
+                      type: 'Label',
+                      name: 'Label',
+                      properties: { text: 'Defense', style: { fontSize: 14, textColor: '#ffffff' }, anchor: { width: 80 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-defense-val',
+                      type: 'Label',
+                      name: 'Value',
+                      properties: { text: '98', style: { fontSize: 16, renderBold: true, textColor: '#44aaff' } },
+                      children: [],
+                    },
+                  ],
+                },
+                // Speed
+                {
+                  id: 'st-speed',
+                  type: 'Group',
+                  name: 'Speed',
+                  properties: { layoutMode: 'Left', anchor: { height: 35, bottom: 10 } },
+                  children: [
+                    {
+                      id: 'st-speed-icon',
+                      type: 'Label',
+                      name: 'Icon',
+                      properties: { text: '⚡', style: { fontSize: 16 }, anchor: { width: 30 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-speed-label',
+                      type: 'Label',
+                      name: 'Label',
+                      properties: { text: 'Speed', style: { fontSize: 14, textColor: '#ffffff' }, anchor: { width: 80 } },
+                      children: [],
+                    },
+                    {
+                      id: 'st-speed-val',
+                      type: 'Label',
+                      name: 'Value',
+                      properties: { text: '72', style: { fontSize: 16, renderBold: true, textColor: '#ffff44' } },
+                      children: [],
+                    },
+                  ],
+                },
+              ],
+            },
+            // Footer
+            {
+              id: 'st-footer',
+              type: 'Group',
+              name: 'Footer',
+              properties: { 
+                layoutMode: 'MiddleCenter',
+                anchor: { height: 50 },
+              },
+              children: [
+                {
+                  id: 'st-back',
+                  type: 'BackButton',
+                  name: 'BackButton',
+                  properties: { macro: '$C.@BackButton' },
+                  children: [],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+    settings: {
+      pageType: 'CustomUIPage',
+      pageLifetime: 'CanDismiss',
+      className: 'CharacterStatsPage',
+      uiFilePath: 'Pages/CharacterStats.ui',
+    },
+  },
+
   // ════════════════════════════════════════════════════════════════════════
   // TEMPLATE 1: Simple Page - Basic dialog with title, content, buttons
   // ════════════════════════════════════════════════════════════════════════
