@@ -50,7 +50,7 @@ function ResizeHandles({
 
 // ─── Check if layout mode uses flow-based positioning ───
 function isFlowLayout(layoutMode: string | undefined): boolean {
-  return ['Top', 'Middle', 'Bottom', 'Left', 'Right', 'MiddleCenter', 'TopLeft', 'TopRight', 'BottomLeft', 'BottomRight', 'TopScrolling', 'MiddleScrolling', 'BottomScrolling'].includes(layoutMode || '');
+  return ['Top', 'Middle', 'Bottom', 'Left', 'MiddleCenter', 'TopLeft', 'TopRight', 'BottomLeft', 'BottomRight', 'TopScrolling', 'LeftScrolling'].includes(layoutMode || '');
 }
 
 // ─── Element Renderer ───
@@ -90,8 +90,12 @@ function CanvasElement({
   // For flow layout elements without explicit size, use 'auto' instead of default 100
   const hasExplicitWidth = anchor.width !== undefined;
   const hasExplicitHeight = anchor.height !== undefined;
-  const width = hasExplicitWidth ? anchor.width : (useFlowPositioning ? 'auto' : 100);
-  const height = hasExplicitHeight ? anchor.height : (useFlowPositioning ? 'auto' : 100);
+  // Numeric values for resize operations
+  const numericWidth = anchor.width ?? 100;
+  const numericHeight = anchor.height ?? 100;
+  // Display values - can be 'auto' for flow layouts
+  const width: number | 'auto' = hasExplicitWidth ? anchor.width! : (useFlowPositioning ? 'auto' : 100);
+  const height: number | 'auto' = hasExplicitHeight ? anchor.height! : (useFlowPositioning ? 'auto' : 100);
   const left = anchor.left ?? 0;
   const top = anchor.top ?? 0;
   const bgColor = element.properties.background?.color || 'transparent';
@@ -123,7 +127,10 @@ function CanvasElement({
     setResizeHandle(handle);
     setDragStart({ x: e.clientX, y: e.clientY });
     setInitialPosition({ left: left, top: top });
-    setInitialSize({ width: width, height: height });
+    // Use numeric values for resize - if element has 'auto' size, get actual size from DOM
+    const actualWidth = width === 'auto' ? (elementRef.current?.offsetWidth ?? numericWidth) : width;
+    const actualHeight = height === 'auto' ? (elementRef.current?.offsetHeight ?? numericHeight) : height;
+    setInitialSize({ width: actualWidth, height: actualHeight });
   };
 
   // ─── Mouse Move (Drag/Resize) with RAF throttling for smooth performance ───
@@ -259,7 +266,7 @@ function CanvasElement({
     // Use relative for root, and for children in flow layouts; absolute for free positioning
     position: isRoot ? 'relative' : (useFlowPositioning ? 'relative' : 'absolute'),
     // Width: explicit value in px, 'auto' for flow layout without explicit width, or stretch to full width for certain layouts
-    width: width === 'auto' ? (isFlowLayout(parentLayoutMode) && ['Top', 'TopScrolling', 'Middle', 'MiddleScrolling', 'Bottom', 'BottomScrolling'].includes(parentLayoutMode || '') ? '100%' : 'auto') : (typeof width === 'number' ? `${width}px` : width),
+    width: width === 'auto' ? (isFlowLayout(parentLayoutMode) && ['Top', 'TopScrolling', 'Middle', 'Bottom'].includes(parentLayoutMode || '') ? '100%' : 'auto') : (typeof width === 'number' ? `${width}px` : width),
     height: height === 'auto' ? 'auto' : (typeof height === 'number' ? `${height}px` : height),
     // Only apply left/top for absolute positioned elements
     left: isRoot || useFlowPositioning ? undefined : `${left}px`,
@@ -300,15 +307,12 @@ function CanvasElement({
       case 'TopScrolling':
         return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' };
       case 'Middle':
-      case 'MiddleScrolling':
         return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'center' };
       case 'Bottom':
-      case 'BottomScrolling':
         return { display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-end' };
       case 'Left':
+      case 'LeftScrolling':
         return { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' };
-      case 'Right':
-        return { display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' };
       case 'MiddleCenter':
         return { display: 'flex', alignItems: 'center', justifyContent: 'center' };
       case 'TopLeft':
@@ -467,7 +471,7 @@ function CanvasElement({
                 key={child.id} 
                 element={child} 
                 depth={depth + 1}
-                parentBounds={{ width, height }}
+                parentBounds={{ width: numericWidth, height: numericHeight }}
                 parentLayoutMode={currentLayoutMode}
                 zoom={zoom}
               />
